@@ -1,0 +1,5 @@
+#!/usr/bin/with-contenv bashio
+# shellcheck shell=bash
+# Called by S6 when the unbound process exits.
+# Exit code 0 = don't restart; let the supervisor know we're done.
+bashio::log.warning "Unbound exited. Stopping add-on."

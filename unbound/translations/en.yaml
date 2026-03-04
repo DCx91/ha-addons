@@ -1,0 +1,49 @@
+configuration:
+  listen_port:
+    name: Listen Port
+    description: >-
+      UDP/TCP port Unbound will listen on. Default 5335 to avoid conflicts
+      with the system resolver. If using Pi-hole, point it here.
+  do_ipv6:
+    name: Enable IPv6
+    description: >-
+      Allow Unbound to listen and resolve over IPv6. Disable if your
+      network has no IPv6.
+  log_level:
+    name: Log Level
+    description: >-
+      Logging verbosity. 0 = silent, 1 = operational, 2 = detailed,
+      3+ = query logging. Higher levels affect performance.
+  cache_min_ttl:
+    name: Cache Minimum TTL (seconds)
+    description: >-
+      Minimum time a DNS record is held in cache. Raising this reduces
+      upstream queries but may delay propagation of DNS changes.
+  cache_max_ttl:
+    name: Cache Maximum TTL (seconds)
+    description: >-
+      Maximum time a DNS record can remain cached regardless of the
+      record's own TTL.
+  prefetch:
+    name: Prefetch Cache Entries
+    description: >-
+      Refreshes frequently accessed cache entries before they expire,
+      reducing latency for popular domains.
+  num_threads:
+    name: Number of Threads
+    description: >-
+      Number of Unbound worker threads. For most home setups 1–2 is
+      sufficient. Match to available CPU cores.
+  verbosity:
+    name: Verbosity
+    description: Alias of log_level for direct unbound verbosity config.
+  access_control:
+    name: Access Control List
+    description: >-
+      List of CIDR subnets allowed to query Unbound, e.g.
+      "192.168.1.0/24 allow". All other sources are refused.
+  custom_config:
+    name: Custom Unbound Config Snippet
+    description: >-
+      Raw Unbound config text appended verbatim to unbound.conf.
+      Useful for advanced options like forward-zone or local-data.

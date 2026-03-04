@@ -1,0 +1,51 @@
+name: Unbound DNS
+version: "1.24.2"
+slug: unbound
+description: >-
+  A validating, recursive, and caching DNS resolver based on the
+  madnuttah/unbound-docker image. Ideal for use alongside Pi-hole or as
+  a standalone private DNS server.
+url: "https://github.com/DCx91/unbound"
+arch:
+  - aarch64
+  - amd64
+startup: system
+init: false
+apparmor: true
+
+# Network
+host_network: true
+
+map:
+  - addon_config:rw
+
+# User-facing options
+options:
+  listen_port: 5335
+  do_ipv6: false
+  log_level: 1
+  cache_min_ttl: 300
+  cache_max_ttl: 86400
+  prefetch: true
+  num_threads: 1
+  verbosity: 1
+  access_control:
+    - "127.0.0.0/8 allow"
+    - "10.0.0.0/8 allow"
+    - "172.16.0.0/12 allow"
+    - "192.168.0.0/16 allow"
+    - "172.30.0.0/16 allow"
+  custom_config: ""
+
+schema:
+  listen_port: int(1,65535)
+  do_ipv6: bool
+  log_level: int(0,5)
+  cache_min_ttl: int(0,3600)
+  cache_max_ttl: int(60,604800)
+  prefetch: bool
+  num_threads: int(1,8)
+  verbosity: int(0,5)
+  access_control:
+    - str
+  custom_config: str

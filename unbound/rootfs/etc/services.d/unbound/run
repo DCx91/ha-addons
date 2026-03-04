@@ -1,0 +1,136 @@
+#!/usr/bin/with-contenv bashio
+# shellcheck shell=bash
+
+bashio::log.info "Starting Unbound DNS add-on..."
+
+# Read options from /data/options.json via bashio
+LISTEN_PORT=$(bashio::config 'listen_port')
+DO_IPV6=$(bashio::config 'do_ipv6')
+LOG_LEVEL=$(bashio::config 'log_level')
+CACHE_MIN_TTL=$(bashio::config 'cache_min_ttl')
+CACHE_MAX_TTL=$(bashio::config 'cache_max_ttl')
+PREFETCH=$(bashio::config 'prefetch')
+NUM_THREADS=$(bashio::config 'num_threads')
+VERBOSITY=$(bashio::config 'verbosity')
+CUSTOM_CONFIG=$(bashio::config 'custom_config')
+
+# Persistent config directory
+CONFIG_DIR="/addon_configs/unbound"
+UNBOUND_CONF="${CONFIG_DIR}/unbound.conf"
+CONF_D_DIR="${CONFIG_DIR}/conf.d"
+ZONES_DIR="${CONFIG_DIR}/zones"
+
+mkdir -p "${CONF_D_DIR}" "${ZONES_DIR}"
+
+# Refresh root hints if older than 7 days
+HINTS_FILE="/etc/unbound/root.hints"
+if [ ! -f "${HINTS_FILE}" ] || \
+   [ "$(find "${HINTS_FILE}" -mtime +7 | wc -l)" -gt 0 ]; then
+    bashio::log.info "Refreshing root hints..."
+    curl -sSL "https://www.internic.net/domain/named.root" \
+        -o "${HINTS_FILE}" \
+    || bashio::log.warning "Could not refresh root hints; using cached copy."
+fi
+
+# Build access-control lines
+ACCESS_CONTROL_LINES=""
+while read -r acl; do
+    ACCESS_CONTROL_LINES+="    access-control: ${acl}"$'\n'
+done < <(jq -r '.access_control[]' /data/options.json)
+
+# Copy root key to writable location if not already there
+if [ ! -f "/addon_configs/unbound/root.key" ]; then
+    cp /etc/unbound/root.key /addon_configs/unbound/root.key
+fi
+
+# Generate main unbound.conf
+bashio::log.info "Generating Unbound configuration..."
+
+cat > "${UNBOUND_CONF}" << EOF
+server:
+    verbosity: ${VERBOSITY}
+    num-threads: ${NUM_THREADS}
+
+    # Interfaces
+    interface: 0.0.0.0
+$([ "${DO_IPV6}" = "true" ] && echo "    interface: ::0@${LISTEN_PORT}")
+    port: ${LISTEN_PORT}
+
+    # Access control
+    access-control: 0.0.0.0/0 refuse
+    access-control: ::0/0 refuse
+${ACCESS_CONTROL_LINES}
+
+    # DNSSEC
+    auto-trust-anchor-file: /addon_configs/unbound/root.key
+    root-hints: /etc/unbound/root.hints
+
+    # Privacy & hardening
+    hide-identity: yes
+    hide-version: yes
+    harden-glue: yes
+    harden-dnssec-stripped: yes
+    harden-below-nxdomain: yes
+    harden-referral-path: yes
+    use-caps-for-id: yes
+    qname-minimisation: yes
+    aggressive-nsec: yes
+    do-not-query-localhost: no
+
+    # Caching
+    cache-min-ttl: ${CACHE_MIN_TTL}
+    cache-max-ttl: ${CACHE_MAX_TTL}
+    prefetch: $([ "${PREFETCH}" = "true" ] && echo "yes" || echo "no")
+    prefetch-key: yes
+    neg-cache-size: 4m
+
+    # Performance
+    so-rcvbuf: 1m
+    msg-cache-slabs: $(echo "2^(${NUM_THREADS} - 1 + 1)" | bc 2>/dev/null || echo 2)
+    rrset-cache-slabs: $(echo "2^(${NUM_THREADS} - 1 + 1)" | bc 2>/dev/null || echo 2)
+    infra-cache-slabs: $(echo "2^(${NUM_THREADS} - 1 + 1)" | bc 2>/dev/null || echo 2)
+    key-cache-slabs: $(echo "2^(${NUM_THREADS} - 1 + 1)" | bc 2>/dev/null || echo 2)
+    rrset-cache-size: 256m
+    msg-cache-size: 128m
+    serve-expired: yes
+
+    # IPv6
+    do-ip6: $([ "${DO_IPV6}" = "true" ] && echo "yes" || echo "no")
+    do-ip4: yes
+    do-udp: yes
+    do-tcp: yes
+
+    # Logging
+    log-queries: $([ "${LOG_LEVEL}" -ge 3 ] && echo "yes" || echo "no")
+    log-replies: $([ "${LOG_LEVEL}" -ge 3 ] && echo "yes" || echo "no")
+    log-tag-queryreply: no
+    logfile: ""
+    use-syslog: no
+
+    # Include user-created config files
+    include-toplevel: "${CONF_D_DIR}/*.conf"
+
+# Remote control (disabled by default for security)
+remote-control:
+    control-enable: no
+EOF
+
+# Append any custom config the user supplied
+if bashio::var.has_value "${CUSTOM_CONFIG}"; then
+    bashio::log.info "Applying custom config snippet..."
+    echo "" >> "${UNBOUND_CONF}"
+    echo "# --- Custom config from addon options ---" >> "${UNBOUND_CONF}"
+    echo "${CUSTOM_CONFIG}" >> "${UNBOUND_CONF}"
+fi
+
+# Validate configuration
+bashio::log.info "Validating configuration..."
+if ! unbound-checkconf "${UNBOUND_CONF}"; then
+    bashio::log.fatal "Unbound configuration is invalid! Check your options."
+    exit 1
+fi
+
+# Launch Unbound
+bashio::log.info "Launching Unbound on port ${LISTEN_PORT}..."
+chown -R unbound:unbound /addon_configs/unbound/
+exec unbound -d -c "${UNBOUND_CONF}"
