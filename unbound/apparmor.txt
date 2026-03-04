@@ -6,9 +6,6 @@ profile unbound flags=(attach_disconnected,mediate_deleted) {
   file,
   signal,
 
-  capability net_bind_service,
-  capability setuid,
-  capability setgid,
   capability sys_chroot,
   capability chown,
 
@@ -43,8 +40,6 @@ profile unbound flags=(attach_disconnected,mediate_deleted) {
     capability net_bind_service,
     capability setgid,
     capability setuid,
-    capability chown,
-    capability sys_chroot,
 
     network inet dgram,
     network inet stream,
