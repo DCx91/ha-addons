@@ -19,6 +19,7 @@ CONFIG_DIR="/addon_configs/unbound"
 UNBOUND_CONF="${CONFIG_DIR}/unbound.conf"
 CONF_D_DIR="${CONFIG_DIR}/conf.d"
 ZONES_DIR="${CONFIG_DIR}/zones"
+ROOT_KEY="${CONFIG_DIR}/root.key"
 
 mkdir -p "${CONF_D_DIR}" "${ZONES_DIR}"
 
@@ -39,8 +40,8 @@ while read -r acl; do
 done < <(jq -r '.access_control[]' /data/options.json)
 
 # Copy root key to writable location if not already there
-if [ ! -f "/addon_configs/unbound/root.key" ]; then
-    cp /etc/unbound/root.key /addon_configs/unbound/root.key
+if [ ! -f "${ROOT_KEY}" ]; then
+    cp /etc/unbound/root.key "${ROOT_KEY}"
 fi
 
 # Generate main unbound.conf
@@ -62,8 +63,8 @@ $([ "${DO_IPV6}" = "true" ] && echo "    interface: ::0@${LISTEN_PORT}")
 ${ACCESS_CONTROL_LINES}
 
     # DNSSEC
-    auto-trust-anchor-file: /addon_configs/unbound/root.key
-    root-hints: /etc/unbound/root.hints
+    auto-trust-anchor-file: "${ROOT_KEY}"
+    root-hints: "${HINTS_FILE}"
 
     # Privacy & hardening
     hide-identity: yes
@@ -132,5 +133,5 @@ fi
 
 # Launch Unbound
 bashio::log.info "Launching Unbound on port ${LISTEN_PORT}..."
-chown -R unbound:unbound /addon_configs/unbound/
+chown -R unbound:unbound "${CONFIG_DIR}"
 exec unbound -d -c "${UNBOUND_CONF}"
