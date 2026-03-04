@@ -3,9 +3,8 @@ version: "1.24.2"
 slug: unbound
 description: >-
   A validating, recursive, and caching DNS resolver based on the
-  madnuttah/unbound-docker image. Ideal for use alongside Pi-hole or as
-  a standalone private DNS server.
-url: "https://github.com/DCx91/unbound"
+  madnuttah/unbound-docker image
+url: "https://github.com/DCx91/ha-addon-unbound"
 arch:
   - aarch64
   - amd64
