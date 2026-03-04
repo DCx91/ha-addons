@@ -46,10 +46,10 @@ It also validates DNSSEC signatures, protecting you from DNS spoofing attacks.
 
 ## Using with Pi-hole or AdGuard Home
 
-Set Pi-hole's upstream DNS server to:
+Set upstream DNS server to:
 
 ```
-<your-HA-IP>#5335
+<your-HA-IP>:5335 or 127.0.0.1:5335
 ```
 
 This routes all DNS queries through Unbound for fully private, recursive
