@@ -11,14 +11,10 @@ arch:
 startup: system
 init: false
 apparmor: true
-
-# Network
 host_network: true
-
 map:
   - addon_config:rw
 
-# User-facing options
 options:
   listen_port: 5335
   do_ipv6: false
