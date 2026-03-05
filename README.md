@@ -1,23 +1,70 @@
-# Home Assistant - Unbound App (Add-on)
+# 🔒 Unbound DNS — Home Assistant Add-on
 
-Home Assistant App repository for **Unbound DNS** — a validating, recursive,
-caching DNS resolver adapted from
-[madnuttah/unbound-docker](https://github.com/madnuttah/unbound-docker).
+> A validating, recursive, and caching DNS resolver for your home network.  
+> No third party. No tracking. Just fast, private DNS.
+
+[![Home Assistant](https://img.shields.io/badge/Home%20Assistant-Add--on-41BDF5?logo=home-assistant&logoColor=white)](https://www.home-assistant.io/)
+[![Alpine Linux](https://img.shields.io/badge/Alpine%20Linux-3.22-0D597F?logo=alpine-linux&logoColor=white)](https://alpinelinux.org/)
+[![Unbound](https://img.shields.io/badge/Unbound-1.23.1-00897B)](https://nlnetlabs.nl/projects/unbound/about/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
+---
+
+## What is Unbound?
+
+Instead of forwarding your DNS queries to Google (8.8.8.8) or Cloudflare (1.1.1.1), **Unbound resolves domains recursively** — walking the DNS hierarchy itself, starting from the root nameservers. No single upstream provider ever sees your full query history.
+
+It also **validates DNSSEC signatures**, protecting against DNS spoofing and cache poisoning attacks.
+
+### Why run it on Home Assistant?
+
+- 🏠 **Always on** — runs alongside your existing HA setup, no extra hardware needed
+- ⚡ **Fast** — responses cached locally, shared across every device on your network
+- 🔏 **Private** — your DNS queries never leave your network
+- 🛡️ **Secure** — full DNSSEC validation out of the box
+- 🧩 **Pi-hole / AdGuard compatible** — use as upstream DNS for your ad blocker
+
+---
 
 ## Installation
 
-Add this repository URL in Home Assistant:
+**Option 1 — One-click:**
 
-**Settings → Add-ons → Add-on Store → ⋮ → Repositories**
+[![Add repository to Home Assistant](https://my.home-assistant.io/badges/supervisor_add_addon_repository.svg)](https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2FDCx91%2Fha-addon-unbound)
 
-Or
+**Option 2 — Manual:**
 
-[![Open your Home Assistant instance and show the add add-on repository dialog with a specific repository URL pre-filled.](https://my.home-assistant.io/badges/supervisor_add_addon_repository.svg)](https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2FDCx91%2Fha-addon-unbound)
+Go to **Settings → Add-ons → Add-on Store → ⋮ → Repositories** and add:
 
-## Add-ons
+```
+https://github.com/DCx91/ha-addon-unbound
+```
 
-### Unbound DNS
+Then find **Unbound DNS** in the store and click **Install**.
 
-Run your own private, recursive DNS resolver with DNSSEC validation.
+---
 
-See the [addon documentation](unbound/DOCS.md) for full details.
+## Using with AdGuard Home / Pi-hole
+
+Set your upstream DNS server to:
+
+```
+127.0.0.1:5335
+```
+
+This routes all queries through Unbound for fully private, recursive resolution — AdGuard/Pi-hole handles blocking, Unbound handles resolution.
+
+---
+
+## Add-ons in this repository
+
+| Add-on | Description |
+|--------|-------------|
+| [**Unbound DNS**](unbound/DOCS.md) | Validating, recursive, caching DNS resolver with DNSSEC |
+
+---
+
+## Credits
+
+Adapted from [madnuttah/unbound-docker](https://github.com/madnuttah/unbound-docker).  
+Unbound is developed by [NLnet Labs](https://nlnetlabs.nl/projects/unbound/about/).
