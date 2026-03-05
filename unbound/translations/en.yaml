@@ -13,7 +13,7 @@ configuration:
     name: Log Level
     description: >-
       Logging verbosity. 0 = silent, 1 = operational, 2 = detailed,
-      3+ = query logging. Higher levels may affect performance.
+      3-5 = query logging. Higher levels may affect performance.
   cache_min_ttl:
     name: Cache Minimum TTL (seconds)
     description: >-
