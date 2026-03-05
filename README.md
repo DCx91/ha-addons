@@ -28,18 +28,6 @@ Then find **Unbound DNS** in the store and click **Install**.
 
 ---
 
-## Using with AdGuard Home / Pi-hole
-
-Set your upstream DNS server to:
-
-```
-127.0.0.1:5335
-```
-
-This routes all queries through Unbound for fully private, recursive resolution — AdGuard/Pi-hole handles blocking, Unbound handles resolution.
-
----
-
 ## Credits
 
 Adapted from [madnuttah/unbound-docker](https://github.com/madnuttah/unbound-docker).
