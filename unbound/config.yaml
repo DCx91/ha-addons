@@ -1,5 +1,5 @@
 name: Unbound DNS
-version: "1.23.1"
+version: "1.24.2"
 slug: unbound
 description: >-
   A validating, recursive, and caching DNS resolver based on the
