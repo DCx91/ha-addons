@@ -33,8 +33,8 @@ schema:
   do_ipv6: bool
   prefetch: bool
   num_threads: int(1,8)
-  cache_min_ttl: int(0,3600)?
-  cache_max_ttl: int(60,604800)?
   access_control:
     - str
-  custom_config: str?
+  cache_min_ttl: int(0,3600)?
+  cache_max_ttl: int(60,604800)?
+  custom_config: str
