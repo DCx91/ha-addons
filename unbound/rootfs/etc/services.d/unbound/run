@@ -3,16 +3,32 @@
 
 bashio::log.info "Starting Unbound DNS add-on..."
 
-# Read options from /data/options.json via bashio
+# Helper for optional config values with defaults
+config_or_default() {
+    local key="$1" default="$2"
+    if bashio::config.has_value "${key}"; then
+        bashio::config "${key}"
+    else
+        echo "${default}"
+    fi
+}
+
+# Read options
+LOG_LEVEL=$(bashio::config 'log_level' | grep -o '^[0-5]')
 LISTEN_PORT=$(bashio::config 'listen_port')
 DO_IPV6=$(bashio::config 'do_ipv6')
-LOG_LEVEL=$(bashio::config 'log_level')
-CACHE_MIN_TTL=$(bashio::config 'cache_min_ttl')
-CACHE_MAX_TTL=$(bashio::config 'cache_max_ttl')
 PREFETCH=$(bashio::config 'prefetch')
+CUSTOM_CONFIG=$(config_or_default 'custom_config' '')
+CACHE_MIN_TTL=$(config_or_default 'cache_min_ttl' '300')
+CACHE_MAX_TTL=$(config_or_default 'cache_max_ttl' '86400')
+
+# Cap threads to CPU core count
+MAX_THREADS=$(nproc)
 NUM_THREADS=$(bashio::config 'num_threads')
-VERBOSITY=$(bashio::config 'verbosity')
-CUSTOM_CONFIG=$(bashio::config 'custom_config')
+if [ "${NUM_THREADS}" -gt "${MAX_THREADS}" ]; then
+    bashio::log.warning "num_threads (${NUM_THREADS}) exceeds available CPU cores (${MAX_THREADS}), capping to ${MAX_THREADS}."
+    NUM_THREADS=${MAX_THREADS}
+fi
 
 # Persistent config directory
 CONFIG_DIR="/addon_configs/unbound"
@@ -39,17 +55,17 @@ while read -r acl; do
     ACCESS_CONTROL_LINES+="    access-control: ${acl}"$'\n'
 done < <(jq -r '.access_control[]' /data/options.json)
 
-# Copy root key to writable location if not already there
+# Copy root key to writable location
 if [ ! -f "${ROOT_KEY}" ]; then
     cp /etc/unbound/root.key "${ROOT_KEY}"
 fi
 
-# Generate main unbound.conf
+# Generate unbound.conf
 bashio::log.info "Generating Unbound configuration..."
 
 cat > "${UNBOUND_CONF}" << EOF
 server:
-    verbosity: ${VERBOSITY}
+    verbosity: ${LOG_LEVEL}
     num-threads: ${NUM_THREADS}
 
     # Interfaces
@@ -69,13 +85,8 @@ ${ACCESS_CONTROL_LINES}
     # Privacy & hardening
     hide-identity: yes
     hide-version: yes
-    harden-glue: yes
-    harden-dnssec-stripped: yes
-    harden-below-nxdomain: yes
     harden-referral-path: yes
     use-caps-for-id: yes
-    qname-minimisation: yes
-    aggressive-nsec: yes
     do-not-query-localhost: no
 
     # Caching
@@ -97,26 +108,18 @@ ${ACCESS_CONTROL_LINES}
 
     # IPv6
     do-ip6: $([ "${DO_IPV6}" = "true" ] && echo "yes" || echo "no")
-    do-ip4: yes
-    do-udp: yes
-    do-tcp: yes
 
     # Logging
     log-queries: $([ "${LOG_LEVEL}" -ge 3 ] && echo "yes" || echo "no")
     log-replies: $([ "${LOG_LEVEL}" -ge 3 ] && echo "yes" || echo "no")
-    log-tag-queryreply: no
     logfile: ""
     use-syslog: no
 
     # Include user-created config files
     include-toplevel: "${CONF_D_DIR}/*.conf"
-
-# Remote control (disabled by default for security)
-remote-control:
-    control-enable: no
 EOF
 
-# Append any custom config the user supplied
+# Apply any custom config
 if bashio::var.has_value "${CUSTOM_CONFIG}"; then
     bashio::log.info "Applying custom config snippet..."
     echo "" >> "${UNBOUND_CONF}"
@@ -128,7 +131,7 @@ fi
 bashio::log.info "Validating configuration..."
 if ! unbound-checkconf "${UNBOUND_CONF}"; then
     bashio::log.fatal "Unbound configuration is invalid! Check your options."
-    exit 1
+    bashio::addon.stop
 fi
 
 # Launch Unbound
