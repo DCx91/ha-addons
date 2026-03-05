@@ -1,4 +1,4 @@
-# 🔒 Unbound DNS — Home Assistant Add-on
+# 🔒 Unbound DNS — Home Assistant App
 
 > A validating, recursive, and caching DNS resolver for your home network.  
 > No third party. No tracking. Just fast, private DNS.
@@ -34,7 +34,7 @@ It also **validates DNSSEC signatures**, protecting against DNS spoofing and cac
 
 **Option 2 — Manual:**
 
-Go to **Settings → Add-ons → Add-on Store → ⋮ → Repositories** and add:
+Go to **Settings → Apps → App Store → ⋮ → Repositories** and add:
 
 ```
 https://github.com/DCx91/ha-addon-unbound
@@ -56,11 +56,11 @@ This routes all queries through Unbound for fully private, recursive resolution 
 
 ---
 
-## Add-ons in this repository
+## Apps in this repository
 
-| Add-on | Description |
+| App | Description |
 |--------|-------------|
-| [**Unbound DNS**](unbound/DOCS.md) | Validating, recursive, caching DNS resolver with DNSSEC |
+| **Unbound DNS** | Validating, recursive, caching DNS resolver with DNSSEC |
 
 ---
 
