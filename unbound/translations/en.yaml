@@ -1,6 +1,6 @@
 configuration:
   listen_port:
-    name: Listen Port
+    name: Port
     description: >-
       UDP/TCP port Unbound will listen on. Default 5335 to avoid conflicts
       with the system resolver.
@@ -12,18 +12,17 @@ configuration:
   log_level:
     name: Log Level
     description: >-
-      Logging verbosity. 0 = silent, 1 = operational, 2 = detailed,
-      3-5 = query logging. Higher levels may affect performance.
+      Logging verbosity. Levels 3+ may significantly affect performance.
   cache_min_ttl:
     name: Cache Minimum TTL (seconds)
     description: >-
       Minimum time a DNS record is held in cache. Raising this reduces
-      upstream queries but may delay propagation of DNS changes.
+      upstream queries but may delay propagation of DNS changes. Default: 300
   cache_max_ttl:
     name: Cache Maximum TTL (seconds)
     description: >-
       Maximum time a DNS record can remain cached regardless of the
-      record's own TTL.
+      record's own TTL. Default: 86400
   prefetch:
     name: Prefetch Cache Entries
     description: >-
@@ -33,17 +32,14 @@ configuration:
     name: Number of Threads
     description: >-
       Number of Unbound worker threads. For most home setups 1–2 is
-      sufficient.
-  verbosity:
-    name: Verbosity
-    description: Alias of log_level for direct unbound verbosity config.
+      sufficient. Max: 8 (or CPU core count)
   access_control:
     name: Access Control List
     description: >-
-      List of CIDR subnets allowed to query Unbound, e.g.
+      List of subnets allowed to query Unbound, e.g.
       "192.168.1.0/24 allow". All other sources are refused.
   custom_config:
     name: Custom Unbound Config Snippet
     description: >-
-      Raw Unbound config text appended verbatim to unbound.conf.
+      Raw Unbound config text appended to unbound.conf.
       Useful for advanced options like forward-zone or local-data. Confirm structure in YAML mode.
