@@ -3,7 +3,7 @@ configuration:
     name: Listen Port
     description: >-
       UDP/TCP port Unbound will listen on. Default 5335 to avoid conflicts
-      with the system resolver. If using Pi-hole, point it here.
+      with the system resolver.
   do_ipv6:
     name: Enable IPv6
     description: >-
@@ -13,7 +13,7 @@ configuration:
     name: Log Level
     description: >-
       Logging verbosity. 0 = silent, 1 = operational, 2 = detailed,
-      3+ = query logging. Higher levels affect performance.
+      3+ = query logging. Higher levels may affect performance.
   cache_min_ttl:
     name: Cache Minimum TTL (seconds)
     description: >-
@@ -33,7 +33,7 @@ configuration:
     name: Number of Threads
     description: >-
       Number of Unbound worker threads. For most home setups 1–2 is
-      sufficient. Match to available CPU cores.
+      sufficient.
   verbosity:
     name: Verbosity
     description: Alias of log_level for direct unbound verbosity config.
@@ -46,4 +46,4 @@ configuration:
     name: Custom Unbound Config Snippet
     description: >-
       Raw Unbound config text appended verbatim to unbound.conf.
-      Useful for advanced options like forward-zone or local-data.
+      Useful for advanced options like forward-zone or local-data. Confirm structure in YAML mode.
