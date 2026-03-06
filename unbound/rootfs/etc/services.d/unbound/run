@@ -21,6 +21,7 @@ PREFETCH=$(bashio::config 'prefetch')
 CUSTOM_CONFIG=$(config_or_default 'custom_config' '')
 CACHE_MIN_TTL=$(config_or_default 'cache_min_ttl' '300')
 CACHE_MAX_TTL=$(config_or_default 'cache_max_ttl' '86400')
+REMOTE=$(config_or_default 'remote' false)
 
 # Cap threads to CPU core count
 MAX_THREADS=$(nproc)
@@ -38,6 +39,21 @@ ZONES_DIR="${CONFIG_DIR}/zones"
 ROOT_KEY="${CONFIG_DIR}/root.key"
 
 mkdir -p "${CONF_D_DIR}" "${ZONES_DIR}"
+
+# If Remote Control enabled, check for required files
+if [ "${REMOTE}" = "true" ]; then
+
+    if [ ! -f "${CONFIG_DIR}/unbound_server.key" ] || \
+       [ ! -f "${CONFIG_DIR}/unbound_server.pem" ] || \
+       [ ! -f "${CONFIG_DIR}/unbound_control.key" ] || \
+       [ ! -f "${CONFIG_DIR}/unbound_control.pem" ]; then
+        bashio::log.info "Remote control enabled. Keys/certs not found. Setting up..."
+        unbound-control-setup
+        cp /etc/unbound/unbound_*.key /etc/unbound/unbound_*.pem "${CONFIG_DIR}/"
+    else
+        bashio::log.info "Remote control enabled. Keys/certs found. Continuing..."
+    fi
+fi
 
 # Refresh root hints if older than 7 days
 HINTS_FILE="/etc/unbound/root.hints"
@@ -70,7 +86,7 @@ server:
 
     # Interfaces
     interface: 0.0.0.0
-$([ "${DO_IPV6}" = "true" ] && echo "    interface: ::0@${LISTEN_PORT}")
+$([ "${DO_IPV6}" = "true" ] && echo "    interface: ::0")
     port: ${LISTEN_PORT}
 
     # Access control
@@ -98,10 +114,10 @@ ${ACCESS_CONTROL_LINES}
 
     # Performance
     so-rcvbuf: 1m
-    msg-cache-slabs: $(echo "2^(${NUM_THREADS} - 1 + 1)" | bc 2>/dev/null || echo 2)
-    rrset-cache-slabs: $(echo "2^(${NUM_THREADS} - 1 + 1)" | bc 2>/dev/null || echo 2)
-    infra-cache-slabs: $(echo "2^(${NUM_THREADS} - 1 + 1)" | bc 2>/dev/null || echo 2)
-    key-cache-slabs: $(echo "2^(${NUM_THREADS} - 1 + 1)" | bc 2>/dev/null || echo 2)
+    msg-cache-slabs: $(echo "2^${NUM_THREADS}" | bc 2>/dev/null || echo 2)
+    rrset-cache-slabs: $(echo "2^${NUM_THREADS}" | bc 2>/dev/null || echo 2)
+    infra-cache-slabs: $(echo "2^${NUM_THREADS}" | bc 2>/dev/null || echo 2)
+    key-cache-slabs: $(echo "2^${NUM_THREADS}" | bc 2>/dev/null || echo 2)
     rrset-cache-size: 256m
     msg-cache-size: 128m
     serve-expired: yes
@@ -117,6 +133,19 @@ ${ACCESS_CONTROL_LINES}
 
     # Include user-created config files
     include-toplevel: "${CONF_D_DIR}/*.conf"
+
+$([ "${REMOTE}" = "true" ] && cat << REMOTE_EOF
+# Remote control
+remote-control:
+    control-enable: yes
+    control-interface: ${CONFIG_DIR}/unbound.control.sock
+    server-key-file: "${CONFIG_DIR}/unbound_server.key"
+    server-cert-file: "${CONFIG_DIR}/unbound_server.pem"
+    control-key-file: "${CONFIG_DIR}/unbound_control.key"
+    control-cert-file: "${CONFIG_DIR}/unbound_control.pem"
+    bashio::log.info "Remote control enabled."
+REMOTE_EOF
+)
 EOF
 
 # Apply any custom config
@@ -136,5 +165,7 @@ fi
 
 # Launch Unbound
 bashio::log.info "Launching Unbound on port ${LISTEN_PORT}..."
-chown -R unbound:unbound "${CONFIG_DIR}"
+chown root:unbound "${CONFIG_DIR}"
+chmod 775 "${CONFIG_DIR}"
+chmod g+s "${CONFIG_DIR}"
 exec unbound -d -c "${UNBOUND_CONF}"
