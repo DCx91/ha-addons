@@ -114,11 +114,7 @@ ${ACCESS_CONTROL_LINES}
 
     # Performance
     so-rcvbuf: 1m
-    msg-cache-slabs: $(echo "2^${NUM_THREADS}" | bc 2>/dev/null || echo 2)
-    rrset-cache-slabs: $(echo "2^${NUM_THREADS}" | bc 2>/dev/null || echo 2)
-    infra-cache-slabs: $(echo "2^${NUM_THREADS}" | bc 2>/dev/null || echo 2)
-    key-cache-slabs: $(echo "2^${NUM_THREADS}" | bc 2>/dev/null || echo 2)
-    rrset-cache-size: 256m
+    set-cache-size: 256m
     msg-cache-size: 128m
     serve-expired: yes
 
