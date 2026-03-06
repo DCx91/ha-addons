@@ -43,3 +43,7 @@ configuration:
     description: >-
       Raw Unbound config text appended to unbound.conf.
       Useful for advanced options like forward-zone or local-data. Confirm structure in YAML mode.
+  remote:
+    name: Remote Control
+    description: >-
+      Enables the unbound-control command. SSH syntax: docker exec -it $(docker ps -q --filter "name=unbound") unbound-control -c /addon_configs/unbound/unbound.conf [command]
