@@ -1,8 +1,4 @@
 #!/usr/bin/with-contenv bashio
-# ==============================================================================
-# Home Assistant Add-on: AIOStreams
-# s6-overlay service finish script — called when the service exits
-# ==============================================================================
 declare exit_code="${1}"
 declare signal="${2}"
 
