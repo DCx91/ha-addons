@@ -45,11 +45,8 @@ else
     HOST_PORT=$(bashio::addon.port "3000/tcp")
     BASE_URL="http://homeassistant.local:${HOST_PORT}"
 fi
-
 LOG_LEVEL=$(config_or_default 'log_level' 'http')
 LOW_RAM=$(config_or_default 'low_ram' false)
-
-bashio::log.info "Reading timezone..."
 LOG_TIMEZONE=$(bashio::info.timezone)
 
 export BASE_URL LOG_LEVEL LOG_TIMEZONE
