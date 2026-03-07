@@ -1,0 +1,55 @@
+#include <tunables/global>
+
+profile aiostreams flags=(attach_disconnected,mediate_deleted) {
+  #include <abstractions/base>
+
+  # Capabilities
+  file,
+  signal (send) set=(kill,term,int,hup,cont),
+
+  # S6-Overlay
+  /init ix,
+  /bin/** ix,
+  /usr/bin/** ix,
+  /run/{s6,s6-rc*,service}/** ix,
+  /package/** ix,
+  /command/** ix,
+  /etc/services.d/** rwix,
+  /etc/cont-init.d/** rwix,
+  /etc/cont-finish.d/** rwix,
+  /run/{,**} rwk,
+  /dev/tty rw,
+
+  # Bashio
+  /usr/lib/bashio/** ix,
+  /tmp/** rwk,
+
+  # Addon data (SQLite database, secret key)
+  /data/** rw,
+
+  # Node.js + pnpm
+  /usr/local/bin/node ix,
+  /usr/local/bin/pnpm ix,
+  /usr/local/bin/pnpx ix,
+  /usr/local/lib/** rm,
+  /usr/local/share/** r,
+
+  # AIOStreams application
+  /app/** r,
+  /app/node_modules/.pnpm/** rm,
+
+  # OpenSSL (used for secret key generation)
+  /usr/bin/openssl ix,
+  /etc/ssl/** r,
+  /etc/ca-certificates/** r,
+  /usr/share/ca-certificates/** r,
+
+  # Proc access needed by Node.js
+  @{PROC}/@{pid}/fd/ r,
+  @{PROC}/@{pid}/stat r,
+  @{PROC}/sys/kernel/random/uuid r,
+
+  # Network (outbound HTTP/HTTPS to Trakt, TMDB, addon APIs etc.)
+  network inet stream,
+  network inet6 stream,
+}
