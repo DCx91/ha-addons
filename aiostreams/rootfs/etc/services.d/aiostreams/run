@@ -85,7 +85,7 @@ bashio::log.info "Log Level: ${LOG_LEVEL}"
 bashio::log.info "Timezone : ${LOG_TIMEZONE}"
 bashio::log.info "Low RAM  : ${LOW_RAM}"
 bashio::log.info "Password : $(bashio::config.has_value 'addon_password' && echo 'enabled' || echo 'disabled')"
-bashio::log.info "Trakt    : $(bashio::config.has_value 'trakt_api' && echo 'configured' || echo 'not set (aliases disabled)')"
+bashio::log.info "Trakt    : $(bashio::config.has_value 'trakt_id' && echo 'configured' || echo 'not set (aliases disabled)')"
 
 cd /app
 exec pnpm run start
