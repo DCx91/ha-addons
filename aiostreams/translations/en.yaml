@@ -44,7 +44,7 @@ configuration:
       Leave empty to disable password protection.
       Can be any string. Supports multiple passwords separated by commas.
   trakt_id:
-    name: Trakt API Key
+    name: Trakt Client ID
     description: >-
       Provide a trakt client ID for authorised requests to get trakt aliases.
       You can create a key here: https://trakt.tv/oauth/applications
