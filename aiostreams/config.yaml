@@ -2,9 +2,9 @@ name: AIOStreams
 version: "2.0.5"
 slug: aiostreams
 description: >-
-  AIOStreams consolidates multiple Stremio addons
-  and debrid services into a single, highly customisable super-addon.
-url: https://github.com/DCx91/ha-addons
+  Consolidates multiple Stremio addons and debrid 
+  services into a single, highly customisable addon.
+url: https://github.com/DCx91/ha-addons/aiostreams
 arch:
   - amd64
   - aarch64
