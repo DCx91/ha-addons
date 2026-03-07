@@ -1,59 +1,38 @@
 configuration:
-  secret_key:
-    name: Secret Key
-    description: >-
-      64-character hex key used to encrypt addon configurations. Leave blank to
-      auto-generate one on first start. If you change this, all existing user
-      configurations will be invalidated.
-  base_url:
-    name: Base URL
-    description: >-
-      The public URL of this addon, e.g. https://[domain].duckdns.org.
-      HTTPS is required for built-in addons, install links, and stream URL generation
-      to work correctly. 
-  log_level:
-    name: Log Level
-    description: >-
-      Verbosity of addon logs. 'info' is recommended for normal use. Use
-      'debug' or 'verbose' when troubleshooting issues.
-  proxy_id:
-    name: Stream Proxy Type
-    description: >-
-      The stream proxy service to use for proxying media playback. Requires
-      a running instance of either MediaFlow Proxy or StremThru.
-  proxy_url:
-    name: Stream Proxy URL
-    description: >-
-      The URL of your MediaFlow or StremThru instance, used to proxy media
-      streams during playback. Leave blank to disable stream proxying.
-  proxy_credentials:
-    name: Stream Proxy Credentials
-    description: >-
-      Credentials for your stream proxy in username:password format.
-      Leave blank if your proxy does not require authentication.
-  addon_proxy:
-    name: Outgoing Request Proxy
-    description: >-
-      An HTTP proxy URL for outgoing requests from AIOStreams to upstream
-      addons such as Torrentio. Only needed if your server's IP is blocked
-      by an upstream service, e.g. http://warp:1080.
-  addon_password:
-    name: Addon Password
-    description: >-
-      API key to protect your addon installation and usage.
-      Leave empty to disable password protection.
-      Can be any string. Supports multiple passwords separated by commas.
-  trakt_id:
-    name: Trakt Client ID
-    description: >-
-      Provide a trakt client ID for authorised requests to get trakt aliases.
-      You can create a key here: https://trakt.tv/oauth/applications
-  low_ram:
-    name: Reduced Memory Consumption
-    description: >-
-      Reduces the cache size to reduce memory use, also reduces the level of
-      detail loaded from the Anime API to none to avoid crashes.
-  sensitive_info:
-     name: Sensitive info
-     description: >-
-       Includes potentially sensitive info (like API keys) in logs for debugging.
+    base_url:
+        name: Base URL
+        description: >-
+            The public URL of this addon, e.g. https://[domain].duckdns.org.
+            HTTPS is required for built-in addons, install links, and stream URL generation
+            to work correctly. 
+    log_level:
+        name: Log Level
+        description: >-
+            Verbosity of addon logs. 'info' is recommended for normal use. Use
+            'debug' or 'verbose' when troubleshooting issues.
+    trakt_id:
+        name: Trakt Client ID
+        description: >-
+            Provide a trakt client ID for authorised requests to get trakt aliases.
+            You can create a key here: https://trakt.tv/oauth/applications
+    addon_password:
+        name: Addon Password
+        description: >-
+            API key to protect your addon installation and usage.
+            Leave empty to disable password protection.
+            Can be any string. Supports multiple passwords separated by commas.
+    low_ram:
+        name: Reduced Memory Consumption
+        description: >-
+            Reduces the cache size to reduce memory use, also reduces the level of
+            Anime loaded into the database to none.
+    sensitive_info:
+        name: Sensitive info
+        description: >-
+            Includes potentially sensitive info (like API keys) in logs for debugging.
+    secret_key:
+        name: Secret Key
+        description: >-
+            64-character hex key used to encrypt addon configurations. Leave blank to
+            auto-generate one on first start. If you change this, all existing user
+            configurations will be invalidated.
