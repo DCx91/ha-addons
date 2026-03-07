@@ -1,7 +1,7 @@
-# AIOStreams — Home Assistant Add-on
+# AIOStreams — Home Assistant App
 
-One addon to rule them all. Runs [AIOStreams](https://github.com/Viren070/AIOStreams) as a
-Home Assistant add-on so you can self-host it alongside your HA instance.
+Runs [AIOStreams](https://github.com/Viren070/AIOStreams) as a
+Home Assistant app so you can self-host it alongside your HA instance.
 
 ---
 
@@ -16,37 +16,20 @@ Home Assistant add-on so you can self-host it alongside your HA instance.
 
 ## Configuration
 
-| Option | Required | Description |
+| Option | Recommended | Description |
 |---|---|---|
-| `secret_key` | ✅ | 64-character hex key. Generate with `openssl rand -hex 32`. |
-| `base_url` | ✅ | Public URL of this addon, e.g. `http://homeassistant.local:3000`. |
-| `addon_password` | No | Password(s) protecting your instance (comma-separated). |
-| `log_level` | No | `error` / `warn` / `info` / `http` / `verbose` / `debug` / `silly`. Default: `http`. |
-| `log_timezone` | No | e.g. `Europe/London`. Default: `Etc/UTC`. |
-| `addon_name` | No | Display name. Default: `AIOStreams`. |
-| `addon_id` | No | Unique identifier. Default: `aiostreams.viren070.com`. |
-| `tmdb_access_token` | No | TMDB token for the Title Matching filter. |
-| `builtin_stremthru_url` | No | StremThru URL for built-in addons. |
-| `proxy_id` | No | `mediaflow` or `stremthru`. |
-| `proxy_url` | No | URL of your MediaFlow / StremThru proxy. |
-| `proxy_credentials` | No | Proxy credentials: `username:password`. |
-| `addon_proxy` | No | HTTP proxy for outgoing requests (if your HA IP is blocked upstream). |
-
-### Generating a secret key
-
-```bash
-openssl rand -hex 32
-```
+| `base_url` | ✅ | Public URL of this addon, e.g. `https://[domain].duckdns.org`. Addons may require HTTPS. Default: `http://homeassistant.local:3000`|
+| `log_level` | 🟡 | `error` / `warn` / `info` / `http` / `verbose` / `debug` / `silly`. Default: `info`. |
+| `trakt_id` | ✅ | Provide a Trakt client ID for authorised requests to get trakt aliases. Create one here: https://trakt.tv/oauth/applications |
+| `low_ram` | 🟡 | Reduces cache size & prevents anime db entries to reduce memory consumption. Default: `false` |
+| `addon_password` | ✅ | Password(s) protecting your instance (comma-separated). |
+| `secret_key` | 🟡 | 64-character hex key. Generate with `openssl rand -hex 32`. Default: `blank` (auto-generate) |
 
 ---
 
 ## Accessing the UI
 
-Open `http://homeassistant.local:3000/stremio/configure` to set up AIOStreams and install it into Stremio.
-
-## Data Persistence
-
-All data is stored in the addon's `/data` directory and is included in HA backups automatically.
+Click `Open web UI` to set up AIOStreams and install it into Stremio.
 
 ---
 
