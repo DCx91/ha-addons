@@ -1,0 +1,86 @@
+#!/usr/bin/with-contenv bashio
+# shellcheck shell=bash
+
+# Persistent storage
+mkdir -p /data
+export DATABASE_URI="sqlite:///data/db.sqlite"
+
+# Helper for optional config values with defaults
+config_or_default() {
+    local key="$1" default="$2"
+    if bashio::config.has_value "${key}"; then
+        bashio::config "${key}"
+    else
+        echo "${default}"
+    fi
+}
+
+# Secret key - use the value from config if set, otherwise auto-generate
+# and persist it to /data/secret_key so it survives restarts.
+SECRET_KEY_FILE="/data/secret_key"
+
+bashio::log.info "Checking secret key..."
+if bashio::config.has_value 'secret_key'; then
+    SECRET_KEY=$(bashio::config 'secret_key')
+    bashio::log.info "Using secret_key from addon configuration."
+else
+    if [[ -f "${SECRET_KEY_FILE}" ]]; then
+        SECRET_KEY=$(cat "${SECRET_KEY_FILE}")
+        bashio::log.info "Using existing auto-generated secret_key from ${SECRET_KEY_FILE}."
+    else
+        bashio::log.info "Generating new secret_key..."
+        SECRET_KEY=$(openssl rand -hex 32)
+        echo "${SECRET_KEY}" > "${SECRET_KEY_FILE}"
+        chmod 600 "${SECRET_KEY_FILE}"
+        bashio::log.info "Generated new secret_key and saved to ${SECRET_KEY_FILE}."
+    fi
+fi
+export SECRET_KEY="${SECRET_KEY}"
+
+# Map addon options to AIOStreams environment variables
+bashio::log.info "Reading configuration..."
+if bashio::config.has_value 'base_url'; then
+    BASE_URL=$(bashio::config 'base_url')
+else
+    HOST_PORT=$(bashio::addon.port "3000/tcp")
+    BASE_URL="http://homeassistant.local:${HOST_PORT}"
+fi
+
+LOG_LEVEL=$(config_or_default 'log_level' 'http')
+LOW_RAM=$(config_or_default 'low_ram' false)
+
+bashio::log.info "Reading timezone..."
+LOG_TIMEZONE=$(bashio::info.timezone)
+
+export BASE_URL LOG_LEVEL LOG_TIMEZONE
+export PORT="3000"
+export ADDON_NAME="AIOStreams"
+export ADDON_ID="aiostreams"
+export BUILTIN_STREMTHRU_URL="https://stremthru.13377001.xyz"
+export LOG_SENSITIVE_INFO=false
+
+# Add Trakt API key (if configured)
+if bashio::config.has_value 'trakt_api'; then
+    export TRAKT_CLIENT_ID="$(bashio::config 'trakt_api')"
+else
+	export FETCH_TRAKT_ALIASES=false
+fi
+
+# Reduce memory consumption (if enabled)
+if [[ "${LOW_RAM}" = true ]]; then
+	export DEFAULT_MAX_CACHE_SIZE=1000
+	export ANIME_DB_LEVEL_OF_DETAIL=none
+	export NODE_OPTIONS="--max-old-space-size=256"
+fi
+
+# Start AIOStreams
+bashio::log.info "Starting AIOStreams..."
+bashio::log.info "Base URL : ${BASE_URL}"
+bashio::log.info "Port     : ${PORT}"
+bashio::log.info "Database : ${DATABASE_URI}"
+bashio::log.info "Log Level: ${LOG_LEVEL}"
+bashio::log.info "Timezone : ${LOG_TIMEZONE}"
+bashio::log.info "Low RAM  : ${LOW_RAM}"
+
+cd /app
+exec pnpm run start

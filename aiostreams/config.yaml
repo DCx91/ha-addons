@@ -1,0 +1,35 @@
+name: AIOStreams
+version: "2.0.5"
+slug: aiostreams
+description: >-
+  AIOStreams consolidates multiple Stremio addons
+  and debrid services into a single, highly customisable super-addon.
+url: https://github.com/DCx91/ha-addons
+arch:
+  - amd64
+  - aarch64
+init: false
+
+ports:
+  3000/tcp: 3000
+ports_description:
+  3000/tcp: AIOStreams Web UI & Stremio Addon endpoint
+
+webui: http://[HOST]:[PORT:3000]/
+  
+map:
+  - data:rw
+
+options:
+  base_url: ""
+  log_level: "info"
+  trakt_id: ""
+
+schema:
+  base_url: str?
+  log_level: list(error|warn|info|http|verbose|debug|silly)
+  trakt_id: str?
+  low_ram: bool?
+  addon_password: password
+  secret_key: str?
+  
