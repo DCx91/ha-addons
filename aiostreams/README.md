@@ -23,6 +23,7 @@ Home Assistant app so you can self-host it alongside your HA instance.
 | `trakt_id` | ✅ | Provide a Trakt client ID for authorised requests to get trakt aliases. Create one here: https://trakt.tv/oauth/applications |
 | `low_ram` | 🟡 | Reduces cache size & prevents anime db entries to reduce memory consumption. Default: `false` |
 | `addon_password` | ✅ | Password(s) protecting your instance (comma-separated). |
+| `sensitive_info` | ❌ | Includes potentially sensitive info (like API keys) in logs for debugging. |
 | `secret_key` | 🟡 | 64-character hex key. Generate with `openssl rand -hex 32`. Default: `blank` (auto-generate) |
 
 ---
