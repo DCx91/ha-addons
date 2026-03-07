@@ -36,4 +36,4 @@ schema:
   remote: bool?
   cache_min_ttl: int(0,3600)?
   cache_max_ttl: int(60,604800)?
-  custom_config: str
+  custom_config: str?
