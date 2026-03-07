@@ -141,7 +141,6 @@ remote-control:
     server-cert-file: "${CONFIG_DIR}/unbound_server.pem"
     control-key-file: "${CONFIG_DIR}/unbound_control.key"
     control-cert-file: "${CONFIG_DIR}/unbound_control.pem"
-    bashio::log.info "Remote control enabled."
 REMOTE_EOF
 )
 EOF
