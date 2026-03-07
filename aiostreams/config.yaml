@@ -24,12 +24,13 @@ options:
   base_url: ""
   log_level: "info"
   trakt_id: ""
+  addon_password: ""
 
 schema:
   base_url: str?
   log_level: list(error|warn|info|http|verbose|debug|silly)
   trakt_id: str?
+  addon_password: password?
   low_ram: bool?
-  addon_password: password
   secret_key: str?
   
