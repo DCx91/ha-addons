@@ -32,5 +32,5 @@ schema:
   trakt_id: str?
   addon_password: password?
   low_ram: bool?
+  sensitive_info: bool?
   secret_key: str?
-  
