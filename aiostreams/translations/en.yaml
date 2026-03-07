@@ -53,3 +53,7 @@ configuration:
     description: >-
       Reduces the cache size to reduce memory use, also reduces the level of
       detail loaded from the Anime API to none to avoid crashes.
+  sensitive_info:
+     name: Sensitive info
+     description: >-
+       Includes potentially sensitive info (like API keys) in logs for debugging.
