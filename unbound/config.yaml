@@ -3,7 +3,7 @@ version: "1.24.2"
 slug: unbound
 description: >-
   A validating, recursive, and caching DNS resolver
-url: "https://github.com/DCx91/ha-addons/unbound
+url: "https://github.com/DCx91/ha-addons/unbound"
 arch:
   - aarch64
   - amd64
