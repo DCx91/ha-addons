@@ -27,3 +27,7 @@ COPY rootfs /
 RUN chmod +x /etc/services.d/unbound/run \
     && chmod +x /etc/services.d/unbound/finish \
     && chmod +x /usr/local/bin/unbound-healthcheck.sh
+
+# Test connectivity
+HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
+    CMD /usr/local/bin/unbound-healthcheck.sh
