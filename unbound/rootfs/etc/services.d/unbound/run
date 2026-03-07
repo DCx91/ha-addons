@@ -50,6 +50,8 @@ if [ "${REMOTE}" = "true" ]; then
         bashio::log.info "Remote control enabled. Keys/certs not found. Setting up..."
         unbound-control-setup
         cp /etc/unbound/unbound_*.key /etc/unbound/unbound_*.pem "${CONFIG_DIR}/"
+        chown unbound:unbound "${CONFIG_DIR}"/unbound_*.key "${CONFIG_DIR}"/unbound_*.pem
+		chmod 640 "${CONFIG_DIR}"/unbound_*.key "${CONFIG_DIR}"/unbound_*.pem
     else
         bashio::log.info "Remote control enabled. Keys/certs found. Continuing..."
     fi
@@ -168,7 +170,5 @@ bashio::log.info "IPv6     : ${DO_IPV6}"
 bashio::log.info "Threads  : ${NUM_THREADS}"
 bashio::log.info "Min TTL  : ${CACHE_MIN_TTL}s"
 bashio::log.info "Max TTL  : ${CACHE_MAX_TTL}s"
-chown root:unbound "${CONFIG_DIR}"
-chmod 775 "${CONFIG_DIR}"
-chmod g+s "${CONFIG_DIR}"
+chown -R unbound:unbound "${CONFIG_DIR}"
 exec unbound -d -c "${UNBOUND_CONF}"
