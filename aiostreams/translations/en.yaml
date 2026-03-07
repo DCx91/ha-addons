@@ -24,8 +24,8 @@ configuration:
   low_ram:
     name: Reduced Memory Consumption
     description: >-
-      Reduces the cache size to reduce memory use, also reduces the level of
-      Anime loaded into the database to none.
+      Reduces memory consumption by ~100MB by reducing the cache size and preventing
+      anime from being pre-loaded into the database on boot.
   sensitive_info:
     name: Sensitive info
     description: >-
