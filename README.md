@@ -7,6 +7,8 @@
 | App | Description |
 |--------|-------------|
 | [**Unbound DNS**](unbound/README.md) | Validating, recursive, caching DNS resolver with DNSSEC |
+| [**AIOStreams**](aiostreams/README.md) | Self-hosted AIOStreams addon for Stremio |
+
 
 ---
 
