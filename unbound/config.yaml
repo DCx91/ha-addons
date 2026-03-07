@@ -3,7 +3,7 @@ version: "1.24.2"
 slug: unbound
 description: >-
   A validating, recursive, and caching DNS resolver
-url: "https://github.com/DCx91/ha-addon-unbound"
+url: "https://github.com/DCx91/ha-addons/unbound
 arch:
   - aarch64
   - amd64
@@ -12,10 +12,10 @@ init: false
 host_network: true
 map:
   - addon_config:rw
-
+apparmor: true
 options:
   log_level: "1 - Operational"
-  listen_port: 5353
+  listen_port: 5335
   do_ipv6: false
   prefetch: true
   num_threads: 1
@@ -25,7 +25,6 @@ options:
     - "172.16.0.0/12 allow"
     - "192.168.0.0/16 allow"
     - "172.30.0.0/16 allow"
-
 schema:
   log_level: list(0 - Error|1 - Operational|2 - Detailed|3 - Query|4 - Algorithm|5 - Cache Misses)?
   listen_port: int(1,65535)
