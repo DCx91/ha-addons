@@ -54,16 +54,22 @@ export PORT="3000"
 export ADDON_NAME="AIOStreams"
 export ADDON_ID="aiostreams"
 export BUILTIN_STREMTHRU_URL="https://stremthru.13377001.xyz"
-export LOG_SENSITIVE_INFO=false
+export LOG_SENSITIVE_INFO="$(config_or_default 'sensitive_info' false)"
 
-# Add Trakt API key (if configured)
+# Optional configuration
+# Password protection
+if bashio::config.has_value 'addon_password'; then
+    export ADDON_PASSWORD="$(bashio::config 'addon_password')"
+fi
+
+# Trakt API key
 if bashio::config.has_value 'trakt_api'; then
     export TRAKT_CLIENT_ID="$(bashio::config 'trakt_api')"
 else
 	export FETCH_TRAKT_ALIASES=false
 fi
 
-# Reduce memory consumption (if enabled)
+# Reduced memory consumption
 if [[ "${LOW_RAM}" = true ]]; then
 	export DEFAULT_MAX_CACHE_SIZE=1000
 	export ANIME_DB_LEVEL_OF_DETAIL=none
