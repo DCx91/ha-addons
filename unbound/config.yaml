@@ -2,8 +2,7 @@ name: Unbound DNS
 version: "1.24.2"
 slug: unbound
 description: >-
-  A validating, recursive, and caching DNS resolver based on the
-  madnuttah/unbound-docker image
+  A validating, recursive, and caching DNS resolver
 url: "https://github.com/DCx91/ha-addon-unbound"
 arch:
   - aarch64
@@ -32,7 +31,7 @@ schema:
   listen_port: int(1,65535)
   do_ipv6: bool
   prefetch: bool
-  num_threads: int(1,8)
+  num_threads: int(1,32)
   access_control:
     - str
   remote: bool?
