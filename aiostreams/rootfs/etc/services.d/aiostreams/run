@@ -62,9 +62,9 @@ if bashio::config.has_value 'addon_password'; then
     export ADDON_PASSWORD="$(bashio::config 'addon_password')"
 fi
 
-# Trakt API key
-if bashio::config.has_value 'trakt_api'; then
-    export TRAKT_CLIENT_ID="$(bashio::config 'trakt_api')"
+# Trakt Client ID
+if bashio::config.has_value 'trakt_id'; then
+    export TRAKT_CLIENT_ID="$(bashio::config 'trakt_id')"
 else
 	export FETCH_TRAKT_ALIASES=false
 fi
