@@ -56,6 +56,14 @@ This routes all queries through Unbound for fully private, recursive resolution 
 
 ---
 
+## Check health
+
+Using SSH:
+
+```
+docker ps | grep "unbound"
+```
+
 ## Apps in this repository
 
 | App | Description |
