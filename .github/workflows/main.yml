@@ -1,0 +1,37 @@
+name: Update AIOStreams version
+on:
+  schedule:
+    - cron: '0 6 * * *'  # Daily at 6am
+  workflow_dispatch:
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Get latest upstream version
+        id: upstream
+        run: |
+          VERSION=$(curl -s https://api.github.com/repos/Viren070/AIOStreams/releases/latest \
+            | jq -r .tag_name | sed 's/^v//')
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Get current addon version
+        id: current
+        run: |
+          VERSION=$(grep '^version:' aiostreams/config.yaml | awk '{print $2}' | tr -d '"')
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Bump version if outdated
+        if: steps.upstream.outputs.version != steps.current.outputs.version
+        run: |
+          sed -i 's/^version: .*/version: "${{ steps.upstream.outputs.version }}"/' aiostreams/config.yaml
+
+      - name: Commit and push
+        if: steps.upstream.outputs.version != steps.current.outputs.version
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git commit -am "Update AIOStreams to v${{ steps.upstream.outputs.version }}"
+          git push
