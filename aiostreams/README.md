@@ -17,7 +17,7 @@ Once installed, click **Open Web UI** to configure AIOStreams and install it int
 
 ## Configuration
 
-| Option | Required | Description |
+| Option | Recommended | Description |
 |---|:---:|---|
 | `base_url` | ✅ | Public URL of this add-on, e.g. `https://[domain].duckdns.org`. Most addons require HTTPS. Defaults to `http://homeassistant.local:3000`. |
 | `addon_password` | ✅ | Password(s) protecting your instance. Comma-separate multiple passwords. |
