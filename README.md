@@ -1,6 +1,7 @@
 # 🏠 Home Assistant Apps
 
----
+
+Community add-on repository for Home Assistant.
 
 ## Apps in this repository
 
@@ -23,10 +24,10 @@
 Go to **Settings → Apps → App Store → ⋮ → Repositories** and add:
 
 ```
-https://github.com/DCx91/ha-addon-unbound
+https://github.com/DCx91/ha-addons
 ```
 
-Then find **Unbound DNS** in the store and click **Install**.
+Then find your desired app in the store and click **Install**.
 
 ---
 
@@ -34,5 +35,4 @@ Then find **Unbound DNS** in the store and click **Install**.
 
 - Unbound app adapted from [madnuttah/unbound-docker](https://github.com/madnuttah/unbound-docker).
 Unbound is developed by [NLnet Labs](https://nlnetlabs.nl/projects/unbound/about/).
-
 - AIOStreams app adapted from [Viren070/AIOStreams](https://github.com/Viren070/aiostreams).
