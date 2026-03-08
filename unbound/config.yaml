@@ -9,7 +9,9 @@ arch:
   - amd64
 startup: system
 init: false
-host_network: true
+ports:
+  5335/udp: 5335
+  5335/tcp: 5335
 map:
   - addon_config:rw
 apparmor: true
