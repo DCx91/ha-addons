@@ -37,7 +37,7 @@ It also **validates DNSSEC signatures**, protecting against DNS spoofing and cac
 Go to **Settings → Apps → App Store → ⋮ → Repositories** and add:
 
 ```
-https://github.com/DCx91/ha-addon-unbound
+https://github.com/DCx91/ha-addons
 ```
 
 Then find **Unbound DNS** in the store and click **Install**.
@@ -63,12 +63,6 @@ Using SSH:
 ```
 docker ps | grep "unbound"
 ```
-
-## Apps in this repository
-
-| App | Description |
-|--------|-------------|
-| **Unbound DNS** | Validating, recursive, caching DNS resolver with DNSSEC |
 
 ---
 
