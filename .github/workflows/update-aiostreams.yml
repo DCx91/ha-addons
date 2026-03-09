@@ -23,15 +23,23 @@ jobs:
           VERSION=$(grep '^version:' aiostreams/config.yaml | awk '{print $2}' | tr -d '"')
           echo "version=$VERSION" >> $GITHUB_OUTPUT
 
-      - name: Bump version if outdated
-        if: steps.upstream.outputs.version != steps.current.outputs.version
-        run: |
-          sed -i 's/^version: .*/version: "${{ steps.upstream.outputs.version }}"/' aiostreams/config.yaml
-
-      - name: Commit and push
+      - name: Bump version and open PR
         if: steps.upstream.outputs.version != steps.current.outputs.version
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
+          git checkout -b update/aiostreams-v${{ steps.upstream.outputs.version }}
+          sed -i 's/^version: .*/version: "${{ steps.upstream.outputs.version }}"/' aiostreams/config.yaml
           git commit -am "Update AIOStreams to v${{ steps.upstream.outputs.version }}"
-          git push
+          git push origin update/aiostreams-v${{ steps.upstream.outputs.version }}
+
+      - name: Create pull request
+        if: steps.upstream.outputs.version != steps.current.outputs.version
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh pr create \
+            --title "Update AIOStreams to v${{ steps.upstream.outputs.version }}" \
+            --body "Upstream [v${{ steps.upstream.outputs.version }}](https://github.com/Viren070/AIOStreams/releases/tag/v${{ steps.upstream.outputs.version }}) is now available." \
+            --base main \
+            --head update/aiostreams-v${{ steps.upstream.outputs.version }}
