@@ -1,7 +1,7 @@
 # 🏠 Home Assistant Apps
 
 
-Community add-on repository for Home Assistant.
+Community app repository for Home Assistant.
 
 ## Apps in this repository
 
