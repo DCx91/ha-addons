@@ -52,6 +52,8 @@ Set your upstream DNS server to:
 127.0.0.1:5335
 ```
 
+Afterwards, clear DNS cache and disable caching. Unbound will then take over caching.
+
 This routes all queries through Unbound for fully private, recursive resolution — AdGuard/Pi-hole handles blocking, Unbound handles resolution.
 
 ---
