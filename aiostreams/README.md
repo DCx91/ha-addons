@@ -2,6 +2,13 @@
 
 > Self-hosted [AIOStreams](https://github.com/Viren070/AIOStreams) running as a Home Assistant add-on — aggregate, filter, and sort streams from multiple Stremio addons and debrid services in one place.
 
+[![Home Assistant](https://img.shields.io/badge/Home%20Assistant-App-41BDF5?logo=home-assistant&logoColor=white)](https://www.home-assistant.io/)
+[![Alpine Linux](https://img.shields.io/badge/Alpine%20Linux-3.23-0D597F?logo=alpine-linux&logoColor=white)](https://alpinelinux.org/)
+[![AIOStreams](https://img.shields.io/badge/dynamic/yaml?url=https%3A%2F%2Fraw.githubusercontent.com%2FDCx91%2Fha-addons%2Frefs%2Fheads%2Fmain%2Faiostreams%2Fconfig.yaml&query=%24.version&label=AIOStreams)](https://github.com/Viren070/AIOStreams)
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
+
 ---
 
 ## Installation
