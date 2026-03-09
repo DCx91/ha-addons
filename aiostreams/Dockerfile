@@ -5,8 +5,8 @@ RUN apk add --no-cache \
     nodejs \
     npm \
     openssl \
-    libstdc++
-RUN npm install -g pnpm
+    libstdc++ \
+ && npm install -g pnpm
 COPY --from=aiostreams /app /app
 COPY rootfs /
 RUN chmod a+x /etc/services.d/aiostreams/run \
