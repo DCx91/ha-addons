@@ -1,0 +1,45 @@
+name: Check Alpine Unbound Version
+
+on:
+  schedule:
+    - cron: '0 8 * * *'  # Daily at 8am
+  workflow_dispatch:
+
+jobs:
+  check-unbound-version:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Get current Unbound version from Alpine
+        id: alpine
+        run: |
+          VERSION=$(curl -sSL "https://pkgs.alpinelinux.org/packages?name=unbound&branch=edge&arch=x86_64&format=json" \
+            | jq -r '.[0].version' \
+            | grep -oP '^[\d.]+')
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+
+      - name: Get current version from config.yaml
+        id: current
+        run: |
+          VERSION=$(grep '^version:' config.yaml | grep -oP '[\d.]+')
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+
+      - name: Update config.yaml if version changed
+        if: steps.alpine.outputs.version != steps.current.outputs.version
+        run: |
+          NEW="${{ steps.alpine.outputs.version }}"
+          sed -i "s/^version: .*/version: \"${NEW}\"/" config.yaml
+
+      - name: Open PR if changed
+        if: steps.alpine.outputs.version != steps.current.outputs.version
+        uses: peter-evans/create-pull-request@v8
+        with:
+          commit-message: "chore: bump Unbound to ${{ steps.alpine.outputs.version }}"
+          title: "Unbound ${{ steps.alpine.outputs.version }} available"
+          body: |
+            Alpine has updated Unbound to `${{ steps.alpine.outputs.version }}` (was `${{ steps.current.outputs.version }}`).
+            
+            Please verify the addon builds and functions correctly before merging.
+          branch: "chore/unbound-${{ steps.alpine.outputs.version }}"
+          delete-branch: true
