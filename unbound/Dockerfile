@@ -1,7 +1,6 @@
 ARG BUILD_FROM
 FROM ${BUILD_FROM}
-
-# Install Unbound and pre-reqs
+COPY rootfs /
 RUN apk add --no-cache \
         unbound \
         drill \
@@ -9,25 +8,13 @@ RUN apk add --no-cache \
         ca-certificates \
         openssl \
         curl \
-    && rm -rf /var/cache/apk/*
-
-# Download the IANA root hints file
-RUN curl -sSL \
-    "https://www.internic.net/domain/named.root" \
-    -o /etc/unbound/root.hints \
-    && chown root:unbound /etc/unbound/root.hints
-
-# Download and verify the DNSSEC root anchor
-RUN unbound-anchor -a /etc/unbound/root.key || true
-
-# Copy addon filesystem overlay
-COPY rootfs /
-
-# Ensure scripts are executable
-RUN chmod +x /etc/services.d/unbound/run \
-    && chmod +x /etc/services.d/unbound/finish \
-    && chmod +x /usr/local/bin/unbound-healthcheck.sh
-
-# Test connectivity
+ && rm -rf /var/cache/apk/* \
+ && curl -sSL "https://www.internic.net/domain/named.root" \
+        -o /etc/unbound/root.hints \
+ && chown root:unbound /etc/unbound/root.hints \
+ && unbound-anchor -a /etc/unbound/root.key || true \
+ && chmod +x /etc/services.d/unbound/run \
+        /etc/services.d/unbound/finish \
+        /usr/local/bin/unbound-healthcheck.sh
 HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
     CMD /usr/local/bin/unbound-healthcheck.sh
