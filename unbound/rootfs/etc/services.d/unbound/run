@@ -42,7 +42,6 @@ mkdir -p "${CONF_D_DIR}" "${ZONES_DIR}"
 
 # If Remote Control enabled, check for required files
 if [ "${REMOTE}" = "true" ]; then
-
     if [ ! -f "${CONFIG_DIR}/unbound_server.key" ] || \
        [ ! -f "${CONFIG_DIR}/unbound_server.pem" ] || \
        [ ! -f "${CONFIG_DIR}/unbound_control.key" ] || \
@@ -149,7 +148,7 @@ EOF
 if bashio::var.has_value "${CUSTOM_CONFIG}"; then
     bashio::log.info "Applying custom config snippet..."
     echo "" >> "${UNBOUND_CONF}"
-    echo "# --- Custom config from addon options ---" >> "${UNBOUND_CONF}"
+    echo "# --- Custom config from app options ---" >> "${UNBOUND_CONF}"
     echo "${CUSTOM_CONFIG}" >> "${UNBOUND_CONF}"
 fi
 
