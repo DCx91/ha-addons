@@ -37,6 +37,38 @@ jobs:
           git commit -am "Update AIOStreams to v${{ steps.upstream.outputs.version }}"
           git push --force origin update/aiostreams-v${{ steps.upstream.outputs.version }}
 
+      - name: Update changelog
+        if: steps.upstream.outputs.version != steps.current.outputs.version
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          RELEASE_NOTES=$(curl -s \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            https://api.github.com/repos/Viren070/AIOStreams/releases/latest \
+            | jq -r .body)
+
+          CHANGELOG_FILE="aiostreams/CHANGELOG.md"
+
+          # Create file with header if it doesn't exist
+          if [ ! -f "$CHANGELOG_FILE" ]; then
+            echo "# Changelog" > "$CHANGELOG_FILE"
+            echo "" >> "$CHANGELOG_FILE"
+          fi
+
+          # Prepend new entry to existing changelog
+          TEMP=$(mktemp)
+          echo "# Changelog" > "$TEMP"
+          echo "" >> "$TEMP"
+          echo "## v${{ steps.upstream.outputs.version }}" >> "$TEMP"
+          echo "" >> "$TEMP"
+          echo "$RELEASE_NOTES" >> "$TEMP"
+          echo "" >> "$TEMP"
+          # Append everything except the existing header
+          tail -n +2 "$CHANGELOG_FILE" >> "$TEMP"
+          mv "$TEMP" "$CHANGELOG_FILE"
+
+          git add "$CHANGELOG_FILE"
+
       - name: Create pull request
         if: steps.upstream.outputs.version != steps.current.outputs.version
         env:
