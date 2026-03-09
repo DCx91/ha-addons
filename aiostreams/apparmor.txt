@@ -4,27 +4,26 @@ profile aiostreams flags=(attach_disconnected,mediate_deleted) {
   #include <abstractions/base>
 
   # Capabilities
-  file,
   signal (send) set=(kill,term,int,hup,cont),
 
   # S6-Overlay
-  /init ix,
+  /init rix,
   /bin/** ix,
   /usr/bin/** ix,
-  /run/{s6,s6-rc*,service}/** ix,
-  /package/** ix,
+  /etc/s6/** rix,
+  /etc/s6-overlay/** rwix,
+  /run/s6/** rwkix,
+  /package/** rix,
   /command/** ix,
   /etc/services.d/** rwix,
   /etc/cont-init.d/** rwix,
   /etc/cont-finish.d/** rwix,
-  /run/{,**} rwk,
-  /dev/tty rw,
 
   # Bashio
   /usr/lib/bashio/** ix,
   /tmp/** rwk,
 
-  # Addon data (SQLite database, secret key)
+  # Addon data
   /data/** rw,
 
   # Node.js + pnpm
@@ -38,7 +37,7 @@ profile aiostreams flags=(attach_disconnected,mediate_deleted) {
   /app/** r,
   /app/node_modules/.pnpm/** rm,
 
-  # OpenSSL (used for secret key generation)
+  # OpenSSL
   /usr/bin/openssl ix,
   /etc/ssl/** r,
   /etc/ca-certificates/** r,
@@ -49,7 +48,7 @@ profile aiostreams flags=(attach_disconnected,mediate_deleted) {
   @{PROC}/@{pid}/stat r,
   @{PROC}/sys/kernel/random/uuid r,
 
-  # Network (outbound HTTP/HTTPS to Trakt, TMDB, addon APIs etc.)
+  # Network
   network inet stream,
   network inet6 stream,
 }
