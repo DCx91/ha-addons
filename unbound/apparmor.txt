@@ -4,9 +4,9 @@ profile unbound flags=(attach_disconnected,mediate_deleted) {
   #include <abstractions/base>
 
   file,
-  signal,
+  signal (send) set=(kill,term,int,hup,cont),
+  signal (receive) set=(kill,term,int,hup,cont,usr1,usr2),
 
-  capability sys_chroot,
   capability chown,
 
   # S6-Overlay & Bashio
@@ -14,11 +14,11 @@ profile unbound flags=(attach_disconnected,mediate_deleted) {
   /bin/** ix,
   /usr/bin/** ix,
   /etc/s6/** rix,
-  /run/s6/** rwix,
+  /run/s6/** rwkix,
   /etc/services.d/** rwix,
   /etc/cont-init.d/** rwix,
   /etc/cont-finish.d/** rwix,
-  /run/** rwk,
+  /run/** rw,
 
   # Bashio
   /usr/lib/bashio/** ix,
@@ -35,7 +35,7 @@ profile unbound flags=(attach_disconnected,mediate_deleted) {
     #include <abstractions/base>
     #include <abstractions/nameservice>
 
-    signal receive,
+    signal (receive) set=(kill,term,int,hup,cont,usr1,usr2),
 
     capability net_bind_service,
     capability setgid,
@@ -47,9 +47,8 @@ profile unbound flags=(attach_disconnected,mediate_deleted) {
     network inet6 stream,
 
     /usr/sbin/unbound rm,
-    /usr/sbin/unbound-anchor rm,
 
-    /etc/unbound/** rw,
+    /etc/unbound/** r,
     /addon_configs/unbound/** rw,
     /proc/** r,
     /dev/urandom r,
