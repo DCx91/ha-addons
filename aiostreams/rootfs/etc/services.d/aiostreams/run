@@ -22,7 +22,7 @@ SECRET_KEY_FILE="/data/secret_key"
 bashio::log.info "Checking secret key..."
 if bashio::config.has_value 'secret_key'; then
     SECRET_KEY=$(bashio::config 'secret_key')
-    bashio::log.info "Using secret_key from addon configuration."
+    bashio::log.info "Using secret_key from app configuration."
 else
     if [[ -f "${SECRET_KEY_FILE}" ]]; then
         SECRET_KEY=$(cat "${SECRET_KEY_FILE}")
@@ -37,7 +37,7 @@ else
 fi
 export SECRET_KEY="${SECRET_KEY}"
 
-# Map addon options to AIOStreams environment variables
+# Map app options to AIOStreams environment variables
 bashio::log.info "Reading configuration..."
 if bashio::config.has_value 'base_url'; then
     BASE_URL=$(bashio::config 'base_url')
@@ -55,6 +55,7 @@ export ADDON_NAME="AIOStreams"
 export ADDON_ID="aiostreams"
 export BUILTIN_STREMTHRU_URL="https://stremthru.13377001.xyz"
 export LOG_SENSITIVE_INFO="$(config_or_default 'sensitive_info' false)"
+export DEFAULT_MAX_CACHE_SIZE=10000
 
 # Optional configuration
 # Password protection
