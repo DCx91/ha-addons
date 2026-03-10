@@ -6,11 +6,7 @@ bashio::log.info "Starting Unbound DNS add-on..."
 # Helper for optional config values with defaults
 config_or_default() {
     local key="$1" default="$2"
-    if bashio::config.has_value "${key}"; then
-        bashio::config "${key}"
-    else
-        echo "${default}"
-    fi
+    bashio::config.has_value "${key}" && bashio::config "${key}" || echo "${default}"
 }
 
 # Read options
@@ -18,7 +14,6 @@ LOG_LEVEL=$(bashio::config 'log_level' | grep -o '^[0-5]')
 LISTEN_PORT=$(bashio::config 'listen_port')
 DO_IPV6=$(bashio::config 'do_ipv6')
 PREFETCH=$(bashio::config 'prefetch')
-CUSTOM_CONFIG=$(config_or_default 'custom_config' '')
 CACHE_MIN_TTL=$(config_or_default 'cache_min_ttl' '300')
 CACHE_MAX_TTL=$(config_or_default 'cache_max_ttl' '86400')
 REMOTE=$(config_or_default 'remote' false)
@@ -73,9 +68,7 @@ while read -r acl; do
 done < <(jq -r '.access_control[]' /data/options.json)
 
 # Copy root key to writable location
-if [ ! -f "${ROOT_KEY}" ]; then
-    cp /etc/unbound/root.key "${ROOT_KEY}"
-fi
+[[ ! -f "${ROOT_KEY}" ]] && cp /etc/unbound/root.key "${ROOT_KEY}"
 
 # Generate unbound.conf
 bashio::log.info "Generating Unbound configuration..."
@@ -136,7 +129,6 @@ ${ACCESS_CONTROL_LINES}
     # Logging
     log-queries: $([ "${LOG_LEVEL}" -ge 3 ] && echo "yes" || echo "no")
     log-replies: $([ "${LOG_LEVEL}" -ge 3 ] && echo "yes" || echo "no")
-    logfile: ""
     use-syslog: no
 
     # Include user-created config files
@@ -156,15 +148,19 @@ REMOTE_EOF
 EOF
 
 # Apply any custom config
-if bashio::var.has_value "${CUSTOM_CONFIG}"; then
+if bashio::config.has_value 'custom_config'; then
+	CUSTOM_CONFIG=$(bashio::config 'custom_config')
     bashio::log.info "Applying custom config snippet..."
-    echo "" >> "${UNBOUND_CONF}"
-    echo "# --- Custom config from app options ---" >> "${UNBOUND_CONF}"
-    echo "${CUSTOM_CONFIG}" >> "${UNBOUND_CONF}"
+    {
+        echo ""
+        echo "# --- Custom config from app options ---"
+        echo "${CUSTOM_CONFIG}"
+    } >> "${UNBOUND_CONF}"
 fi
 
 # Validate configuration
 bashio::log.info "Validating configuration..."
+
 if ! unbound-checkconf "${UNBOUND_CONF}"; then
     bashio::log.fatal "Unbound configuration is invalid! Check your options."
     bashio::addon.stop
@@ -179,5 +175,7 @@ bashio::log.info "IPv6     : ${DO_IPV6}"
 bashio::log.info "Threads  : ${NUM_THREADS}"
 bashio::log.info "Min TTL  : ${CACHE_MIN_TTL}s"
 bashio::log.info "Max TTL  : ${CACHE_MAX_TTL}s"
+bashio::log.info "Custom Config : $(bashio::config.has_value 'custom_config' && echo "${CUSTOM_CONFIG}" || echo 'no')"
+
 chown -R unbound:unbound "${CONFIG_DIR}"
 exec unbound -d -c "${UNBOUND_CONF}"
