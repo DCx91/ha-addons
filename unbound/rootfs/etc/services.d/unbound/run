@@ -31,7 +31,7 @@ CONFIG_DIR="/addon_configs/unbound"
 UNBOUND_CONF="${CONFIG_DIR}/unbound.conf"
 CONF_D_DIR="${CONFIG_DIR}/conf.d"
 ZONES_DIR="${CONFIG_DIR}/zones"
-ROOT_KEY="${CONFIG_DIR}/root.key"
+ROOT_KEY="/etc/unbound/root.key"
 
 mkdir -p "${CONF_D_DIR}" "${ZONES_DIR}"
 
