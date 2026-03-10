@@ -16,7 +16,7 @@ DO_IPV6=$(bashio::config 'do_ipv6')
 PREFETCH=$(bashio::config 'prefetch')
 CACHE_MIN_TTL=$(config_or_default 'cache_min_ttl' '300')
 CACHE_MAX_TTL=$(config_or_default 'cache_max_ttl' '86400')
-REMOTE=$(config_or_default 'remote' false)
+REMOTE=$(config_or_default 'remote' 'false')
 
 # Cap threads to CPU core count
 MAX_THREADS=$(nproc)
@@ -35,22 +35,6 @@ ROOT_KEY="${CONFIG_DIR}/root.key"
 
 mkdir -p "${CONF_D_DIR}" "${ZONES_DIR}"
 
-# If Remote Control enabled, check for required files
-if [ "${REMOTE}" = "true" ]; then
-    if [ ! -f "${CONFIG_DIR}/unbound_server.key" ] || \
-       [ ! -f "${CONFIG_DIR}/unbound_server.pem" ] || \
-       [ ! -f "${CONFIG_DIR}/unbound_control.key" ] || \
-       [ ! -f "${CONFIG_DIR}/unbound_control.pem" ]; then
-        bashio::log.info "Remote control enabled. Keys/certs not found. Setting up..."
-        unbound-control-setup
-        cp /etc/unbound/unbound_*.key /etc/unbound/unbound_*.pem "${CONFIG_DIR}/"
-        chown unbound:unbound "${CONFIG_DIR}"/unbound_*.key "${CONFIG_DIR}"/unbound_*.pem
-		chmod 640 "${CONFIG_DIR}"/unbound_*.key "${CONFIG_DIR}"/unbound_*.pem
-    else
-        bashio::log.info "Remote control enabled. Keys/certs found. Continuing..."
-    fi
-fi
-
 # Refresh root hints if older than 7 days
 HINTS_FILE="/etc/unbound/root.hints"
 if [ ! -f "${HINTS_FILE}" ] || \
@@ -66,9 +50,6 @@ ACCESS_CONTROL_LINES=""
 while read -r acl; do
     ACCESS_CONTROL_LINES+="    access-control: ${acl}"$'\n'
 done < <(jq -r '.access_control[]' /data/options.json)
-
-# Copy root key to writable location
-[[ ! -f "${ROOT_KEY}" ]] && cp /etc/unbound/root.key "${ROOT_KEY}"
 
 # Generate unbound.conf
 bashio::log.info "Generating Unbound configuration..."
@@ -139,10 +120,7 @@ $([ "${REMOTE}" = "true" ] && cat << REMOTE_EOF
 remote-control:
     control-enable: yes
     control-interface: ${CONFIG_DIR}/unbound.control.sock
-    server-key-file: "${CONFIG_DIR}/unbound_server.key"
-    server-cert-file: "${CONFIG_DIR}/unbound_server.pem"
-    control-key-file: "${CONFIG_DIR}/unbound_control.key"
-    control-cert-file: "${CONFIG_DIR}/unbound_control.pem"
+	control-use-cert: no
 REMOTE_EOF
 )
 EOF
@@ -177,5 +155,5 @@ bashio::log.info "Min TTL  : ${CACHE_MIN_TTL}s"
 bashio::log.info "Max TTL  : ${CACHE_MAX_TTL}s"
 bashio::log.info "Custom Config : $(bashio::config.has_value 'custom_config' && echo "${CUSTOM_CONFIG}" || echo 'no')"
 
-chown -R unbound:unbound "${CONFIG_DIR}"
+[ "${REMOTE}" = "true" ] && touch "${CONFIG_DIR}/unbound.control.sock"
 exec unbound -d -c "${UNBOUND_CONF}"
