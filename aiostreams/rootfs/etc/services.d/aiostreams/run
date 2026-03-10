@@ -60,14 +60,15 @@ bashio::config.has_value 'trakt_id' && export TRAKT_CLIENT_ID="$(bashio::config 
 # Log basic info
 if [[ "${LOG_LEVEL}" = "error" || "${LOG_LEVEL}" = "warning" ]]; then
 	bashio::log.info "Starting AIOStreams..."
-	bashio::log.info "Base URL : ${BASE_URL}"
-	bashio::log.info "Port     : ${PORT}"
-	bashio::log.info "Database : ${DATABASE_URI}"
-	bashio::log.info "Log Level: ${LOG_LEVEL}"
-	bashio::log.info "Timezone : ${LOG_TIMEZONE}"
-	bashio::log.info "Anime DB : ${ANIME_API}"
-	bashio::log.info "Password : $(bashio::config.has_value 'addon_password' && echo 'enabled' || echo 'disabled')"
-	bashio::log.info "Trakt    : $(bashio::config.has_value 'trakt_id' && echo 'configured' || echo 'not set (aliases disabled)')"
+	bashio::log.info "Base URL		 : ${BASE_URL}"
+	bashio::log.info "Port 		     : ${PORT}"
+	bashio::log.info "Database		 : ${DATABASE_URI}"
+	bashio::log.info "Log Level		 : ${LOG_LEVEL}"
+	bashio::log.info "Timezone 		 : ${LOG_TIMEZONE}"
+	bashio::log.info "Anime DB 		 : ${ANIME_API}"
+	bashio::log.info "Sensitive Info : ${LOG_SENSITIVE_INFO}"
+	bashio::log.info "Password		 : $(bashio::config.has_value 'addon_password' && echo 'enabled' || echo 'disabled')"
+	bashio::log.info "Trakt   		 : $(bashio::config.has_value 'trakt_id' && echo 'configured' || echo 'not set (aliases disabled)')"
 fi
 
 # Start AIOStreams
