@@ -21,14 +21,14 @@ jobs:
       - name: Get current version from config.yaml
         id: current
         run: |
-          VERSION=$(grep '^version:' config.yaml | grep -oP '[\d.]+')
+          VERSION=$(grep '^version:' unbound/config.yaml | grep -oP '[\d.]+')
           echo "version=${VERSION}" >> $GITHUB_OUTPUT
 
       - name: Update config.yaml if version changed
         if: steps.alpine.outputs.version != steps.current.outputs.version
         run: |
           NEW="${{ steps.alpine.outputs.version }}"
-          sed -i "s/^version: .*/version: \"${NEW}\"/" config.yaml
+          sed -i "s/^version: .*/version: \"${NEW}\"/" unbound/config.yaml
 
       - name: Open PR if changed
         if: steps.alpine.outputs.version != steps.current.outputs.version
