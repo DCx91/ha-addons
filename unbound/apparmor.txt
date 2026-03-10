@@ -24,7 +24,7 @@ profile unbound flags=(attach_disconnected,mediate_deleted) {
 
   # Access to options and config
   /data/** rw,
-  /addon_configs/unbound/** rw,
+  /addon_configs/unbound/** rwk,
 
   # Transition to child profile for the daemon
   /usr/sbin/unbound cx,
@@ -46,7 +46,7 @@ profile unbound flags=(attach_disconnected,mediate_deleted) {
 
     /usr/sbin/unbound rm,
     /etc/unbound/** r,
-    /addon_configs/unbound/** rw,
+    /addon_configs/unbound/** rwk,
     /proc/** r,
     /dev/urandom r,
     /dev/null rw,
