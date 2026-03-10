@@ -14,6 +14,8 @@ RUN apk add --no-cache \
  && unbound-anchor -a /etc/unbound/root.key || true \
  && chown root:unbound /etc/unbound \
  && chmod 775 /etc/unbound \
+ && chmod 664 /etc/unbound/root.key \
+ && chmod 664 /etc/unbound/root.hints \
  && chmod +x /etc/services.d/unbound/run \
         /etc/services.d/unbound/finish \
         /usr/local/bin/unbound-healthcheck.sh
