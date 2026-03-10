@@ -45,7 +45,7 @@ profile unbound flags=(attach_disconnected,mediate_deleted) {
     network inet6 stream,
 
     /usr/sbin/unbound rm,
-    /etc/unbound/** r,
+    /etc/unbound/** rw,
     /addon_configs/unbound/** rwk,
     /proc/** r,
     /dev/urandom r,
