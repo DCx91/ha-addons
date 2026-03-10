@@ -14,11 +14,10 @@ jobs:
       - name: Get current Unbound version from Alpine
         id: alpine
         run: |
-          RESPONSE=$(curl -sSL "https://pkgs.alpinelinux.org/package/edge/main/x86_64/unbound&format=json")
-          echo "Raw response: ${RESPONSE}"
-          VERSION=$(echo "${RESPONSE}" | jq -r '.[0].version' | grep -oP '^[\d.]+')
-          echo "version=${VERSION}" >> $GITHUB_OUTPUTUT
-
+          VERSION=$(curl -sSL "https://raw.githubusercontent.com/alpinelinux/aports/master/main/unbound/APKBUILD" \
+            | grep -oP '^pkgver=\K[\d.]+')
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+          
       - name: Get current version from config.yaml
         id: current
         run: |
