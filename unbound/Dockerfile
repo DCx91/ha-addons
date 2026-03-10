@@ -11,8 +11,9 @@ RUN apk add --no-cache \
  && rm -rf /var/cache/apk/* \
  && curl -sSL "https://www.internic.net/domain/named.root" \
         -o /etc/unbound/root.hints \
- && chown root:unbound /etc/unbound/root.hints \
  && unbound-anchor -a /etc/unbound/root.key || true \
+ && chown root:unbound /etc/unbound \
+ && chmod 775 /etc/unbound \
  && chmod +x /etc/services.d/unbound/run \
         /etc/services.d/unbound/finish \
         /usr/local/bin/unbound-healthcheck.sh
