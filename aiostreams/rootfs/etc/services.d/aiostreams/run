@@ -8,11 +8,7 @@ export DATABASE_URI="sqlite:///data/db.sqlite"
 # Helper for optional config values with defaults
 config_or_default() {
     local key="$1" default="$2"
-    if bashio::config.has_value "${key}"; then
-        bashio::config "${key}"
-    else
-        echo "${default}"
-    fi
+    bashio::config.has_value "${key}" && bashio::config "${key}" || echo "${default}"
 }
 
 # Secret key - use the value from config if set, otherwise auto-generate
@@ -39,42 +35,27 @@ export SECRET_KEY="${SECRET_KEY}"
 
 # Map app options to AIOStreams environment variables
 bashio::log.info "Reading configuration..."
-if bashio::config.has_value 'base_url'; then
-    BASE_URL=$(bashio::config 'base_url')
-else
-    HOST_PORT=$(bashio::addon.port "3000/tcp")
-    BASE_URL="http://homeassistant.local:${HOST_PORT}"
-fi
-LOG_LEVEL=$(config_or_default 'log_level' 'info')
-ANIME_API=$(bashio::config 'anime_api')
-LOG_TIMEZONE=$(bashio::info.timezone)
 
-export BASE_URL LOG_LEVEL LOG_TIMEZONE
-export PORT="3000"
+export LOG_LEVEL=$(bashio::config 'log_level')
+export LOG_TIMEZONE=$(bashio::info.timezone)
+export PORT=$(bashio::addon.port "3000/tcp")
 export ADDON_NAME="AIOStreams"
 export ADDON_ID="aiostreams"
 export BUILTIN_STREMTHRU_URL="https://stremthru.13377001.xyz"
 export LOG_SENSITIVE_INFO="$(config_or_default 'sensitive_info' false)"
 export NODE_OPTIONS="--max-old-space-size=500"
 
-# Optional configuration
+# Base URL
+bashio::config.has_value 'base_url' && export BASE_URL="$(bashio::config 'base_url')" || export BASE_URL="http://homeassistant.local:${PORT}"
+
 # Password protection
-if bashio::config.has_value 'addon_password'; then
-    export ADDON_PASSWORD="$(bashio::config 'addon_password')"
-fi
+bashio::config.has_value 'addon_password' && export ADDON_PASSWORD="$(bashio::config 'addon_password')"
 
 # Trakt Client ID
-if bashio::config.has_value 'trakt_id'; then
-    export TRAKT_CLIENT_ID="$(bashio::config 'trakt_id')"
-else
-	export FETCH_TRAKT_ALIASES=false
-fi
+bashio::config.has_value 'trakt_id' && export TRAKT_CLIENT_ID="$(bashio::config 'trakt_id')" || export FETCH_TRAKT_ALIASES=false
 
 # Anime API
-if [[ "${ANIME_API}" = false ]]; then
-	export ANIME_DB_LEVEL_OF_DETAIL=none
-    export DEFAULT_MAX_CACHE_SIZE=5000
-fi
+[[ "${bashio::config 'anime_api'}" = "false" ]] && export ANIME_DB_LEVEL_OF_DETAIL=none DEFAULT_MAX_CACHE_SIZE=5000
 
 # Log basic info
 if [[ "${LOG_LEVEL}" = "error" || "${LOG_LEVEL}" = "warning" ]]; then
