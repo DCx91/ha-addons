@@ -45,8 +45,8 @@ else
     HOST_PORT=$(bashio::addon.port "3000/tcp")
     BASE_URL="http://homeassistant.local:${HOST_PORT}"
 fi
-LOG_LEVEL=$(config_or_default 'log_level' 'http')
-LOW_RAM=$(config_or_default 'low_ram' false)
+LOG_LEVEL=$(config_or_default 'log_level' 'info')
+ANIME_API=$(bashio::config 'anime_api')
 LOG_TIMEZONE=$(bashio::info.timezone)
 
 export BASE_URL LOG_LEVEL LOG_TIMEZONE
@@ -55,7 +55,7 @@ export ADDON_NAME="AIOStreams"
 export ADDON_ID="aiostreams"
 export BUILTIN_STREMTHRU_URL="https://stremthru.13377001.xyz"
 export LOG_SENSITIVE_INFO="$(config_or_default 'sensitive_info' false)"
-export DEFAULT_MAX_CACHE_SIZE=10000
+export NODE_OPTIONS="--max-old-space-size=500"
 
 # Optional configuration
 # Password protection
@@ -70,23 +70,25 @@ else
 	export FETCH_TRAKT_ALIASES=false
 fi
 
-# Reduced memory consumption
-if [[ "${LOW_RAM}" = true ]]; then
-	export DEFAULT_MAX_CACHE_SIZE=1000
+# Anime API
+if [[ "${ANIME_API}" = false ]]; then
 	export ANIME_DB_LEVEL_OF_DETAIL=none
-	export NODE_OPTIONS="--max-old-space-size=256"
+    export DEFAULT_MAX_CACHE_SIZE=5000
+fi
+
+# Log basic info
+if [[ "${LOG_LEVEL}" = "error" || "${LOG_LEVEL}" = "warning" ]]; then
+	bashio::log.info "Starting AIOStreams..."
+	bashio::log.info "Base URL : ${BASE_URL}"
+	bashio::log.info "Port     : ${PORT}"
+	bashio::log.info "Database : ${DATABASE_URI}"
+	bashio::log.info "Log Level: ${LOG_LEVEL}"
+	bashio::log.info "Timezone : ${LOG_TIMEZONE}"
+	bashio::log.info "Anime DB : ${ANIME_API}"
+	bashio::log.info "Password : $(bashio::config.has_value 'addon_password' && echo 'enabled' || echo 'disabled')"
+	bashio::log.info "Trakt    : $(bashio::config.has_value 'trakt_id' && echo 'configured' || echo 'not set (aliases disabled)')"
 fi
 
 # Start AIOStreams
-bashio::log.info "Starting AIOStreams..."
-bashio::log.info "Base URL : ${BASE_URL}"
-bashio::log.info "Port     : ${PORT}"
-bashio::log.info "Database : ${DATABASE_URI}"
-bashio::log.info "Log Level: ${LOG_LEVEL}"
-bashio::log.info "Timezone : ${LOG_TIMEZONE}"
-bashio::log.info "Low RAM  : ${LOW_RAM}"
-bashio::log.info "Password : $(bashio::config.has_value 'addon_password' && echo 'enabled' || echo 'disabled')"
-bashio::log.info "Trakt    : $(bashio::config.has_value 'trakt_id' && echo 'configured' || echo 'not set (aliases disabled)')"
-
 cd /app
 exec pnpm run start
