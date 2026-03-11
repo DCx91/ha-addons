@@ -61,6 +61,9 @@ if [[ "${ANIME_API}" == "false" ]]; then
     export DEFAULT_MAX_CACHE_SIZE=5000
 fi
 
+# Trusted UUID
+bashio::config.has_value 'trusted_uuid' && export TRUSTED_UUID="$(bashio::config 'trusted_uuid')"
+
 # Log basic info
 if [[ "${LOG_LEVEL}" = "error" || "${LOG_LEVEL}" = "warning" ]]; then
 	bashio::log.info "Starting AIOStreams..."
@@ -73,6 +76,7 @@ if [[ "${LOG_LEVEL}" = "error" || "${LOG_LEVEL}" = "warning" ]]; then
 	bashio::log.info "Sensitive Info : ${LOG_SENSITIVE_INFO}"
 	bashio::log.info "Password		 : $(bashio::config.has_value 'addon_password' && echo 'enabled' || echo 'disabled')"
 	bashio::log.info "Trakt   		 : $(bashio::config.has_value 'trakt_id' && echo 'configured' || echo 'not set (aliases disabled)')"
+	bashio::log.info "Trusted UUID	 : $(bashio::config.has_value 'trusted_uuid' && echo 'configured' || echo 'unconfigured')"
 fi
 
 # Start AIOStreams
