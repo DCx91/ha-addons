@@ -21,11 +21,11 @@ configuration:
       API key to protect your addon installation and usage.
       Leave empty to disable password protection.
       Can be any string. Supports multiple passwords separated by commas.
-  low_ram:
-    name: Reduced Memory Consumption
+  anime_api:
+    name: Detailed Anime Metadata
     description: >-
-      Reduces memory consumption by ~100MB by reducing the cache size and preventing
-      anime from being pre-loaded into the database on boot.
+      Enables loading of detailed anime metadata. 
+      Significantly increases memory overhead, but recommended if you watch anime.
   sensitive_info:
     name: Sensitive info
     description: >-
