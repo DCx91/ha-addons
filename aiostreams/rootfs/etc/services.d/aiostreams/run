@@ -62,7 +62,7 @@ if [[ "${ANIME_API}" == "false" ]]; then
 fi
 
 # Trusted UUID
-bashio::config.has_value 'trusted_uuid' && export TRUSTED_UUID="$(bashio::config 'trusted_uuid')"
+bashio::config.has_value 'trusted_uuid' && export TRUSTED_UUIDS="$(bashio::config 'trusted_uuid')"
 
 # Log basic info
 if [[ "${LOG_LEVEL}" = "error" || "${LOG_LEVEL}" = "warning" ]]; then
