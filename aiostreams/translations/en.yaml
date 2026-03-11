@@ -30,6 +30,10 @@ configuration:
     name: Sensitive info
     description: >-
       Includes potentially sensitive info (like API keys) in logs for debugging.
+  trusted_uuid:
+    name: Trusted UUIDs
+    description: >-
+      Allows risky configuration options for the added UUIDs (i.e. Regex).
   secret_key:
     name: Secret Key
     description: >-
