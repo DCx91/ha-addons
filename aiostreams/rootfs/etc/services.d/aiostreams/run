@@ -55,7 +55,11 @@ bashio::config.has_value 'addon_password' && export ADDON_PASSWORD="$(bashio::co
 bashio::config.has_value 'trakt_id' && export TRAKT_CLIENT_ID="$(bashio::config 'trakt_id')" || export FETCH_TRAKT_ALIASES=false
 
 # Anime API
-[[ "${bashio::config 'anime_api'}" = "false" ]] && export ANIME_DB_LEVEL_OF_DETAIL=none DEFAULT_MAX_CACHE_SIZE=5000
+ANIME_API=$(bashio::config 'anime_api')
+if [[ "${ANIME_API}" == "false" ]]; then
+    export ANIME_DB_LEVEL_OF_DETAIL=none
+    export DEFAULT_MAX_CACHE_SIZE=5000
+fi
 
 # Log basic info
 if [[ "${LOG_LEVEL}" = "error" || "${LOG_LEVEL}" = "warning" ]]; then
