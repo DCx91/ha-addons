@@ -29,4 +29,5 @@ schema:
   addon_password: password?
   anime_api: bool?
   sensitive_info: bool?
+  trusted_uuid: str?
   secret_key: str?
