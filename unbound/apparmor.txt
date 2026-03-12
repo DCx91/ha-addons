@@ -10,9 +10,9 @@ profile unbound flags=(attach_disconnected,mediate_deleted) {
   capability chown,
 
   # S6-Overlay & Bashio
-  /init rix,
   /bin/** ix,
   /etc/services.d/** rwix,
+  /init rix,
   /run/** rw,
   /run/s6/** rwkix,
   /tmp/** rw,
