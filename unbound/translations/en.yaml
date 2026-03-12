@@ -31,8 +31,8 @@ configuration:
   num_threads:
     name: Number of Threads
     description: >-
-      Number of Unbound worker threads. For most home setups 1–2 is
-      sufficient. Max: 32 (limited to CPU core count)
+      Number of Unbound worker threads. Each can handle 4096 queries simultaneously.
+      Default: 1 (Max: 32, capped to CPU core count)
   access_control:
     name: Access Control List
     description: >-
