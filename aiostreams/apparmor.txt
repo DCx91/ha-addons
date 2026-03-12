@@ -7,39 +7,9 @@ profile aiostreams flags=(attach_disconnected,mediate_deleted) {
   file,
   signal (send) set=(kill,term,int,hup,cont),
 
-  # Entrypoint
-  /run.sh rix,
-  /bin/** ix,
-  /usr/bin/** ix,
-
-  # Bashio
-  /usr/lib/bashio/** ix,
-  /tmp/** rwk,
-
-  # Addon data
-  /data/** rw,
-
-  # Node.js + pnpm
-  /usr/local/bin/node ix,
-  /usr/local/bin/pnpm ix,
-  /usr/local/lib/** rm,
-  /usr/local/share/** r,
-
-  # AIOStreams application
-  /app/** r,
-  /app/node_modules/.pnpm/** rm,
-
-  # OpenSSL
-  /usr/bin/openssl ix,
-  /etc/ssl/** r,
-  /etc/ca-certificates/** r,
-  /usr/share/ca-certificates/** r,
-
-  # Proc access needed by Node.js
-  @{PROC}/@{pid}/fd/ r,
-  @{PROC}/@{pid}/stat r,
-
   # Network
   network inet stream,
+  network inet dgram,
   network inet6 stream,
+  network inet6 dgram,
 }
