@@ -59,7 +59,7 @@ This routes all queries through Unbound for fully private, recursive resolution 
 ---
 ## Screenshots
 
-<img width="4056" height="3920" alt="image" src="https://github.com/user-attachments/assets/3e314c15-7aef-493b-91cf-9ba6f6c2c04b" />
+<img width="1200" height="800" alt="image" src="https://github.com/user-attachments/assets/3e314c15-7aef-493b-91cf-9ba6f6c2c04b" />
 
 ---
 
