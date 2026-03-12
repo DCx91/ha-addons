@@ -13,7 +13,7 @@ ports:
   5335/udp: 5335
   5335/tcp: 5335
 map:
-  - addon_configs:rw
+  - addon_config:rw
 apparmor: true
 options:
   log_level: "1 - Operational"
