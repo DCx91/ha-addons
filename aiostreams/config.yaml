@@ -21,11 +21,13 @@ options:
   log_level: "info"
   trakt_id: ""
   addon_password: ""
+  anime_api: false
 schema:
   base_url: str?
   log_level: list(error|warn|info|http|verbose|debug|silly)
   trakt_id: str?
   addon_password: password?
-  low_ram: bool?
+  anime_api: bool?
   sensitive_info: bool?
+  trusted_uuid: str?
   secret_key: str?
