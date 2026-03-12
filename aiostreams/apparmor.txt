@@ -7,18 +7,10 @@ profile aiostreams flags=(attach_disconnected,mediate_deleted) {
   file,
   signal (send) set=(kill,term,int,hup,cont),
 
-  # S6-Overlay
-  /init rix,
+  # Entrypoint
+  /run.sh rix,
   /bin/** ix,
   /usr/bin/** ix,
-  /etc/s6/** rix,
-  /etc/s6-overlay/** rwix,
-  /run/s6/** rwkix,
-  /package/** rix,
-  /command/** ix,
-  /etc/services.d/** rwix,
-  /etc/cont-init.d/** rwix,
-  /etc/cont-finish.d/** rwix,
 
   # Bashio
   /usr/lib/bashio/** ix,
