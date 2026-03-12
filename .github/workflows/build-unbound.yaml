@@ -60,4 +60,4 @@ jobs:
             ghcr.io/${{ steps.owner.outputs.owner }}/unbound-${{ matrix.arch }}:${{ steps.version.outputs.version }}
             ghcr.io/${{ steps.owner.outputs.owner }}/unbound-${{ matrix.arch }}:latest
           build-args: |
-            BUILD_FROM=ghcr.io/home-assistant/${{ matrix.arch }}-base-alpine:latest
+            BUILD_FROM=ghcr.io/home-assistant/${{ matrix.arch }}-base:latest
