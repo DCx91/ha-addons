@@ -8,21 +8,18 @@ profile aiostreams flags=(attach_disconnected,mediate_deleted) {
   signal (send) set=(kill,term,int,hup,cont),
 
   # S6-Overlay
-  /init rix,
   /bin/** ix,
-  /usr/bin/** ix,
-  /etc/s6/** rix,
-  /etc/s6-overlay/** rwix,
-  /run/s6/** rwkix,
-  /package/** rix,
   /command/** ix,
+  /etc/s6-overlay/** rwix,
   /etc/services.d/** rwix,
-  /etc/cont-init.d/** rwix,
-  /etc/cont-finish.d/** rwix,
+  /init rix,
+  /package/** rix,
+  /run/s6/** rwkix,
+  /usr/bin/** ix,
 
   # Bashio
-  /usr/lib/bashio/** ix,
   /tmp/** rwk,
+  /usr/lib/bashio/** ix,
 
   # Addon data
   /data/** rw,
@@ -38,9 +35,9 @@ profile aiostreams flags=(attach_disconnected,mediate_deleted) {
   /app/node_modules/.pnpm/** rm,
 
   # OpenSSL
-  /usr/bin/openssl ix,
-  /etc/ssl/** r,
   /etc/ca-certificates/** r,
+  /etc/ssl/** r,
+  /usr/bin/openssl ix,
   /usr/share/ca-certificates/** r,
 
   # Proc access needed by Node.js
