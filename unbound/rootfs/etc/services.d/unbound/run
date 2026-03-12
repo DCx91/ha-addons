@@ -27,16 +27,16 @@ if [ "${NUM_THREADS}" -gt "${MAX_THREADS}" ]; then
 fi
 
 # Persistent config directory
-CONFIG_DIR="/addon_configs/unbound"
+CONFIG_DIR="/config"
 UNBOUND_CONF="${CONFIG_DIR}/unbound.conf"
 CONF_D_DIR="${CONFIG_DIR}/conf.d"
 ZONES_DIR="${CONFIG_DIR}/zones"
 ROOT_KEY="/etc/unbound/root.key"
+HINTS_FILE="/etc/unbound/root.hints"
 
 mkdir -p "${CONF_D_DIR}" "${ZONES_DIR}"
 
 # Refresh root hints if older than 7 days
-HINTS_FILE="/etc/unbound/root.hints"
 if [ ! -f "${HINTS_FILE}" ] || \
    [ "$(find "${HINTS_FILE}" -mtime +7 | wc -l)" -gt 0 ]; then
     bashio::log.info "Refreshing root hints..."
@@ -155,5 +155,5 @@ bashio::log.info "Min TTL  : ${CACHE_MIN_TTL}s"
 bashio::log.info "Max TTL  : ${CACHE_MAX_TTL}s"
 bashio::log.info "Custom Config : $(bashio::config.has_value 'custom_config' && echo "${CUSTOM_CONFIG}" || echo 'no')"
 
-[ "${REMOTE}" = "true" ] && touch "${CONFIG_DIR}/unbound.control.sock"
+[ "${REMOTE}" = "true" ] && [ ! -f "${CONFIG_DIR}/unbound.control.sock" ] && touch "${CONFIG_DIR}/unbound.control.sock"
 exec unbound -d -c "${UNBOUND_CONF}"
