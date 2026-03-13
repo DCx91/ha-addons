@@ -36,3 +36,27 @@ configuration:
       64-character hex key used to encrypt addon configurations. Leave blank to
       auto-generate one on first start. If you change this, all existing user
       configurations will be invalidated.
+  postgresql:
+    name: PostgreSQL Enabled
+    description: >-
+      Enables PostgreSQL database over SQLite. The following options are required when enabled.
+  postgresql_host:
+   name: PostgreSQL Hostname
+    description: >-
+      Hostname of your PostgreSQL database. If using the Home Assistant PostgreSQL app, use 'localhost'.
+  postgresql_port:
+   name: PostgreSQL Port
+    description: >-
+      Port number for your PostgreSQL database.
+  postgresql_username:
+   name: PostgreSQL Username
+    description: >-
+      Username for your PostgreSQL database.
+  postgresql_password:
+   name: PostgreSQL Password
+    description: >-
+      Password for your PostgreSQL database.
+  postgresql_database:
+   name: PostgreSQL Database
+    description: >-
+      Name of your PostgreSQL database.
