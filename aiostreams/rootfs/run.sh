@@ -4,13 +4,40 @@ set -e
 
 # Persistent storage
 mkdir -p /data
-export DATABASE_URI="sqlite:///data/db.sqlite"
 
 # Helper for optional config values with defaults
 config_or_default() {
     local key="$1" default="$2"
     bashio::config.has_value "${key}" && bashio::config "${key}" || echo "${default}"
 }
+
+# Database selection
+POSTGRESQL=$(bashio::config 'postgresql_enabled')
+if [ "$POSTGRESQL" == "true" ]; then
+    HOST=$(bashio::config 'postgresql_host')
+    PORT=$(bashio::config 'postgresql_port')
+    USERNAME=$(bashio::config 'postgresql_username')
+    PASSWORD=$(bashio::config 'postgresql_password')
+    DATABASE=$(bashio::config 'postgresql_database')
+
+    MISSING=()
+    [ -z "$HOST" ]     && MISSING+=("postgresql_host")
+    [ -z "$PORT" ]     && MISSING+=("postgresql_port")
+    [ -z "$USERNAME" ] && MISSING+=("postgresql_username")
+    [ -z "$PASSWORD" ] && MISSING+=("postgresql_password")
+    [ -z "$DATABASE" ] && MISSING+=("postgresql_database")
+
+    if [ ${#MISSING[@]} -gt 0 ]; then
+        bashio::log.error "PostgreSQL is enabled but the following fields are missing: ${MISSING[*]}"
+        exit 1
+    fi
+
+    bashio::log.info "Using PostgreSQL at ${HOST}:${PORT}"
+    export DATABASE_URI=postgres://${$USERNAME}:${PASSWORD}@${HOST}:$PORT/$DATABASE
+else
+    bashio::log.info "PostgreSQL not enabled, defaulting to SQLite."
+    export DATABASE_URI="sqlite:///data/db.sqlite"
+fi
 
 # Secret key - use the value from config if set, otherwise auto-generate
 # and persist it to /data/secret_key so it survives restarts.
