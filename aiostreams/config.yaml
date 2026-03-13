@@ -31,3 +31,10 @@ schema:
   sensitive_info: bool?
   trusted_uuid: str?
   secret_key: str?
+  postgresql: bool?
+  postgresql_host: str?
+  postgresql_port: int?
+  postgresql_username: str?
+  postgresql_password: password?
+  postgresql_database: str?
+
