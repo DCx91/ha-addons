@@ -12,7 +12,7 @@ config_or_default() {
 }
 
 # Database selection
-POSTGRESQL=$(bashio::config 'postgresql_enabled')
+POSTGRESQL=$(config_or_default 'postgresql' "false")
 if [ "$POSTGRESQL" == "true" ]; then
     HOST=$(bashio::config 'postgresql_host')
     PORT=$(bashio::config 'postgresql_port')
