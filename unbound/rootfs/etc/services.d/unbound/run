@@ -119,6 +119,20 @@ ${ACCESS_CONTROL_LINES}
     # Include user-created config files
     include-toplevel: "${CONF_D_DIR}/*.conf"
 
+    # Hyperlocal
+auth-zone:
+    name: "."
+    master: b.root-servers.net
+    master: c.root-servers.net
+    master: e.root-servers.net
+    master: f.root-servers.net
+    master: g.root-servers.net
+    master: k.root-servers.net
+    fallback-enabled: yes
+    for-downstream: no
+    for-upstream: yes
+    zonefile: "/var/lib/unbound/root.zone"
+
 $([ "${REMOTE}" = "true" ] && cat << REMOTE_EOF
 # Remote control
 remote-control:
