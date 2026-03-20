@@ -60,7 +60,6 @@ server:
     num-threads: ${NUM_THREADS}
 
     # Interfaces
-    interface: 127.0.0.1
 $([ "${DO_IPV6}" = "true" ] && echo "    interface: ::0")
     port: ${LISTEN_PORT}
 
