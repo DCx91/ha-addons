@@ -50,4 +50,4 @@ configuration:
   hyperlocal:
     name: Hyperlocal
     description: >-
-      Locally stores root zone to reduce round-trip time.
+      Stores a local copy of the DNS root zone for faster resolution. Increases memory usage slightly, but reduces latency for uncached queries.
