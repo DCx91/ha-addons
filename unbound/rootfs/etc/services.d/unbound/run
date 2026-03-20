@@ -17,6 +17,7 @@ PREFETCH=$(bashio::config 'prefetch')
 CACHE_MIN_TTL=$(config_or_default 'cache_min_ttl' '300')
 CACHE_MAX_TTL=$(config_or_default 'cache_max_ttl' '86400')
 REMOTE=$(config_or_default 'remote' 'false')
+HYPERLOCAL=$(config_or_default 'hyperlocal' 'false')
 
 # Cap threads to CPU core count
 MAX_THREADS=$(nproc)
@@ -118,6 +119,23 @@ ${ACCESS_CONTROL_LINES}
 
     # Include user-created config files
     include-toplevel: "${CONF_D_DIR}/*.conf"
+
+$([ "${HYPERLOCAL}" = "true" ] && cat << LOCAL_EOF
+# Hyperlocal
+auth-zone:
+    name: "."
+    master: b.root-servers.net
+    master: c.root-servers.net
+    master: e.root-servers.net
+    master: f.root-servers.net
+    master: g.root-servers.net
+    master: k.root-servers.net
+    fallback-enabled: yes
+    for-downstream: no
+    for-upstream: yes
+    zonefile: "/var/lib/unbound/root.zone"
+LOCAL_EOF
+)
 
 $([ "${REMOTE}" = "true" ] && cat << REMOTE_EOF
 # Remote control
