@@ -77,7 +77,7 @@ ${ACCESS_CONTROL_LINES}
     hide-version: yes
     harden-referral-path: yes
     use-caps-for-id: yes
-    do-not-query-localhost: yes
+    do-not-query-localhost: no
     private-address: 192.168.0.0/16
     private-address: 169.254.0.0/16
     private-address: 172.16.0.0/12
