@@ -1,4 +1,4 @@
-#!/usr/bin/with-contenv bashio
+: 0#!/usr/bin/with-contenv bashio
 # shellcheck shell=bash
 
 bashio::log.info "Starting Unbound DNS add-on..."
@@ -60,6 +60,7 @@ server:
     num-threads: ${NUM_THREADS}
 
     # Interfaces
+    interface: 0.0.0.0
 $([ "${DO_IPV6}" = "true" ] && echo "    interface: ::0")
     port: ${LISTEN_PORT}
 
