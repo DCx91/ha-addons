@@ -98,7 +98,6 @@ ${ACCESS_CONTROL_LINES}
     prefetch: $([ "${PREFETCH}" = "true" ] && echo "yes" || echo "no")
     prefetch-key: yes
     neg-cache-size: 4m
-    so-reuseport: yes
 
     # Performance
     so-rcvbuf: 1m
@@ -168,13 +167,14 @@ fi
 
 # Launch Unbound
 bashio::log.info "Launching Unbound on port ${LISTEN_PORT}..."
-bashio::log.info "Prefetch : ${PREFETCH}"
-bashio::log.info "Remote   : ${REMOTE}"
-bashio::log.info "Log Level: ${LOG_LEVEL}"
-bashio::log.info "IPv6     : ${DO_IPV6}"
-bashio::log.info "Threads  : ${NUM_THREADS}"
-bashio::log.info "Min TTL  : ${CACHE_MIN_TTL}s"
-bashio::log.info "Max TTL  : ${CACHE_MAX_TTL}s"
+bashio::log.info "Prefetch 		: ${PREFETCH}"
+bashio::log.info "Remote   		: ${REMOTE}"
+bashio::log.info "Log Level		: ${LOG_LEVEL}"
+bashio::log.info "IPv6     		: ${DO_IPV6}"
+bashio::log.info "Threads  		: ${NUM_THREADS}"
+bashio::log.info "Min TTL  		: ${CACHE_MIN_TTL}s"
+bashio::log.info "Max TTL 		: ${CACHE_MAX_TTL}s"
+bashio::log.info "Hyperlocal	: ${HYPERLOCAL}"
 bashio::log.info "Custom Config : $(bashio::config.has_value 'custom_config' && echo "${CUSTOM_CONFIG}" || echo 'no')"
 
 [ "${REMOTE}" = "true" ] && [ ! -f "${CONFIG_DIR}/unbound.control.sock" ] && touch "${CONFIG_DIR}/unbound.control.sock"
