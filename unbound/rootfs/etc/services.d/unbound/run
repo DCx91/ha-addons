@@ -133,7 +133,7 @@ auth-zone:
     fallback-enabled: yes
     for-downstream: no
     for-upstream: yes
-    zonefile: "/var/lib/unbound/root.zone"
+    zonefile: "/etc/unbound/root.zone"
 LOCAL_EOF
 )
 
