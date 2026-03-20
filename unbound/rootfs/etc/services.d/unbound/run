@@ -123,12 +123,8 @@ $([ "${HYPERLOCAL}" = "true" ] && cat << LOCAL_EOF
 # Hyperlocal
 auth-zone:
     name: "."
-    master: b.root-servers.net
-    master: c.root-servers.net
-    master: e.root-servers.net
-    master: f.root-servers.net
-    master: g.root-servers.net
     master: k.root-servers.net
+    master: i.root-servers.net
     fallback-enabled: yes
     for-downstream: no
     for-upstream: yes
