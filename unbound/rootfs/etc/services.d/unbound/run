@@ -105,8 +105,8 @@ ${ACCESS_CONTROL_LINES}
     msg-cache-size: 128m
     serve-expired: yes
     serve-expired-client-timeout: 0
-	   outgoing-range: 8192
-	   num-queries-per-thread: 4096
+	outgoing-range: 8192
+	num-queries-per-thread: 4096
 
     # IPv6
     do-ip6: $([ "${DO_IPV6}" = "true" ] && echo "yes" || echo "no")
