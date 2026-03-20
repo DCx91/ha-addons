@@ -60,7 +60,7 @@ server:
     num-threads: ${NUM_THREADS}
 
     # Interfaces
-    interface: 0.0.0.0
+    interface: 127.0.0.1
 $([ "${DO_IPV6}" = "true" ] && echo "    interface: ::0")
     port: ${LISTEN_PORT}
 
@@ -78,7 +78,7 @@ ${ACCESS_CONTROL_LINES}
     hide-version: yes
     harden-referral-path: yes
     use-caps-for-id: yes
-    do-not-query-localhost: no
+    do-not-query-localhost: yes
     private-address: 192.168.0.0/16
     private-address: 169.254.0.0/16
     private-address: 172.16.0.0/12
