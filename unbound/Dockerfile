@@ -15,6 +15,7 @@ RUN apk add --no-cache \
  && chown root:unbound /etc/unbound \
  && chmod 775 /etc/unbound \
  && chmod a+x /etc/s6-overlay/s6-rc.d/init-unbound/up \
+              /etc/s6-overlay/s6-rc.d/init-unbound/run \
               /etc/s6-overlay/s6-rc.d/unbound/run \
               /etc/s6-overlay/s6-rc.d/unbound/finish \
               /usr/local/bin/unbound-healthcheck.sh
