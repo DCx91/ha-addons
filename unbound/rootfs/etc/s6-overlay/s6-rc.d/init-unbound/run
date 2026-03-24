@@ -18,6 +18,7 @@ PREFETCH=$(bashio::config 'prefetch')
 CACHE_MIN_TTL=$(config_or_default 'cache_min_ttl' '300')
 CACHE_MAX_TTL=$(config_or_default 'cache_max_ttl' '86400')
 REMOTE=$(config_or_default 'remote' 'false')
+HYPERLOCAL=$(bashio::config 'hyperlocal')
 
 # Cap threads to CPU core count
 MAX_THREADS=$(nproc)
@@ -98,14 +99,13 @@ ${ACCESS_CONTROL_LINES}
     prefetch-key: yes
     neg-cache-size: 4m
 
-    # Performance
-    so-rcvbuf: 1m
-    rrset-cache-size: 256m
-    msg-cache-size: 128m
-    serve-expired: yes
-	   outgoing-range: 8192
-	   num-queries-per-thread: 4096
-    so-reuseport: yes
+	# Performance
+	so-rcvbuf: 1m
+	rrset-cache-size: 256m
+	msg-cache-size: 128m
+	serve-expired: yes
+	outgoing-range: 8192
+	num-queries-per-thread: 4096
 
     # IPv6
     do-ip6: $([ "${DO_IPV6}" = "true" ] && echo "yes" || echo "no")
@@ -117,6 +117,19 @@ ${ACCESS_CONTROL_LINES}
 
     # Include user-created config files
     include-toplevel: "${CONF_D_DIR}/*.conf"
+
+$([ "${HYPERLOCAL}" = "true" ] && cat << LOCAL_EOF
+# Hyperlocal
+auth-zone:
+    name: "."
+    master: k.root-servers.net
+    master: i.root-servers.net
+    fallback-enabled: yes
+    for-downstream: no
+    for-upstream: yes
+    zonefile: "/etc/unbound/root.zone"
+LOCAL_EOF
+)
 
 $([ "${REMOTE}" = "true" ] && cat << REMOTE_EOF
 # Remote control
@@ -145,3 +158,14 @@ if ! unbound-checkconf "${UNBOUND_CONF}"; then
     bashio::log.fatal "Unbound configuration is invalid! Check your options."
     exit 1
 fi
+
+bashio::log.info "Port			: ${LISTEN_PORT}"
+bashio::log.info "Prefetch		: ${PREFETCH}"
+bashio::log.info "Remote		: ${REMOTE}"
+bashio::log.info "Log Level		: ${LOG_LEVEL}"
+bashio::log.info "IPv6			: ${DO_IPV6}"
+bashio::log.info "Threads		: ${NUM_THREADS}"
+bashio::log.info "Min TTL		: ${CACHE_MIN_TTL}s"
+bashio::log.info "Max TTL		: ${CACHE_MAX_TTL}s"
+bashio::log.info "Hyperlocal	: ${HYPERLOCAL}"
+bashio::log.info "Custom Config	: $(bashio::config.has_value 'custom_config' && echo "${CUSTOM_CONFIG}" || echo 'no')"
