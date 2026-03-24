@@ -39,7 +39,7 @@ It also validates DNSSEC signatures, protecting you from DNS spoofing attacks.
 | `cache_max_ttl` | `86400` | Maximum TTL for cached records (seconds) |
 | `prefetch` | `true` | Prefetch expiring cache entries |
 | `num_threads` | `1` | Worker thread count |
-| `access_control` | `RFC 1918 ranges` | Subnets allowed to query Unbound |
+| `access_control` | RFC 1918 ranges | Subnets allowed to query Unbound |
 | `custom_config` | `""` | Raw Unbound config appended to `unbound.conf` |
 
 ---
@@ -49,7 +49,7 @@ It also validates DNSSEC signatures, protecting you from DNS spoofing attacks.
 Set upstream DNS server to:
 
 ```
-127.0.0.1:5335
+<your-HA-IP>:5335 or 127.0.0.1:5335
 ```
 
 This routes all DNS queries through Unbound for fully private, recursive
@@ -67,7 +67,7 @@ you add things like:
 - `local-data` for custom hostnames
 - `stub-zone` entries for internal domains
 
-Example `/addon_configs/61709215_unbound/conf.d/local.conf`:
+Example `conf.d/local.conf`:
 ```
 server:
     local-data: "myserver.home. IN A 192.168.1.50"

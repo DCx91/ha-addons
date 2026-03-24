@@ -20,6 +20,7 @@ options:
   listen_port: 5335
   do_ipv6: false
   prefetch: true
+  hyperlocal: true
   num_threads: 1
   access_control:
     - "127.0.0.0/8 allow"
@@ -32,11 +33,11 @@ schema:
   listen_port: int(1,65535)
   do_ipv6: bool
   prefetch: bool
+  hyperlocal: bool
   num_threads: int(1,32)
   access_control:
     - str
   remote: bool?
-  hyperlocal: bool?
   cache_min_ttl: int(0,3600)?
   cache_max_ttl: int(60,604800)?
   custom_config: str?

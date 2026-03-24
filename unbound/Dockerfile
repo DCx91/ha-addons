@@ -14,10 +14,10 @@ RUN apk add --no-cache \
  && unbound-anchor -a /etc/unbound/root.key || true \
  && chown root:unbound /etc/unbound \
  && chmod 775 /etc/unbound \
- && chmod 664 /etc/unbound/root.key \
- && chmod 664 /etc/unbound/root.hints \
- && chmod +x /etc/services.d/unbound/run \
-        /etc/services.d/unbound/finish \
-        /usr/local/bin/unbound-healthcheck.sh
+ && chmod a+x /etc/s6-overlay/s6-rc.d/init-unbound/up \
+              /etc/s6-overlay/s6-rc.d/init-unbound/run \
+              /etc/s6-overlay/s6-rc.d/unbound/run \
+              /etc/s6-overlay/s6-rc.d/unbound/finish \
+              /usr/local/bin/unbound-healthcheck.sh
 HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
     CMD /usr/local/bin/unbound-healthcheck.sh

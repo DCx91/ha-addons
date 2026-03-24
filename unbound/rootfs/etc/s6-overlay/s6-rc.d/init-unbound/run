@@ -1,0 +1,171 @@
+#!/usr/bin/with-contenv bashio
+# shellcheck shell=bash
+set -e
+
+bashio::log.info "Initialising Unbound DNS add-on..."
+
+# Helper for optional config values with defaults
+config_or_default() {
+    local key="$1" default="$2"
+    bashio::config.has_value "${key}" && bashio::config "${key}" || echo "${default}"
+}
+
+# Read options
+LOG_LEVEL=$(bashio::config 'log_level' | grep -o '^[0-5]')
+LISTEN_PORT=$(bashio::config 'listen_port')
+DO_IPV6=$(bashio::config 'do_ipv6')
+PREFETCH=$(bashio::config 'prefetch')
+CACHE_MIN_TTL=$(config_or_default 'cache_min_ttl' '300')
+CACHE_MAX_TTL=$(config_or_default 'cache_max_ttl' '86400')
+REMOTE=$(config_or_default 'remote' 'false')
+HYPERLOCAL=$(bashio::config 'hyperlocal')
+
+# Cap threads to CPU core count
+MAX_THREADS=$(nproc)
+NUM_THREADS=$(bashio::config 'num_threads')
+if [ "${NUM_THREADS}" -gt "${MAX_THREADS}" ]; then
+    bashio::log.warning "num_threads (${NUM_THREADS}) exceeds available CPU cores (${MAX_THREADS}), capping to ${MAX_THREADS}."
+    NUM_THREADS=${MAX_THREADS}
+fi
+
+# Persistent config directory
+CONFIG_DIR="/config"
+UNBOUND_CONF="${CONFIG_DIR}/unbound.conf"
+CONF_D_DIR="${CONFIG_DIR}/conf.d"
+ZONES_DIR="${CONFIG_DIR}/zones"
+ROOT_KEY="/etc/unbound/root.key"
+HINTS_FILE="/etc/unbound/root.hints"
+
+mkdir -p "${CONF_D_DIR}" "${ZONES_DIR}"
+
+# Refresh root hints if older than 7 days
+if [ ! -f "${HINTS_FILE}" ] || \
+   [ "$(find "${HINTS_FILE}" -mtime +7 | wc -l)" -gt 0 ]; then
+    bashio::log.info "Refreshing root hints..."
+    curl -sSL "https://www.internic.net/domain/named.root" \
+        -o "${HINTS_FILE}" \
+    || bashio::log.warning "Could not refresh root hints; using cached copy."
+fi
+
+# Build access-control lines
+ACCESS_CONTROL_LINES=""
+while read -r acl; do
+    ACCESS_CONTROL_LINES+="    access-control: ${acl}"$'\n'
+done < <(jq -r '.access_control[]' /data/options.json)
+
+# Generate unbound.conf
+bashio::log.info "Generating Unbound configuration..."
+
+cat > "${UNBOUND_CONF}" << EOF
+server:
+    verbosity: ${LOG_LEVEL}
+    num-threads: ${NUM_THREADS}
+
+    # Interfaces
+    interface: 0.0.0.0
+    port: ${LISTEN_PORT}
+$([ "${DO_IPV6}" = "true" ] && echo "    interface: ::0")
+
+    # Access control
+    access-control: 0.0.0.0/0 refuse
+    access-control: ::0/0 refuse
+${ACCESS_CONTROL_LINES}
+    # DNSSEC
+    auto-trust-anchor-file: "${ROOT_KEY}"
+    root-hints: "${HINTS_FILE}"
+
+    # Privacy & hardening
+    hide-identity: yes
+    hide-version: yes
+    harden-referral-path: yes
+    use-caps-for-id: yes
+    do-not-query-localhost: no
+    private-address: 192.168.0.0/16
+    private-address: 169.254.0.0/16
+    private-address: 172.16.0.0/12
+    private-address: 10.0.0.0/8
+    private-address: fd00::/8
+    private-address: fe80::/10
+    private-address: 192.0.2.0/24
+    private-address: 198.51.100.0/24
+    private-address: 203.0.113.0/24
+    private-address: 255.255.255.255/32
+    private-address: 2001:db8::/32
+
+    # Caching
+    cache-min-ttl: ${CACHE_MIN_TTL}
+    cache-max-ttl: ${CACHE_MAX_TTL}
+    prefetch: $([ "${PREFETCH}" = "true" ] && echo "yes" || echo "no")
+    prefetch-key: yes
+    neg-cache-size: 4m
+
+	# Performance
+	so-rcvbuf: 1m
+	rrset-cache-size: 256m
+	msg-cache-size: 128m
+	serve-expired: yes
+	outgoing-range: 8192
+	num-queries-per-thread: 4096
+
+    # IPv6
+    do-ip6: $([ "${DO_IPV6}" = "true" ] && echo "yes" || echo "no")
+
+    # Logging
+    log-queries: $([ "${LOG_LEVEL}" -ge 3 ] && echo "yes" || echo "no")
+    log-replies: $([ "${LOG_LEVEL}" -ge 3 ] && echo "yes" || echo "no")
+    use-syslog: no
+
+    # Include user-created config files
+    include-toplevel: "${CONF_D_DIR}/*.conf"
+
+$([ "${HYPERLOCAL}" = "true" ] && cat << LOCAL_EOF
+# Hyperlocal
+auth-zone:
+    name: "."
+    master: k.root-servers.net
+    master: i.root-servers.net
+    fallback-enabled: yes
+    for-downstream: no
+    for-upstream: yes
+    zonefile: "/etc/unbound/root.zone"
+LOCAL_EOF
+)
+
+$([ "${REMOTE}" = "true" ] && cat << REMOTE_EOF
+# Remote control
+remote-control:
+    control-enable: yes
+    control-interface: ${CONFIG_DIR}/unbound.control.sock
+	control-use-cert: no
+REMOTE_EOF
+)
+EOF
+
+# Apply any custom config
+if bashio::config.has_value 'custom_config'; then
+    CUSTOM_CONFIG=$(bashio::config 'custom_config')
+    bashio::log.info "Applying custom config snippet..."
+    {
+        echo ""
+        echo "# --- Custom config from app options ---"
+        echo "${CUSTOM_CONFIG}"
+    } >> "${UNBOUND_CONF}"
+fi
+
+# Validate configuration
+bashio::log.info "Validating configuration..."
+if ! unbound-checkconf "${UNBOUND_CONF}"; then
+    bashio::log.fatal "Unbound configuration is invalid! Check your options."
+    exit 1
+fi
+
+bashio::log.info "Port			: ${LISTEN_PORT}"
+bashio::log.info "Prefetch		: ${PREFETCH}"
+bashio::log.info "Remote		: ${REMOTE}"
+bashio::log.info "Log Level		: ${LOG_LEVEL}"
+bashio::log.info "IPv6			: ${DO_IPV6}"
+bashio::log.info "Threads		: ${NUM_THREADS}"
+bashio::log.info "Min TTL		: ${CACHE_MIN_TTL}s"
+bashio::log.info "Max TTL		: ${CACHE_MAX_TTL}s"
+bashio::log.info "Hyperlocal	: ${HYPERLOCAL}"
+bashio::log.info "Custom Config	: $(bashio::config.has_value 'custom_config' && echo "${CUSTOM_CONFIG}" || echo 'no')"

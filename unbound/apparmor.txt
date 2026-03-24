@@ -9,20 +9,6 @@ profile unbound flags=(attach_disconnected,mediate_deleted) {
 
   capability chown,
 
-  # S6-Overlay & Bashio
-  /bin/** ix,
-  /etc/services.d/** rwix,
-  /init rix,
-  /run/** rw,
-  /run/s6/** rwkix,
-  /tmp/** rw,
-  /usr/bin/** ix,
-  /usr/lib/bashio/** ix,
-
-  # Access to options and config
-  /config/** rw,
-  /data/** rw,
-
   # Transition to child profile for the daemon
   /usr/sbin/unbound cx,
 
@@ -41,11 +27,11 @@ profile unbound flags=(attach_disconnected,mediate_deleted) {
     network inet6 dgram,
     network inet6 stream,
 
-    /config/** rw,
-    /dev/null rw,
-    /dev/urandom r,
-    /etc/unbound/** rw,
-    /proc/** r,
     /usr/sbin/unbound rm,
+    /etc/unbound/** r,
+    /addon_configs/unbound/** rw,
+    /proc/** r,
+    /dev/urandom r,
+    /dev/null rw,
   }
 }
