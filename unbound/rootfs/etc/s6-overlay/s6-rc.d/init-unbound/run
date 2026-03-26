@@ -107,7 +107,10 @@ ${ACCESS_CONTROL_LINES}
 	serve-expired: yes
 	outgoing-range: 8192
 	num-queries-per-thread: 4096
+
+	# TCP
 	do-tcp: $([ "${TCP}" = "true" ] && echo "yes" || echo "no")
+	minimal-responses: $([ "${TCP}" = "true" ] && echo "no" || echo "yes")
 
     # IPv6
     do-ip6: $([ "${DO_IPV6}" = "true" ] && echo "yes" || echo "no")
