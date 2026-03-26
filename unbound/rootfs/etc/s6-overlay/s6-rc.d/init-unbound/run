@@ -1,13 +1,12 @@
 #!/usr/bin/with-contenv bashio
 # shellcheck shell=bash
 set -e
-
 bashio::log.info "Initialising Unbound DNS add-on..."
 
 # Helper for optional config values with defaults
 config_or_default() {
-    local key="$1" default="$2"
-    bashio::config.has_value "${key}" && bashio::config "${key}" || echo "${default}"
+	local key="$1" default="$2"
+	bashio::config.has_value "${key}" && bashio::config "${key}" || echo "${default}"
 }
 
 # Read options
@@ -25,8 +24,8 @@ TCP=$(config_or_default 'tcp' 'true')
 MAX_THREADS=$(nproc)
 NUM_THREADS=$(bashio::config 'num_threads')
 if [ "${NUM_THREADS}" -gt "${MAX_THREADS}" ]; then
-    bashio::log.warning "num_threads (${NUM_THREADS}) exceeds available CPU cores (${MAX_THREADS}), capping to ${MAX_THREADS}."
-    NUM_THREADS=${MAX_THREADS}
+	bashio::log.warning "num_threads (${NUM_THREADS}) exceeds available CPU cores (${MAX_THREADS}), capping to ${MAX_THREADS}."
+	NUM_THREADS=${MAX_THREADS}
 fi
 
 # Persistent config directory
@@ -41,17 +40,17 @@ mkdir -p "${CONF_D_DIR}" "${ZONES_DIR}"
 
 # Refresh root hints if older than 7 days
 if [ ! -f "${HINTS_FILE}" ] || \
-   [ "$(find "${HINTS_FILE}" -mtime +7 | wc -l)" -gt 0 ]; then
-    bashio::log.info "Refreshing root hints..."
-    curl -sSL "https://www.internic.net/domain/named.root" \
-        -o "${HINTS_FILE}" \
-    || bashio::log.warning "Could not refresh root hints; using cached copy."
+	[ "$(find "${HINTS_FILE}" -mtime +7 | wc -l)" -gt 0 ]; then
+		bashio::log.info "Refreshing root hints..."
+		curl -sSL "https://www.internic.net/domain/named.root" \
+		-o "${HINTS_FILE}" \
+		|| bashio::log.warning "Could not refresh root hints; using cached copy."
 fi
 
 # Build access-control lines
 ACCESS_CONTROL_LINES=""
 while read -r acl; do
-    ACCESS_CONTROL_LINES+="    access-control: ${acl}"$'\n'
+	ACCESS_CONTROL_LINES+="    access-control: ${acl}"$'\n'
 done < <(jq -r '.access_control[]' /data/options.json)
 
 # Generate unbound.conf
@@ -59,46 +58,46 @@ bashio::log.info "Generating Unbound configuration..."
 
 cat > "${UNBOUND_CONF}" << EOF
 server:
-    verbosity: ${LOG_LEVEL}
-    num-threads: ${NUM_THREADS}
+	verbosity: ${LOG_LEVEL}
+	num-threads: ${NUM_THREADS}
 
-    # Interfaces
-    interface: 0.0.0.0
-    port: ${LISTEN_PORT}
+	# Interfaces
+	interface: 0.0.0.0
+	port: ${LISTEN_PORT}
 $([ "${DO_IPV6}" = "true" ] && echo "    interface: ::0")
 
-    # Access control
-    access-control: 0.0.0.0/0 refuse
-    access-control: ::0/0 refuse
+	# Access control
+	access-control: 0.0.0.0/0 refuse
+	access-control: ::0/0 refuse
 ${ACCESS_CONTROL_LINES}
-    # DNSSEC
-    auto-trust-anchor-file: "${ROOT_KEY}"
-    root-hints: "${HINTS_FILE}"
+	# DNSSEC
+	auto-trust-anchor-file: "${ROOT_KEY}"
+	root-hints: "${HINTS_FILE}"
 
-    # Privacy & hardening
-    hide-identity: yes
-    hide-version: yes
-    harden-referral-path: yes
-    use-caps-for-id: yes
-    do-not-query-localhost: no
-    private-address: 192.168.0.0/16
-    private-address: 169.254.0.0/16
-    private-address: 172.16.0.0/12
-    private-address: 10.0.0.0/8
-    private-address: fd00::/8
-    private-address: fe80::/10
-    private-address: 192.0.2.0/24
-    private-address: 198.51.100.0/24
-    private-address: 203.0.113.0/24
-    private-address: 255.255.255.255/32
-    private-address: 2001:db8::/32
+	# Privacy & hardening
+	hide-identity: yes
+	hide-version: yes
+	harden-referral-path: yes
+	use-caps-for-id: yes
+	do-not-query-localhost: no
+	private-address: 192.168.0.0/16
+	private-address: 169.254.0.0/16
+	private-address: 172.16.0.0/12
+	private-address: 10.0.0.0/8
+	private-address: fd00::/8
+	private-address: fe80::/10
+	private-address: 192.0.2.0/24
+	private-address: 198.51.100.0/24
+	private-address: 203.0.113.0/24
+	private-address: 255.255.255.255/32
+	private-address: 2001:db8::/32
 
-    # Caching
-    cache-min-ttl: ${CACHE_MIN_TTL}
-    cache-max-ttl: ${CACHE_MAX_TTL}
-    prefetch: $([ "${PREFETCH}" = "true" ] && echo "yes" || echo "no")
-    prefetch-key: yes
-    neg-cache-size: 4m
+	# Caching
+	cache-min-ttl: ${CACHE_MIN_TTL}
+	cache-max-ttl: ${CACHE_MAX_TTL}
+	prefetch: $([ "${PREFETCH}" = "true" ] && echo "yes" || echo "no")
+	prefetch-key: yes
+	neg-cache-size: 4m
 
 	# Performance
 	so-rcvbuf: 1m
@@ -112,35 +111,35 @@ ${ACCESS_CONTROL_LINES}
 	do-tcp: $([ "${TCP}" = "true" ] && echo "yes" || echo "no")
 	minimal-responses: $([ "${TCP}" = "true" ] && echo "no" || echo "yes")
 
-    # IPv6
-    do-ip6: $([ "${DO_IPV6}" = "true" ] && echo "yes" || echo "no")
+	# IPv6
+	do-ip6: $([ "${DO_IPV6}" = "true" ] && echo "yes" || echo "no")
 
-    # Logging
-    log-queries: $([ "${LOG_LEVEL}" -ge 3 ] && echo "yes" || echo "no")
-    log-replies: $([ "${LOG_LEVEL}" -ge 3 ] && echo "yes" || echo "no")
-    use-syslog: no
+	# Logging
+	log-queries: $([ "${LOG_LEVEL}" -ge 3 ] && echo "yes" || echo "no")
+	log-replies: $([ "${LOG_LEVEL}" -ge 3 ] && echo "yes" || echo "no")
+	use-syslog: no
 
-    # Include user-created config files
-    include-toplevel: "${CONF_D_DIR}/*.conf"
+	# Include user-created config files
+	include-toplevel: "${CONF_D_DIR}/*.conf"
 
 $([ "${HYPERLOCAL}" = "true" ] && cat << LOCAL_EOF
 # Hyperlocal
 auth-zone:
-    name: "."
-    master: k.root-servers.net
-    master: i.root-servers.net
-    fallback-enabled: yes
-    for-downstream: no
-    for-upstream: yes
-    zonefile: "/etc/unbound/root.zone"
+	name: "."
+	master: k.root-servers.net
+	master: i.root-servers.net
+	fallback-enabled: yes
+	for-downstream: no
+	for-upstream: yes
+	zonefile: "/etc/unbound/root.zone"
 LOCAL_EOF
 )
 
 $([ "${REMOTE}" = "true" ] && cat << REMOTE_EOF
 # Remote control
 remote-control:
-    control-enable: yes
-    control-interface: ${CONFIG_DIR}/unbound.control.sock
+	control-enable: yes
+	control-interface: ${CONFIG_DIR}/unbound.control.sock
 	control-use-cert: no
 REMOTE_EOF
 )
@@ -163,8 +162,6 @@ if ! unbound-checkconf "${UNBOUND_CONF}"; then
     bashio::log.fatal "Unbound configuration is invalid! Check your options."
     exit 1
 fi
-
-chown unbound:unbound /config/unbound.conf
 
 bashio::log.info "Port			: ${LISTEN_PORT}"
 bashio::log.info "Prefetch		: ${PREFETCH}"
