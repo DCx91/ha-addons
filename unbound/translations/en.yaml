@@ -46,8 +46,15 @@ configuration:
   remote:
     name: Remote Control
     description: >-
-      Enables the unbound-control command. SSH syntax: docker exec -it $(docker ps -q --filter "name=unbound") unbound-control -c /addon_configs/unbound/unbound.conf [command]
+      Enables the unbound-control command. SSH syntax: 
+      docker exec -it $(docker ps -q --filter "name=unbound") "unbound-control -s /config/unbound.control.sock [command]"
   hyperlocal:
     name: Hyperlocal
     description: >-
-      Stores a local copy of the DNS root zone for faster resolution. Increases memory usage slightly, but reduces latency for uncached queries.
+      Stores a local copy of the DNS root zone for faster resolution. 
+      Increases memory usage slightly, but reduces latency for uncached queries.
+  tcp:
+    name: TCP Queries
+    description: >-
+      Allow Unbound to accept DNS queries over TCP. Disabling may improve performance.
+      Confirm TCP usage is zero via the "total.tcpusage" stat. 
