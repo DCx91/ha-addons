@@ -13,6 +13,7 @@ RUN apk add --no-cache \
         -o /etc/unbound/root.hints \
  && unbound-anchor -a /etc/unbound/root.key || true \
  && chown root:unbound /etc/unbound \
+ && chown unbound:unbound /config/unbound.conf \
  && chmod 775 /etc/unbound \
  && chmod a+x /etc/s6-overlay/s6-rc.d/init-unbound/up \
               /etc/s6-overlay/s6-rc.d/init-unbound/run \
