@@ -164,6 +164,8 @@ if ! unbound-checkconf "${UNBOUND_CONF}"; then
     exit 1
 fi
 
+chown unbound:unbound /config/unbound.conf
+
 bashio::log.info "Port			: ${LISTEN_PORT}"
 bashio::log.info "Prefetch		: ${PREFETCH}"
 bashio::log.info "Remote		: ${REMOTE}"
