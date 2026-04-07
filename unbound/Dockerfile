@@ -18,6 +18,8 @@ RUN apk add --no-cache \
               /etc/s6-overlay/s6-rc.d/init-unbound/run \
               /etc/s6-overlay/s6-rc.d/unbound/run \
               /etc/s6-overlay/s6-rc.d/unbound/finish \
+              /etc/s6-overlay/s6-rc.d/unbound-load-cache/up \
+              /etc/s6-overlay/s6-rc.d/unbound-load-cache/run \
               /usr/local/bin/unbound-healthcheck.sh
 HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
     CMD /usr/local/bin/unbound-healthcheck.sh
