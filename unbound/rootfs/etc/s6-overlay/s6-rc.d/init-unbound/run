@@ -13,7 +13,7 @@ config_or_default() {
 LOG_LEVEL=$(bashio::config 'log_level' | grep -o '^[0-5]')
 LISTEN_PORT=$(bashio::config 'listen_port')
 DO_IPV6=$(bashio::config 'do_ipv6')
-PREFETCH=$(bashio::config 'prefetch')
+PREFETCH=$(config_or_default 'prefetch' 'true')
 CACHE_MIN_TTL=$(config_or_default 'cache_min_ttl' '300')
 CACHE_MAX_TTL=$(config_or_default 'cache_max_ttl' '86400')
 REMOTE=$(config_or_default 'remote' 'false')
