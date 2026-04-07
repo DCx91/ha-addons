@@ -13,16 +13,14 @@ config_or_default() {
 LOG_LEVEL=$(bashio::config 'log_level' | grep -o '^[0-5]')
 LISTEN_PORT=$(bashio::config 'listen_port')
 DO_IPV6=$(bashio::config 'do_ipv6')
-PREFETCH=$(config_or_default 'prefetch' 'true')
+NUM_THREADS=$(bashio::config 'num_threads')
+HYPERLOCAL=$(config_or_default 'hyperlocal' 'true')
+PERSIST_CACHE=$(config_or_default 'persist_cache' 'true')
 CACHE_MIN_TTL=$(config_or_default 'cache_min_ttl' '300')
 CACHE_MAX_TTL=$(config_or_default 'cache_max_ttl' '86400')
-REMOTE=$(config_or_default 'remote' 'true')
-HYPERLOCAL=$(config_or_default 'hyperlocal' 'true')
-PERSIST_CACHE=$(bashio::config 'persist_cache')
 
 # Cap threads to CPU core count
 MAX_THREADS=$(nproc)
-NUM_THREADS=$(bashio::config 'num_threads')
 if [ "${NUM_THREADS}" -gt "${MAX_THREADS}" ]; then
 	bashio::log.warning "num_threads (${NUM_THREADS}) exceeds available CPU cores (${MAX_THREADS}), capping to ${MAX_THREADS}."
 	NUM_THREADS=${MAX_THREADS}
@@ -93,7 +91,7 @@ ${ACCESS_CONTROL_LINES}
 	# Caching
 	cache-min-ttl: ${CACHE_MIN_TTL}
 	cache-max-ttl: ${CACHE_MAX_TTL}
-	prefetch: $([ "${PREFETCH}" = "true" ] && echo "yes" || echo "no")
+	prefetch: yes
 	prefetch-key: yes
 	neg-cache-size: 4m
 
@@ -116,6 +114,11 @@ ${ACCESS_CONTROL_LINES}
 	# Include user-created config files
 	include-toplevel: "${CONF_D_DIR}/*.conf"
 
+remote-control:
+	control-enable: yes
+	control-interface: ${CONFIG_DIR}/unbound.control.sock
+	control-use-cert: no
+
 $([ "${HYPERLOCAL}" = "true" ] && cat << LOCAL_EOF
 # Hyperlocal
 auth-zone:
@@ -127,15 +130,6 @@ auth-zone:
 	for-upstream: yes
 	zonefile: "/etc/unbound/root.zone"
 LOCAL_EOF
-)
-
-$([ "${REMOTE}" = "true" ] && cat << REMOTE_EOF
-# Remote control
-remote-control:
-	control-enable: yes
-	control-interface: ${CONFIG_DIR}/unbound.control.sock
-	control-use-cert: no
-REMOTE_EOF
 )
 EOF
 
@@ -157,18 +151,16 @@ if ! unbound-checkconf "${UNBOUND_CONF}"; then
     exit 1
 fi
 
-log_setting() {
+log_output() {
     bashio::log.info "$(printf '%-15s: %s' "$1" "$2")"
 }
 
-log_setting "Port" "${LISTEN_PORT}"
-log_setting "Prefetch" "${PREFETCH}"
-log_setting "Remote" "${REMOTE}"
-log_setting "Log Level" "${LOG_LEVEL}"
-log_setting "IPv6" "${DO_IPV6}"
-log_setting "Threads" "${NUM_THREADS}"
-log_setting "Min TTL" "${CACHE_MIN_TTL}s"
-log_setting "Max TTL" "${CACHE_MAX_TTL}s"
-log_setting "Hyperlocal" "${HYPERLOCAL}"
-log_setting "Persist Cache" "${PERSIST_CACHE}"
-log_setting "Custom Config" "$(bashio::config.has_value 'custom_config' && echo "${CUSTOM_CONFIG}" || echo 'false')"
+log_output "Port" "${LISTEN_PORT}"
+log_output "Log Level" "${LOG_LEVEL}"
+log_output "IPv6" "${DO_IPV6}"
+log_output "Threads" "${NUM_THREADS}"
+log_output "Min TTL" "${CACHE_MIN_TTL}s"
+log_output "Max TTL" "${CACHE_MAX_TTL}s"
+log_output "Hyperlocal" "${HYPERLOCAL}"
+log_output "Persist Cache" "${PERSIST_CACHE}"
+log_output "Custom Config" "$(bashio::config.has_value 'custom_config' && echo "${CUSTOM_CONFIG}" || echo 'false')"
