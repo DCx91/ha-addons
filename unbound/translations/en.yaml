@@ -2,13 +2,12 @@ configuration:
   listen_port:
     name: Port
     description: >-
-      UDP/TCP port Unbound will listen on. Default 5335 to avoid conflicts
-      with the system resolver.
+      UDP/TCP port Unbound will listen on. Default: 5335.
   do_ipv6:
     name: Enable IPv6
     description: >-
-      Allow Unbound to listen and resolve over IPv6. Disable if your
-      network has no IPv6.
+      Allow Unbound to listen and resolve over IPv6. 
+      Disable if your network has no IPv6.
   log_level:
     name: Log Level
     description: >-
@@ -23,16 +22,11 @@ configuration:
     description: >-
       Maximum time a DNS record can remain cached regardless of the
       record's own TTL. Default: 86400
-  prefetch:
-    name: Prefetch Cache Entries
-    description: >-
-      Refreshes frequently accessed cache entries before they expire,
-      reducing latency for popular domains.
   num_threads:
     name: Number of Threads
     description: >-
-      Number of Unbound worker threads. For most home setups 1–2 is
-      sufficient. Max: 32 (limited to CPU core count)
+      Number of Unbound worker threads. For most home setups 1-2 is
+      sufficient. Max: 32 (limited to CPU core count).
   access_control:
     name: Access Control List
     description: >-
@@ -43,13 +37,12 @@ configuration:
     description: >-
       Raw Unbound config text appended to unbound.conf.
       Useful for advanced options like forward-zone or local-data. Confirm structure in YAML mode.
-  remote:
-    name: Remote Control
-    description: >-
-      Enables the unbound-control command. SSH syntax: 
-      docker exec -it $(docker ps -q --filter "name=unbound") "unbound-control -s /config/unbound.control.sock [command]"
   hyperlocal:
     name: Hyperlocal
     description: >-
       Stores a local copy of the DNS root zone for faster resolution. 
-      Increases memory usage slightly, but reduces latency for uncached queries.
+      Increases memory usage slightly, but reduces latency for uncached queries. Defautlt: Enabled.
+  persist_cache:
+    name: Persist Cache
+    description: >-
+      Enables cache persistence on Unbound restart. Requires Remote Control to be enabled. Default: Enabled.
