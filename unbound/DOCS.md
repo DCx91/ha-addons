@@ -32,14 +32,15 @@ It also validates DNSSEC signatures, protecting you from DNS spoofing attacks.
 
 | Option | Default | Description |
 |---|---|---|
+| `log_level` | `1` | Logging verbosity (0–5) |
 | `listen_port` | `5335` | Port Unbound listens on (UDP + TCP) |
 | `do_ipv6` | `false` | Enable IPv6 resolution |
-| `log_level` | `1` | Logging verbosity (0–5) |
-| `cache_min_ttl` | `300` | Minimum TTL for cached records (seconds) |
-| `cache_max_ttl` | `86400` | Maximum TTL for cached records (seconds) |
-| `prefetch` | `true` | Prefetch expiring cache entries |
 | `num_threads` | `1` | Worker thread count |
 | `access_control` | RFC 1918 ranges | Subnets allowed to query Unbound |
+| `hyperlocal` | `true` | Stores a local copy of the DNS root zone for faster resolution |
+| `persist_cache` | `true` | Dumps & restores cache on restart |
+| `cache_min_ttl` | `300` | Minimum TTL for cached records (seconds) |
+| `cache_max_ttl` | `86400` | Maximum TTL for cached records (seconds) |
 | `custom_config` | `""` | Raw Unbound config appended to `unbound.conf` |
 
 ---
