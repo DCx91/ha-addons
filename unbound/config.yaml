@@ -19,8 +19,8 @@ options:
   log_level: "1 - Operational"
   listen_port: 5335
   do_ipv6: false
-  prefetch: true
   hyperlocal: true
+  persist_cache: true
   num_threads: 1
   access_control:
     - "127.0.0.0/8 allow"
@@ -32,12 +32,13 @@ schema:
   log_level: list(0 - Error|1 - Operational|2 - Detailed|3 - Query|4 - Algorithm|5 - Cache Misses)?
   listen_port: int(1,65535)
   do_ipv6: bool
-  prefetch: bool
   hyperlocal: bool
+  persist_cache: bool?
   num_threads: int(1,32)
   access_control:
     - str
   remote: bool?
+  prefetch: bool?
   cache_min_ttl: int(0,3600)?
   cache_max_ttl: int(60,604800)?
   custom_config: str?
