@@ -9,7 +9,7 @@ arch:
   - amd64
 startup: system
 init: false
-image: ghcr.io/dcx91/unbound-{arch}
+image: ghcr.io/dcx91/unbound
 ports:
   5335/udp: 5335
   5335/tcp: 5335
