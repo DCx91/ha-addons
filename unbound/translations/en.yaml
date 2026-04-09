@@ -1,0 +1,48 @@
+configuration:
+  listen_port:
+    name: Port
+    description: >-
+      UDP/TCP port Unbound will listen on. Default: 5335.
+  do_ipv6:
+    name: Enable IPv6
+    description: >-
+      Allow Unbound to listen and resolve over IPv6. 
+      Disable if your network has no IPv6.
+  log_level:
+    name: Log Level
+    description: >-
+      Logging verbosity. Levels 3+ may significantly affect performance.
+  cache_min_ttl:
+    name: Cache Minimum TTL (seconds)
+    description: >-
+      Minimum time a DNS record is held in cache. Raising this reduces
+      upstream queries but may delay propagation of DNS changes. Default: 300
+  cache_max_ttl:
+    name: Cache Maximum TTL (seconds)
+    description: >-
+      Maximum time a DNS record can remain cached regardless of the
+      record's own TTL. Default: 86400
+  num_threads:
+    name: Number of Threads
+    description: >-
+      Number of Unbound worker threads. For most home setups 1-2 is
+      sufficient. Max: 32 (limited to CPU core count).
+  access_control:
+    name: Access Control List
+    description: >-
+      List of subnets allowed to query Unbound, e.g.
+      "192.168.1.0/24 allow". All other sources are refused.
+  custom_config:
+    name: Custom Unbound Config Snippet
+    description: >-
+      Raw Unbound config text appended to unbound.conf.
+      Useful for advanced options like forward-zone or local-data. Confirm structure in YAML mode.
+  hyperlocal:
+    name: Hyperlocal
+    description: >-
+      Stores a local copy of the DNS root zone for faster resolution. 
+      Increases memory usage slightly, but reduces latency for uncached queries. Defautlt: Enabled.
+  persist_cache:
+    name: Persist Cache
+    description: >-
+      Enables cache persistence on Unbound restart. Requires Remote Control to be enabled. Default: Enabled.

@@ -1,0 +1,86 @@
+name: Update AIOStreams version
+on:
+  schedule:
+    - cron: '0 6 * * *' 
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Get latest upstream version
+        id: upstream
+        run: |
+          VERSION=$(curl -s https://api.github.com/repos/Viren070/AIOStreams/releases/latest \
+            | jq -r .tag_name | sed 's/^v//')
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Get current addon version
+        id: current
+        run: |
+          VERSION=$(grep '^version:' aiostreams/config.yaml | awk '{print $2}' | tr -d '"')
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Bump version and open PR
+        if: steps.upstream.outputs.version != steps.current.outputs.version
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git checkout -b update/aiostreams-v${{ steps.upstream.outputs.version }}
+          sed -i 's/^version: .*/version: "${{ steps.upstream.outputs.version }}"/' aiostreams/config.yaml
+          git commit -am "Update AIOStreams to v${{ steps.upstream.outputs.version }}"
+          git push --force origin update/aiostreams-v${{ steps.upstream.outputs.version }}
+
+      - name: Update changelog
+        if: steps.upstream.outputs.version != steps.current.outputs.version
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          RELEASE_NOTES=$(curl -s \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            https://api.github.com/repos/Viren070/AIOStreams/releases/latest \
+            | jq -r .body)
+
+          CHANGELOG_FILE="aiostreams/CHANGELOG.md"
+
+          # Create file with header if it doesn't exist
+          if [ ! -f "$CHANGELOG_FILE" ]; then
+            echo "# Changelog" > "$CHANGELOG_FILE"
+            echo "" >> "$CHANGELOG_FILE"
+          fi
+
+          # Prepend new entry to existing changelog
+          TEMP=$(mktemp)
+          echo "# Changelog" > "$TEMP"
+          echo "" >> "$TEMP"
+          echo "## v${{ steps.upstream.outputs.version }}" >> "$TEMP"
+          echo "" >> "$TEMP"
+          echo "$RELEASE_NOTES" >> "$TEMP"
+          echo "" >> "$TEMP"
+          # Append everything except the existing header
+          tail -n +2 "$CHANGELOG_FILE" >> "$TEMP"
+          mv "$TEMP" "$CHANGELOG_FILE"
+
+          git add "$CHANGELOG_FILE"
+
+      - name: Create pull request
+        if: steps.upstream.outputs.version != steps.current.outputs.version
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          EXISTING=$(gh pr list --head update/aiostreams-v${{ steps.upstream.outputs.version }} --json number --jq '.[0].number')
+          if [ -z "$EXISTING" ]; then
+            gh pr create \
+              --title "Update AIOStreams to v${{ steps.upstream.outputs.version }}" \
+              --body "Upstream [v${{ steps.upstream.outputs.version }}](https://github.com/Viren070/AIOStreams/releases/tag/v${{ steps.upstream.outputs.version }}) is now available." \
+              --base main \
+              --head update/aiostreams-v${{ steps.upstream.outputs.version }}
+          else
+            echo "PR #$EXISTING already exists for this version, skipping."
+          fi

@@ -1,0 +1,34 @@
+name: "Music Assistant Alexa Skill"
+version: "0.0.39-beta"
+slug: "music_assistant_alexa_skill"
+description: "Alexa skill backend for Music Assistant"
+url: "https://github.com/alams154/music-assistant-alexa-skill-prototype"
+arch:
+  - aarch64
+  - amd64
+init: false
+ports:
+  5000/tcp: 5000
+ports_description:
+  5000/tcp: "Flask web UI and Alexa skill endpoint"
+map:
+  - data:rw
+apparmor: true
+webui: http://[HOST]:[PORT:5000]/status
+image: ghcr.io/dcx91/music_assistant_alexa_beta
+options:
+  SKILL_HOSTNAME: ""
+  MA_HOSTNAME: ""
+  APP_USERNAME: ma-alexa
+  APP_PASSWORD: ""
+  PORT: 5000
+  LOCALE: en-GB
+  AWS_DEFAULT_REGION: eu-west-2
+schema:
+  SKILL_HOSTNAME: str
+  MA_HOSTNAME: str
+  APP_USERNAME: str
+  APP_PASSWORD: password
+  PORT: int
+  LOCALE: str
+  AWS_DEFAULT_REGION: str

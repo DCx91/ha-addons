@@ -1,0 +1,17 @@
+#!/usr/bin/with-contenv bashio
+# shellcheck shell=bash
+PERSIST_CACHE=$(bashio::config 'persist_cache')
+
+if [ "${PERSIST_CACHE}" != "false" ]; then
+    if [ -f "/config/unbound_cache.dump" ]; then
+        bashio::log.info "Waiting for Unbound control socket..."
+        until [ -S /config/unbound.control.sock ]; do sleep 0.5; done
+        bashio::log.info "Loading cache..."
+        unbound-control -s /config/unbound.control.sock load_cache < /config/unbound_cache.dump \
+            && bashio::log.info "Cache loaded successfully." \
+            || bashio::log.warning "Cache import failed - unbound-control returned an error."
+    else
+        bashio::log.warning "Cache import skipped - no cache file found at /config/unbound_cache.dump."
+
+    fi
+fi

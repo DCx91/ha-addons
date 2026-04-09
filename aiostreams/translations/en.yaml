@@ -1,0 +1,42 @@
+configuration:
+  base_url:
+    name: Base URL
+    description: >-
+      The public URL of this addon, e.g. https://[domain].duckdns.org.
+      HTTPS is required for built-in addons, install links, and stream URL generation
+      to work correctly. 
+  log_level:
+    name: Log Level
+    description: >-
+      Verbosity of addon logs. 'info', 'warning', or 'error' is recommended for normal use. Use
+      'debug' or 'verbose' when troubleshooting issues.
+  trakt_id:
+    name: Trakt Client ID
+    description: >-
+      Provide a trakt client ID for authorised requests to get trakt aliases.
+      You can create a key here: https://trakt.tv/oauth/applications
+  addon_password:
+    name: Addon Password
+    description: >-
+      API key to protect your addon installation and usage.
+      Leave empty to disable password protection.
+      Can be any string. Supports multiple passwords separated by commas.
+  anime_api:
+    name: Detailed Anime Metadata
+    description: >-
+      Enables loading of detailed anime metadata. 
+      Significantly increases memory overhead, but recommended if you watch anime.
+  sensitive_info:
+    name: Sensitive info
+    description: >-
+      Includes potentially sensitive info (like API keys) in logs for debugging.
+  trusted_uuid:
+    name: Trusted UUID
+    description: >-
+      Allows risky configuration options for the added UUID (i.e. Regex).
+  secret_key:
+    name: Secret Key
+    description: >-
+      64-character hex key used to encrypt addon configurations. Leave blank to
+      auto-generate one on first start. If you change this, all existing user
+      configurations will be invalidated.
