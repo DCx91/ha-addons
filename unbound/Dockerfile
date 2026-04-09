@@ -2,12 +2,10 @@ ARG BUILD_FROM
 FROM ${BUILD_FROM}
 COPY rootfs /
 RUN apk add --no-cache \
-        unbound \
         drill \
         ldns \
-        ca-certificates \
         openssl \
-        curl \
+        unbound \
  && rm -rf /var/cache/apk/* \
  && curl -sSL "https://www.internic.net/domain/named.root" \
         -o /etc/unbound/root.hints \
