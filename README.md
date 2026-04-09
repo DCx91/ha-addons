@@ -9,6 +9,7 @@ Community app repository for Home Assistant.
 |--------|-------------|
 | [**Unbound DNS**](unbound/README.md) | Validating, recursive, caching DNS resolver with DNSSEC |
 | [**AIOStreams**](aiostreams/README.md) | Self-hosted AIOStreams addon for Stremio |
+| [**Music Assistant - Alexa**](music_assistant_alexa_beta/README.md) | Add Alexa devices to Music Assistant |
 
 
 ---
@@ -36,3 +37,4 @@ Then find your desired app in the store and click **Install**.
 - Unbound app adapted from [madnuttah/unbound-docker](https://github.com/madnuttah/unbound-docker).
 Unbound is developed by [NLnet Labs](https://nlnetlabs.nl/projects/unbound/about/).
 - AIOStreams app adapted from [Viren070/AIOStreams](https://github.com/Viren070/aiostreams).
+- Music Assistant - Alexa adapted from [alams154/music-assistant-alexa-skill-prototype](https://github.com/alams154/music-assistant-alexa-skill-prototype/tree/master)
