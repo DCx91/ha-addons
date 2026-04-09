@@ -1,0 +1,23 @@
+#!/usr/bin/with-contenv bashio
+bashio::log.info "Setting up persistent ASK CLI credential store..."
+
+SKILL_HOSTNAME="$(bashio::config 'SKILL_HOSTNAME' || true)"
+if bashio::var.is_empty "${SKILL_HOSTNAME}"; then
+    bashio::log.fatal "Skill hostname is required. Set it in the app configuration and restart."
+    exit 1
+fi
+
+mkdir -p /data/.ask
+
+if [ -L /root/.ask ]; then
+    bashio::log.debug "/root/.ask symlink already present, skipping."
+elif [ -d /root/.ask ]; then
+    bashio::log.info "Migrating existing /root/.ask into /data/.ask..."
+    cp -a /root/.ask/. /data/.ask/ 2>/dev/null || true
+    rm -rf /root/.ask
+    ln -s /data/.ask /root/.ask
+else
+    ln -s /data/.ask /root/.ask
+fi
+
+bashio::log.info "/root/.ask -> /data/.ask successful (credentials persist across restarts)."

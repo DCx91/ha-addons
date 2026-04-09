@@ -1,0 +1,37 @@
+{
+  "interactionModel": {
+    "languageModel": {
+      "invocationName": "",
+      "intents": [
+        { "intent": "AMAZON.CancelIntent", "utterances": ["annuleren", "laat maar", "vergeet het"] },
+        { "intent": "AMAZON.FallbackIntent", "utterances": ["ik weet het niet", "dat helpt niet"] },
+        { "intent": "AMAZON.HelpIntent", "utterances": ["help", "help me", "kun je me helpen"] },
+        { "intent": "AMAZON.LoopOffIntent", "utterances": ["lus uit", "herhalen uitschakelen"] },
+        { "intent": "AMAZON.LoopOnIntent", "utterances": ["herhalen", "lus aan", "blijf afspelen"] },
+        { "intent": "AMAZON.NextIntent", "utterances": ["volgende", "sla over", "ga naar de volgende"] },
+        { "intent": "AMAZON.NoIntent", "utterances": ["nee", "nee bedankt"] },
+        { "intent": "AMAZON.PauseIntent", "utterances": ["pauze", "pauzeer"] },
+        { "intent": "AMAZON.PreviousIntent", "utterances": ["vorige", "ga terug"] },
+        { "intent": "AMAZON.RepeatIntent", "utterances": ["herhaal dat", "nog een keer", "zeg het nog eens"] },
+        { "intent": "AMAZON.ResumeIntent", "utterances": ["doorgaan", "hervatten"] },
+        { "intent": "AMAZON.SelectIntent", "utterances": ["selecteer dat item", "kies deze optie"] },
+        { "intent": "AMAZON.SendToPhoneIntent", "utterances": ["naar mijn telefoon sturen", "stuur het naar mijn mobiel"] },
+        { "intent": "AMAZON.ShuffleOffIntent", "utterances": ["shuffle uit", "willekeurig uit"] },
+        { "intent": "AMAZON.ShuffleOnIntent", "utterances": ["shuffle aan", "willekeurig afspelen"] },
+        { "intent": "AMAZON.StartOverIntent", "utterances": ["opnieuw beginnen", "herstart"] },
+        { "intent": "AMAZON.StopIntent", "utterances": ["stop", "hou op", "sluit af"] },
+        { "intent": "AMAZON.YesIntent", "utterances": ["ja", "graag"] },
+        { "intent": "AMAZON.ScrollUpIntent", "utterances": ["scroll omhoog"] },
+        { "intent": "AMAZON.ScrollLeftIntent", "utterances": ["scroll naar links"] },
+        { "intent": "AMAZON.ScrollDownIntent", "utterances": ["scroll omlaag"] },
+        { "intent": "AMAZON.ScrollRightIntent", "utterances": ["scroll naar rechts"] },
+        { "intent": "AMAZON.PageUpIntent", "utterances": ["pagina omhoog"] },
+        { "intent": "AMAZON.PageDownIntent", "utterances": ["pagina omlaag"] },
+        { "intent": "AMAZON.MoreIntent", "utterances": ["meer", "toon meer"] },
+        { "intent": "AMAZON.NavigateHomeIntent", "utterances": ["ga naar start", "naar de startpagina gaan"] },
+        { "intent": "AMAZON.NavigateSettingsIntent", "utterances": ["open instellingen", "ga naar instellingen"] }
+      ],
+      "types": []
+    }
+  }
+}

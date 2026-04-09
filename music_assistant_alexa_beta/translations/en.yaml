@@ -1,0 +1,31 @@
+configuration:
+  SKILL_HOSTNAME:
+    name: Skill URL
+    description: >-
+      The public URL of this addon, e.g. https://MYDOMAIN-MA.duckdns.org.
+      Used in the Alexa skill manifest and endpoint validation.
+  MA_HOSTNAME:
+    name: Music Assistant Hostname
+    description: >-
+      Music Assistant server hostname. e.g. https://MYDOMAIN.duckdns.org/app/d5369777_music_assistant.
+      Required if your device does not support APL or if you want album art.
+  APP_USERNAME:
+    name: Music Assistant Username
+    description: >-
+      Username for the Music Assistant web UI and API basic authentication.
+  APP_PASSWORD:
+    name: Music Assistant Password
+    description: >-
+      Password for the Music Assistant web UI and API basic authentication.
+  PORT:
+    name: Listen Port
+    description: >-
+      Port the service listens on inside the container.
+  LOCALE:
+    name: Skill Locale
+    description: >-
+      Skill locale used by setup and interaction model operations.
+  AWS_DEFAULT_REGION:
+    name: AWS Default Region
+    description: >-
+      AWS region used by ASK CLI operations when needed.

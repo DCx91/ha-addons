@@ -1,0 +1,13 @@
+#include <tunables/global>
+
+profile ma_alexa flags=(attach_disconnected,mediate_deleted) {
+  #include <abstractions/base>
+
+  # Capabilities
+  file,
+  signal,
+
+  # Network
+  network inet stream,
+  network inet dgram,
+}
