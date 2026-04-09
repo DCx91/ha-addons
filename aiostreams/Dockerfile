@@ -7,7 +7,6 @@ RUN apk add --no-cache \
     nodejs \
     npm \
     openssl \
-    libstdc++ \
  && npm install -g pnpm \
  && chmod a+x /etc/services.d/aiostreams/run \
               /etc/services.d/aiostreams/finish
