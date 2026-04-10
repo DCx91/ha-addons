@@ -2,13 +2,13 @@ configuration:
   SKILL_HOSTNAME:
     name: Skill URL
     description: >-
-      The public URL of this addon, e.g. https://MYDOMAIN-MA.duckdns.org.
+      The public URL of this addon, e.g. https://[Alexa.Domain].duckdns.org.
       Used in the Alexa skill manifest and endpoint validation.
   MA_HOSTNAME:
     name: Music Assistant Hostname
     description: >-
-      Music Assistant server hostname. e.g. https://MYDOMAIN.duckdns.org/app/d5369777_music_assistant.
-      Required if your device does not support APL or if you want album art.
+      Music Assistant server hostname. e.g. https://[MA.Domain].duckdns.org.
+      Required for non-touchscreen devices or if you want album art.
   APP_USERNAME:
     name: Music Assistant Username
     description: >-
