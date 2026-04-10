@@ -17,5 +17,6 @@ COPY rootfs /
 RUN chmod a+x \
     /app/scripts/ask_create_skill.sh \
     /etc/s6-overlay/s6-rc.d/init-alexa-skill/up \
+    /etc/s6-overlay/s6-rc.d/init-alexa-skill/run \
     /etc/s6-overlay/s6-rc.d/alexa-skill/run \
     /etc/s6-overlay/s6-rc.d/alexa-skill/finish
