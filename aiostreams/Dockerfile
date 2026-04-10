@@ -8,6 +8,3 @@ RUN apk add --no-cache \
     && npm install -g pnpm
 COPY --from=aiostreams /app /app
 COPY rootfs /
-RUN chmod a+x \
-    /etc/services.d/aiostreams/run \
-    /etc/services.d/aiostreams/finish
