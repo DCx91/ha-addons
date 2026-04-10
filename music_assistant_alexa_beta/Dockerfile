@@ -1,4 +1,4 @@
-ARG BUILD_FROM
+ARG BUILD_FROM=ghcr.io/home-assistant/base:latest
 FROM ${BUILD_FROM}
 RUN apk add --no-cache \
     nodejs \
@@ -6,9 +6,7 @@ RUN apk add --no-cache \
     openssl \
     python3
 WORKDIR /app
-COPY alexa_skill/app /app/app
-COPY alexa_skill/assets /app/assets
-COPY alexa_skill/scripts /app/scripts
+COPY alexa_skill /app
 RUN python3 -m venv venv \
     && . venv/bin/activate \
     && pip install --upgrade pip \
