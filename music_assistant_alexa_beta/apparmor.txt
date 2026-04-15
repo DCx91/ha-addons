@@ -1,6 +1,6 @@
 #include <tunables/global>
 
-profile music_assistant_alexa_skill_beta flags=(attach_disconnected,mediate_deleted,complain) {
+profile music_assistant_alexa_skill_beta flags=(attach_disconnected,mediate_deleted) {
   #include <abstractions/base>
 
   # Capabilities
@@ -31,7 +31,7 @@ profile music_assistant_alexa_skill_beta flags=(attach_disconnected,mediate_dele
   # Start new profile for service
   /app/app/venv/bin/python cx -> alexa_skill,
 
-  profile alexa_skill flags=(attach_disconnected,mediate_deleted,complain) {
+  profile alexa_skill flags=(attach_disconnected,mediate_deleted) {
     #include <abstractions/base>
 
     # Receive signals from S6-Overlay
