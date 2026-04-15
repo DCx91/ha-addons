@@ -20,7 +20,7 @@ configuration:
   PORT:
     name: Listen Port
     description: >-
-      Port the service listens on inside the container.
+      Port the service listens on inside the container. (Default: 5000)
   LOCALE:
     name: Skill Locale
     description: >-
