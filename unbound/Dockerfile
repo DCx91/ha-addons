@@ -1,10 +1,6 @@
 ARG BUILD_FROM=ghcr.io/home-assistant/base:latest
 FROM ${BUILD_FROM}
-RUN apk add --no-cache \
-  drill \
-  ldns \
-  openssl \
-  unbound
+RUN apk add --no-cache unbound
 RUN curl -sSL "https://www.internic.net/domain/named.root" -o /etc/unbound/root.hints \
   && unbound-anchor -a /etc/unbound/root.key || true
 COPY rootfs /
