@@ -60,6 +60,7 @@ cat > "${UNBOUND_CONF}" << EOF
 server:
 	verbosity: ${LOG_LEVEL}
 	num-threads: ${NUM_THREADS}
+	username: ""
 
 	# Interfaces
 	interface: 0.0.0.0
