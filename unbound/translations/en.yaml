@@ -1,8 +1,4 @@
 configuration:
-  listen_port:
-    name: Port
-    description: >-
-      UDP/TCP port Unbound will listen on. Default: 5335.
   do_ipv6:
     name: Enable IPv6
     description: >-
@@ -31,7 +27,7 @@ configuration:
     name: Access Control List
     description: >-
       List of subnets allowed to query Unbound, e.g.
-      "192.168.1.0/24 allow". All other sources are refused.
+      "192.168.1.0/24 allow". All other sources are refused. Default: LAN subnets.
   custom_config:
     name: Custom Unbound Config Snippet
     description: >-
