@@ -6,15 +6,37 @@ on:
   release:
     types:
       - published
+
 jobs:
+  changed:
+    runs-on: ubuntu-latest
+    outputs:
+      addons: ${{ steps.filter.outputs.changes }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+      - name: Detect changed addons
+        uses: dorny/paths-filter@v4
+        id: filter
+        with:
+          filters: |
+            unbound:
+              - 'unbound/**'
+            aiostreams:
+              - 'aiostreams/**'
+            music_assistant_alexa_beta:
+              - 'music_assistant_alexa_beta/**'
+
   build:
+    needs: changed
+    if: ${{ needs.changed.outputs.addons != '[]' }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
     strategy:
       matrix:
-        addon: [unbound, aiostreams, music_assistant_alexa_beta]
+        addon: ${{ fromJson(needs.changed.outputs.addons) }}
     steps:
       - name: Checkout
         uses: actions/checkout@v6
