@@ -4,7 +4,7 @@ PERSIST_CACHE=$(bashio::config 'persist_cache')
 
 dump_cache() {
     bashio::log.info "Dumping cache to unbound_cache.dump..."
-    unbound-control -s /config/unbound.control.sock dump_cache > /config/unbound_cache.dump \
+    unbound-control -c /config/unbound.conf dump_cache > /config/unbound_cache.dump \
         && bashio::log.info "Cache saved successfully." \
         || bashio::log.warning "Cache dump failed - unbound-control returned an error."
 }
