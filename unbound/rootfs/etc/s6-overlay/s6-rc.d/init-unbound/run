@@ -46,10 +46,12 @@ if [ ! -f "${HINTS_FILE}" ] || \
 fi
 
 # Build access-control lines
-ACCESS_CONTROL_LINES=""
-while read -r acl; do
-	ACCESS_CONTROL_LINES+="    access-control: ${acl}"$'\n'
-done < <(jq -r '.access_control[]' /data/options.json)
+if bashio::config.has_value 'access_control'; then
+	ACCESS_CONTROL_LINES=""
+	while read -r acl; do
+		ACCESS_CONTROL_LINES+="    access-control: ${acl}"$'\n'
+	done < <(jq -r '.access_control[]' /data/options.json)
+fi
 
 # Generate unbound.conf
 bashio::log.info "Generating Unbound configuration..."
@@ -67,7 +69,13 @@ $([ "${DO_IPV6}" = "true" ] && echo "    interface: ::0")
 	# Access control
 	access-control: 0.0.0.0/0 refuse
 	access-control: ::0/0 refuse
+	access-control: 10.0.0.0/8 allow
+    access-control: 127.0.0.0/8 allow
+    access-control: 172.16.0.0/12 allow
+    access-control: 192.168.0.0/16 allow
+$([ "${DO_IPV6}" = "true" ] && printf '    access-control: ::1/128 allow\n    access-control: fe80::/10 allow\n    access-control: fd00::/8 allow')
 ${ACCESS_CONTROL_LINES}
+
 	# DNSSEC
 	auto-trust-anchor-file: "${ROOT_KEY}"
 	root-hints: "${HINTS_FILE}"
