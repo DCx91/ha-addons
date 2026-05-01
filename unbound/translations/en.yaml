@@ -33,12 +33,7 @@ configuration:
     description: >-
       Raw Unbound config text appended to unbound.conf.
       Useful for advanced options like forward-zone or local-data. Confirm structure in YAML mode.
-  hyperlocal:
-    name: Hyperlocal
-    description: >-
-      Stores a local copy of the DNS root zone for faster resolution. 
-      Increases memory usage slightly, but reduces latency for uncached queries. Defautlt: Enabled.
   persist_cache:
-    name: Persist Cache
+    name: Disable Cache Persistence
     description: >-
-      Enables cache persistence on Unbound restart. Requires Remote Control to be enabled. Default: Enabled.
+      Reverts to the Unbound default of clearing all cached entries on restart.
