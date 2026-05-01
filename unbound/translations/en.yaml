@@ -16,24 +16,24 @@ configuration:
   cache_max_ttl:
     name: Cache Maximum TTL (seconds)
     description: >-
-      Maximum time a DNS record can remain cached regardless of the
-      record's own TTL. Default: 86400
+      Maximum time a DNS record can remain cached regardless of the record's own TTL. Default: 86400
   num_threads:
     name: Number of Threads
     description: >-
-      Number of Unbound worker threads. For most home setups 1-2 is
-      sufficient. Max: 32 (limited to CPU core count).
+      Number of Unbound worker threads. For most home setups 1-2 is sufficient.
+      Max: 32 (capped to CPU core count).
   access_control:
     name: Access Control List
     description: >-
-      List of subnets allowed to query Unbound, e.g.
-      "192.168.1.0/24 allow". All other sources are refused. Default: LAN subnets.
+      List of subnets allowed to query Unbound, e.g. "192.168.1.0/24 allow".
+      All other sources are refused. Private LAN subnets are allowed by default.
   custom_config:
     name: Custom Unbound Config Snippet
     description: >-
       Raw Unbound config text appended to unbound.conf.
       Useful for advanced options like forward-zone or local-data. Confirm structure in YAML mode.
-  persist_cache:
+  no_persist_cache:
     name: Disable Cache Persistence
     description: >-
-      Reverts to the Unbound default of clearing all cached entries on restart.
+      By default, this app will export and re-import the cache to persist it across restarts.
+      Enabling this will revert to the Unbound default of clearing it.
