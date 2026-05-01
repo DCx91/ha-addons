@@ -84,8 +84,12 @@ ${ACCESS_CONTROL_LINES}
 	hide-identity: yes
 	hide-version: yes
 	do-not-query-localhost: no
+	private-address: 255.255.255.255/32
+	private-address: 203.0.113.0/24
+	private-address: 198.51.100.0/24
 	private-address: 198.18.0.0/15
 	private-address: 192.168.0.0/16
+	private-address: 192.0.2.0/24
 	private-address: 192.0.0.0/24
 	private-address: 169.254.0.0/16
 	private-address: 172.16.0.0/12
@@ -94,10 +98,6 @@ ${ACCESS_CONTROL_LINES}
 	private-address: 0.0.0.0/8
 	private-address: fd00::/8
 	private-address: fe80::/10
-	private-address: 192.0.2.0/24
-	private-address: 198.51.100.0/24
-	private-address: 203.0.113.0/24
-	private-address: 255.255.255.255/32
 	private-address: 2001:db8::/32
 	private-address: ::ffff:0:0/96
 
