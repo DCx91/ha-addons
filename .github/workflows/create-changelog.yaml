@@ -1,0 +1,72 @@
+name: Update Changelog on version bump
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '*/config.yaml'
+
+jobs:
+  changelog:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Detect version change and update changelog
+        run: |
+          # Find which addon's config.yaml changed
+          CHANGED=$(git diff HEAD~1 --name-only | grep 'config.yaml' | cut -d'/' -f1)
+
+          for ADDON in $CHANGED; do
+            NEW_VERSION=$(grep '^version:' "${ADDON}/config.yaml" | cut -d'"' -f2)
+            OLD_VERSION=$(git show HEAD~1:"${ADDON}/config.yaml" 2>/dev/null | grep '^version:' | cut -d'"' -f2 || echo "")
+
+            if [ "$NEW_VERSION" = "$OLD_VERSION" ] || [ -z "$NEW_VERSION" ]; then
+              echo "No version change in ${ADDON}, skipping."
+              continue
+            fi
+
+            echo "Version changed in ${ADDON}: ${OLD_VERSION} → ${NEW_VERSION}"
+
+            # Find the previous commit where version last changed
+            PREV_VERSION_COMMIT=$(git log --format="%H" -- "${ADDON}/config.yaml" | sed -n '2p')
+
+            if [ -z "$PREV_VERSION_COMMIT" ]; then
+              COMMITS=$(git log --pretty=format:"- %s (%h)" -- "${ADDON}/" \
+                | grep -v "github-actions\|Fix s6 script\|Update changelog\|version bump")
+            else
+              COMMITS=$(git log ${PREV_VERSION_COMMIT}..HEAD \
+                --pretty=format:"- %s (%h)" \
+                -- "${ADDON}/" \
+                | grep -v "github-actions\|Fix s6 script\|Update changelog\|version bump")
+            fi
+
+            CHANGELOG_FILE="${ADDON}/CHANGELOG.md"
+            DATE=$(date +%Y-%m-%d)
+
+            [ ! -f "$CHANGELOG_FILE" ] && printf "# Changelog\n\n" > "$CHANGELOG_FILE"
+
+            TEMP=$(mktemp)
+            printf "# Changelog\n\n## v%s (%s)\n\n%s\n\n" "$NEW_VERSION" "$DATE" "$COMMITS" > "$TEMP"
+            tail -n +3 "$CHANGELOG_FILE" >> "$TEMP"
+            mv "$TEMP" "$CHANGELOG_FILE"
+
+            git add "$CHANGELOG_FILE"
+            echo "Updated changelog for ${ADDON}"
+          done
+
+      - name: Commit changelog
+        run: |
+          if ! git diff --cached --quiet; then
+            git config user.name "github-actions"
+            git config user.email "actions@github.com"
+            git commit -m "Update changelog for version bump"
+            git push
+          else
+            echo "No changelog changes to commit."
+          fi
