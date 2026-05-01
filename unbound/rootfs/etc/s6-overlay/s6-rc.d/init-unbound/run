@@ -162,7 +162,7 @@ if ! unbound-checkconf "${UNBOUND_CONF}"; then
 fi
 
 log_output() {
-    bashio::log.info "$(printf '%-15s: %s' "$1" "$2")"
+    bashio::log.info "$(printf '%-20s: %s' "$1" "$2")"
 }
 
 log_output "Port" "${LISTEN_PORT}"
