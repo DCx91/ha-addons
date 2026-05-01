@@ -46,11 +46,11 @@ if [ ! -f "${HINTS_FILE}" ] || \
 fi
 
 # Build access-control lines
+ACCESS_CONTROL_LINES=""
 if bashio::config.has_value 'access_control'; then
-	ACCESS_CONTROL_LINES=""
-	while read -r acl; do
-		ACCESS_CONTROL_LINES+="    access-control: ${acl}"$'\n'
-	done < <(jq -r '.access_control[]' /data/options.json)
+    while read -r acl; do
+        ACCESS_CONTROL_LINES+="    access-control: ${acl}"$'\n'
+    done < <(jq -r '.access_control[]' /data/options.json)
 fi
 
 # Generate unbound.conf
