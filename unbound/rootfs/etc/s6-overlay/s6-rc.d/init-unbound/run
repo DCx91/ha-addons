@@ -115,9 +115,9 @@ ${ACCESS_CONTROL_LINES}
 	do-ip6: $([ "${DO_IPV6}" = "true" ] && echo "yes" || echo "no")
 
 	# Logging
-	log-queries: $([ "${LOG_LEVEL}" -ge 3 ] && echo "yes" || echo "no")
-	log-replies: $([ "${LOG_LEVEL}" -ge 3 ] && echo "yes" || echo "no")
 	use-syslog: no
+$([ "${LOG_LEVEL}" -ge 3 ] && echo "    log-queries: yes")
+$([ "${LOG_LEVEL}" -ge 3 ] && echo "    log-replies: yes")
 
 	# Include user-created config files
 	include-toplevel: "${CONF_D_DIR}/*.conf"
