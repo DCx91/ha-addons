@@ -11,7 +11,7 @@ config_or_default() {
 
 # Read options
 LOG_LEVEL=$(bashio::config 'log_level' | grep -o '^[0-5]')
-LISTEN_PORT=$(bashio::config 'listen_port')
+LISTEN_PORT=$(bashio::addon.port "5335/udp")
 DO_IPV6=$(bashio::config 'do_ipv6')
 NUM_THREADS=$(bashio::config 'num_threads')
 HYPERLOCAL=$(config_or_default 'hyperlocal' 'true')
