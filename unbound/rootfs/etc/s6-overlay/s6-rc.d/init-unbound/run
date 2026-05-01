@@ -14,8 +14,7 @@ LOG_LEVEL=$(bashio::config 'log_level' | grep -o '^[0-5]')
 LISTEN_PORT=$(bashio::addon.port "5335/udp")
 DO_IPV6=$(bashio::config 'do_ipv6')
 NUM_THREADS=$(bashio::config 'num_threads')
-HYPERLOCAL=$(config_or_default 'hyperlocal' 'true')
-PERSIST_CACHE=$(config_or_default 'persist_cache' 'true')
+NO_PERSIST_CACHE=$(config_or_default 'no_persist_cache' 'false')
 CACHE_MIN_TTL=$(config_or_default 'cache_min_ttl' '300')
 CACHE_MAX_TTL=$(config_or_default 'cache_max_ttl' '86400')
 
@@ -132,7 +131,6 @@ remote-control:
 	control-interface: ${CONFIG_DIR}/unbound.control.sock
 	control-use-cert: no
 
-$([ "${HYPERLOCAL}" = "true" ] && cat << LOCAL_EOF
 # Hyperlocal
 auth-zone:
 	name: "."
@@ -142,7 +140,6 @@ auth-zone:
 	for-downstream: no
 	for-upstream: yes
 	zonefile: "/etc/unbound/root.zone"
-LOCAL_EOF
 )
 EOF
 
@@ -174,6 +171,5 @@ log_output "IPv6" "${DO_IPV6}"
 log_output "Threads" "${NUM_THREADS}"
 log_output "Min TTL" "${CACHE_MIN_TTL}s"
 log_output "Max TTL" "${CACHE_MAX_TTL}s"
-log_output "Hyperlocal" "${HYPERLOCAL}"
-log_output "Persist Cache" "${PERSIST_CACHE}"
-log_output "Custom Config" "$(bashio::config.has_value 'custom_config' && echo "${CUSTOM_CONFIG}" || echo 'false')"
+log_output "Cache persistence" "$([ "${NO_PERSIST_CACHE}" = "false" ] && echo 'enabled' || echo 'disabled')"
+log_output "Custom config" "$(bashio::config.has_value 'custom_config' && echo 'true' || echo 'false')"
