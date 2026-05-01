@@ -8,6 +8,26 @@ on:
       - published
 
 jobs:
+  fix-permissions:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v6
+      - name: Fix execute permissions
+        run: |
+          find . -path "*/s6-overlay/s6-rc.d*" \( -name "run" -o -name "finish" -o -name "up" \) \
+            | xargs git update-index --chmod=+x
+      - name: Commit if changed
+        run: |
+          if ! git diff --cached --quiet; then
+            git config user.name "github-actions"
+            git config user.email "actions@github.com"
+            git commit -m "Fix s6 script execute permissions"
+            git push
+          else
+            echo "No permission changes needed."
+          fi
   changed:
     runs-on: ubuntu-latest
     outputs:
@@ -28,7 +48,9 @@ jobs:
               - 'music_assistant_alexa_beta/**'
 
   build:
-    needs: changed
+    needs: 
+      - changed
+      - fix-permissions
     if: ${{ needs.changed.outputs.addons != '[]' }}
     runs-on: ubuntu-latest
     permissions:
