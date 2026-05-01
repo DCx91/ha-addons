@@ -24,7 +24,7 @@ schema:
   do_ipv6: bool
   log_level: list(0 - Error|1 - Operational|2 - Detailed|3 - Query|4 - Algorithm|5 - Cache Misses)
   num_threads: int(1,32)
-  persist_cache: bool?
+  no_persist_cache: bool?
   cache_min_ttl: int(0,3600)?
   cache_max_ttl: int(60,604800)?
   access_control:
