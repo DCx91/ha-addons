@@ -2,7 +2,7 @@ name: Check Alpine Unbound Version
 
 on:
   schedule:
-    - cron: '0 8 * * *'  # Daily at 8am
+    - cron: '0 8 * * *'
   workflow_dispatch:
 
 jobs:
@@ -11,24 +11,27 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
+      - name: Install yq
+        uses: mikefarah/yq@v4
+
       - name: Get current Unbound version from Alpine
         id: alpine
         run: |
           VERSION=$(curl -sSL "https://raw.githubusercontent.com/alpinelinux/aports/master/main/unbound/APKBUILD" \
-            | grep -oP '^pkgver=\K[\d.]+')
-          echo "version=${VERSION}" >> $GITHUB_OUTPUT
-          
-      - name: Get current version from config.yaml
+            | sed -n 's/^pkgver=//p' | head -n 1 | tr -d '\r')
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Get current base version from config.yaml
         id: current
         run: |
-          VERSION=$(grep '^version:' unbound/config.yaml | grep -oP '[\d.]+')
-          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+          VERSION=$(yq -r '.version | sub("-R[0-9]+$"; "")' unbound/config.yaml)
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Update config.yaml if version changed
         if: steps.alpine.outputs.version != steps.current.outputs.version
         run: |
-          NEW="${{ steps.alpine.outputs.version }}"
-          sed -i "s/^version: .*/version: \"${NEW}\"/" unbound/config.yaml
+          NEW="${{ steps.alpine.outputs.version }}-R1"
+          yq -i '.version = strenv(NEW)' unbound/config.yaml
 
       - name: Open PR if changed
         if: steps.alpine.outputs.version != steps.current.outputs.version
@@ -38,7 +41,7 @@ jobs:
           title: "Unbound ${{ steps.alpine.outputs.version }} available"
           body: |
             Alpine has updated Unbound to `${{ steps.alpine.outputs.version }}` (was `${{ steps.current.outputs.version }}`).
-            
+
             Please verify the addon builds and functions correctly before merging.
           branch: "chore/unbound-${{ steps.alpine.outputs.version }}"
           delete-branch: true
