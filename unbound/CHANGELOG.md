@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.25.1-R2 (2026-06-11)
+
+- Various tweaks (#24)
+
 ## 1.25.1-R1 (2026-06-11)
 
  - Updated to Alpine 3.14 and Unbound 1.25.1
