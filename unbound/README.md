@@ -4,8 +4,8 @@
 > No third party. No tracking. Just fast, private DNS.
 
 [![Home Assistant](https://img.shields.io/badge/Home%20Assistant-App-41BDF5?logo=home-assistant&logoColor=white)](https://www.home-assistant.io/)
-[![Alpine Linux](https://img.shields.io/badge/Alpine%20Linux-3.23-0D597F?logo=alpine-linux&logoColor=white)](https://alpinelinux.org/)
-[![Unbound](https://img.shields.io/badge/Unbound-1.24.2-00897B)](https://nlnetlabs.nl/projects/unbound/about/)
+[![Alpine Linux](https://img.shields.io/badge/Alpine%20Linux-3.24-0D597F?logo=alpine-linux&logoColor=white)](https://alpinelinux.org/)
+[![Unbound](https://img.shields.io/badge/Unbound-1.25.1-00897B)](https://nlnetlabs.nl/projects/unbound/about/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 ---
@@ -53,16 +53,6 @@ Set your upstream DNS server to:
 ```
 
 This routes all queries through Unbound for fully private, recursive resolution — AdGuard/Pi-hole handles blocking, Unbound handles resolution.
-
----
-
-## Check health
-
-Using SSH:
-
-```
-docker ps | grep "unbound"
-```
 
 ---
 
