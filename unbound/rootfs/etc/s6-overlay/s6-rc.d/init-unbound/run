@@ -10,8 +10,8 @@ config_or_default() {
 }
 
 # Read options
-LOG_LEVEL=$(bashio::config 'log_level' | grep -o '^[0-5]')
-LISTEN_PORT=$(bashio::addon.port "5335/udp")
+LOG_LEVEL=$(bashio::config 'log_level')
+LISTEN_PORT=$(bashio::addon.port '5335/udp')
 DO_IPV6=$(bashio::config 'do_ipv6')
 NUM_THREADS=$(bashio::config 'num_threads')
 NO_PERSIST_CACHE=$(config_or_default 'no_persist_cache' 'false')
@@ -60,6 +60,7 @@ server:
 	verbosity: ${LOG_LEVEL}
 	num-threads: ${NUM_THREADS}
 	username: ""
+$([ "${DO_IPV6}" = "false" ] && echo "    do-ip6: no"
 
 	# Interfaces
 	interface: 0.0.0.0
@@ -115,9 +116,6 @@ ${ACCESS_CONTROL_LINES}
 	serve-expired: yes
 	outgoing-range: 8192
 	num-queries-per-thread: 4096
-
-	# IPv6
-	do-ip6: $([ "${DO_IPV6}" = "true" ] && echo "yes" || echo "no")
 
 	# Logging
 	use-syslog: no
