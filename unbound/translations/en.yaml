@@ -13,7 +13,7 @@ configuration:
     name: Cache Minimum TTL (seconds)
     description: >-
       Minimum time a DNS record is held in cache. Raising this reduces
-      upstream queries but may delay propagation of DNS changes. Default: 300
+      upstream queries but may delay propagation of DNS changes. Default: 0
   cache_max_ttl:
     name: Cache Maximum TTL (seconds)
     description: >-

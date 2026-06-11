@@ -3,26 +3,22 @@
 set -e
 bashio::log.info "Initialising Unbound DNS add-on..."
 
-# Helper for optional config values with defaults
-config_or_default() {
-	local key="$1" default="$2"
-	bashio::config.has_value "${key}" && bashio::config "${key}" || echo "${default}"
-}
-
 # Read options
 UNBOUND_VERBOSITY=$(bashio::config 'unbound_verbosity')
 LISTEN_PORT=$(bashio::app.port '5335/udp')
 DO_IPV6=$(bashio::config 'do_ipv6')
 NUM_THREADS=$(bashio::config 'num_threads')
-NO_PERSIST_CACHE=$(config_or_default 'no_persist_cache' 'false')
-CACHE_MIN_TTL=$(config_or_default 'cache_min_ttl' '300')
-CACHE_MAX_TTL=$(config_or_default 'cache_max_ttl' '86400')
+NO_PERSIST_CACHE=$(bashio::config 'no_persist_cache')
+CACHE_MIN_TTL=$(bashio::config 'cache_min_ttl')
+CACHE_MAX_TTL=$(bashio::config 'cache_max_ttl')
 
 # Cap threads to CPU core count
-MAX_THREADS=$(nproc)
-if [ "${NUM_THREADS}" -gt "${MAX_THREADS}" ]; then
-	bashio::log.warning "num_threads (${NUM_THREADS}) exceeds available CPU cores (${MAX_THREADS}), capping to ${MAX_THREADS}."
-	NUM_THREADS=${MAX_THREADS}
+if bashio::config.has_value 'num_threads'; then
+	MAX_THREADS=$(nproc)
+	if [ "${NUM_THREADS}" -gt "${MAX_THREADS}" ]; then
+		bashio::log.warning "num_threads (${NUM_THREADS}) exceeds available CPU cores (${MAX_THREADS}), capping to ${MAX_THREADS}."
+		NUM_THREADS=${MAX_THREADS}
+	fi
 fi
 
 # Persistent config directory
@@ -57,9 +53,9 @@ bashio::log.info "Generating Unbound configuration..."
 
 cat > "${UNBOUND_CONF}" << EOF
 server:
-	verbosity: ${UNBOUND_VERBOSITY}
-	num-threads: ${NUM_THREADS}
 	username: ""
+	verbosity: ${UNBOUND_VERBOSITY}
+$(bashio::config.has_value 'num_threads' && echo "    num-threads: ${NUM_THREADS}")
 $([ "${DO_IPV6}" = "false" ] && echo "    do-ip6: no")
 
 	# Interfaces
@@ -103,11 +99,11 @@ ${ACCESS_CONTROL_LINES}
 	private-address: ::ffff:0:0/96
 
 	# Caching
-	cache-min-ttl: ${CACHE_MIN_TTL}
-	cache-max-ttl: ${CACHE_MAX_TTL}
 	prefetch: yes
 	prefetch-key: yes
 	neg-cache-size: 4m
+$(bashio::config.has_value 'cache_min_ttl' && echo "    cache-min-ttl: ${CACHE_MIN_TTL}")
+$(bashio::config.has_value 'cache_max_ttl' && echo "    cache-max-ttl: ${CACHE_MAX_TTL}")
 
 	# Performance
 	so-rcvbuf: 4m
@@ -153,8 +149,11 @@ fi
 
 # Validate configuration
 bashio::log.info "Validating configuration..."
-if ! unbound-checkconf "${UNBOUND_CONF}"; then
-    bashio::log.fatal "Unbound configuration is invalid! Check your options."
+if CHECKCONF_OUTPUT=$(unbound-checkconf "${UNBOUND_CONF}" 2>&1); then
+    bashio::log.info "Configuration valid!"
+else
+    bashio::log.fatal "Unbound configuration is invalid."
+    echo "${CHECKCONF_OUTPUT}"
     exit 1
 fi
 
@@ -163,10 +162,12 @@ log_output() {
 }
 
 log_output "Port" "${LISTEN_PORT}"
-log_output "Log Level" "${UNBOUND_VERBOSITY}"
+log_output "Verbosity" "${UNBOUND_VERBOSITY}"
 log_output "IPv6" "${DO_IPV6}"
-log_output "Threads" "${NUM_THREADS}"
-log_output "Min TTL" "${CACHE_MIN_TTL}s"
-log_output "Max TTL" "${CACHE_MAX_TTL}s"
-log_output "Cache persistence" "$([ "${NO_PERSIST_CACHE}" = "false" ] && echo 'enabled' || echo 'disabled')"
+log_output "Threads" "$(bashio::config.has_value 'num_threads' && echo "${NUM_THREADS}" || echo '1')"
+log_output "Min TTL" "$(bashio::config.has_value 'cache_min_ttl' && echo "${CACHE_MIN_TTL}s" || echo '0s')"
+log_output "Max TTL" "$(bashio::config.has_value 'cache_max_ttl' && echo "${CACHE_MAX_TTL}s" || echo '86400s')"
+log_output "Cache persistence" "$([ "${NO_PERSIST_CACHE}" = "true" ] && echo 'disabled' || echo 'enabled')"
 log_output "Custom config" "$(bashio::config.has_value 'custom_config' && echo 'true' || echo 'false')"
+
+exit 0

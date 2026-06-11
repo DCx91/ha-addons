@@ -1,6 +1,5 @@
 #!/usr/bin/with-contenv bashio
-# shellcheck shell=bash
-PERSIST_CACHE=$(bashio::config 'persist_cache')
+NO_PERSIST_CACHE=$(bashio::config 'no_persist_cache')
 
 dump_cache() {
     bashio::log.info "Dumping cache to unbound_cache.dump..."
@@ -11,7 +10,7 @@ dump_cache() {
 
 bashio::log.info "Starting Unbound..."
 
-if [ "${PERSIST_CACHE}" != "true" ]; then
+if [ "${NO_PERSIST_CACHE}" == "true" ]; then
     exec unbound -d -c /config/unbound.conf
 else
     trap 'dump_cache; exit' SIGTERM SIGINT

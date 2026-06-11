@@ -1,5 +1,4 @@
 #!/usr/bin/with-contenv bashio
-# shellcheck shell=bash
 declare exit_code="${1}"
 declare signal="${2}"
 
