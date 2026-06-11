@@ -32,7 +32,7 @@ It also validates DNSSEC signatures, protecting you from DNS spoofing attacks.
 
 | Option | Default | Description |
 |---|---|---|
-| `log_level` | `1` | Logging verbosity (0–5) |
+| `unbound_verbosity` | `1` | Logging verbosity (0–5) |
 | `listen_port` | `5335` | Port Unbound listens on (UDP + TCP) |
 | `do_ipv6` | `false` | Enable IPv6 resolution |
 | `num_threads` | `1` | Worker thread count |
