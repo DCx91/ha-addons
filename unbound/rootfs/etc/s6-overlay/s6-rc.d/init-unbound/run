@@ -153,8 +153,11 @@ fi
 
 # Validate configuration
 bashio::log.info "Validating configuration..."
-if ! unbound-checkconf "${UNBOUND_CONF}"; then
-    bashio::log.fatal "Unbound configuration is invalid! Check your options."
+if CHECKCONF_OUTPUT=$(unbound-checkconf "${UNBOUND_CONF}" 2>&1); then
+    bashio::log.info "Configuration valid!"
+else
+    bashio::log.fatal "Unbound configuration is invalid."
+    echo "${CHECKCONF_OUTPUT}"
     exit 1
 fi
 
@@ -163,10 +166,12 @@ log_output() {
 }
 
 log_output "Port" "${LISTEN_PORT}"
-log_output "Log Level" "${UNBOUND_VERBOSITY}"
+log_output "Verbosity" "${UNBOUND_VERBOSITY}"
 log_output "IPv6" "${DO_IPV6}"
 log_output "Threads" "${NUM_THREADS}"
 log_output "Min TTL" "${CACHE_MIN_TTL}s"
 log_output "Max TTL" "${CACHE_MAX_TTL}s"
 log_output "Cache persistence" "$([ "${NO_PERSIST_CACHE}" = "false" ] && echo 'enabled' || echo 'disabled')"
 log_output "Custom config" "$(bashio::config.has_value 'custom_config' && echo 'true' || echo 'false')"
+
+exit 0
