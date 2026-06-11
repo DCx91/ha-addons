@@ -1,7 +1,7 @@
 #!/usr/bin/with-contenv bashio
 
-PERSIST_CACHE=$(bashio::config 'persist_cache')
-if [ "${PERSIST_CACHE}" != "false" ]; then
+NO_PERSIST_CACHE=$(bashio::config 'no_persist_cache')
+if [ "${NO_PERSIST_CACHE}" != "false" ]; then
     if [ -f "/config/unbound_cache.dump" ]; then
         bashio::log.info "Waiting for Unbound control socket..."
         until [ -S /config/unbound.control.sock ]; do sleep 0.5; done
