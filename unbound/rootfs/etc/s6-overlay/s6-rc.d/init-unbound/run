@@ -15,8 +15,8 @@ LISTEN_PORT=$(bashio::app.port '5335/udp')
 DO_IPV6=$(bashio::config 'do_ipv6')
 NUM_THREADS=$(bashio::config 'num_threads')
 NO_PERSIST_CACHE=$(config_or_default 'no_persist_cache' 'false')
-CACHE_MIN_TTL=$(config_or_default 'cache_min_ttl' '300')
-CACHE_MAX_TTL=$(config_or_default 'cache_max_ttl' '86400')
+CACHE_MIN_TTL=$(bashio::config 'cache_min_ttl')
+CACHE_MAX_TTL=$(bashio::config 'cache_max_ttl')
 
 # Cap threads to CPU core count
 MAX_THREADS=$(nproc)
@@ -103,11 +103,11 @@ ${ACCESS_CONTROL_LINES}
 	private-address: ::ffff:0:0/96
 
 	# Caching
-	cache-min-ttl: ${CACHE_MIN_TTL}
-	cache-max-ttl: ${CACHE_MAX_TTL}
 	prefetch: yes
 	prefetch-key: yes
 	neg-cache-size: 4m
+$(bashio::config.has_value 'cache_min_ttl' && echo "    cache-min-ttl: ${CACHE_MIN_TTL}")
+$(bashio::config.has_value 'cache_max_ttl' && echo "    cache-min-ttl: ${CACHE_MAX_TTL}")
 
 	# Performance
 	so-rcvbuf: 4m
@@ -169,8 +169,8 @@ log_output "Port" "${LISTEN_PORT}"
 log_output "Verbosity" "${UNBOUND_VERBOSITY}"
 log_output "IPv6" "${DO_IPV6}"
 log_output "Threads" "$(bashio::config.has_value 'num_threads' && echo "${NUM_THREADS}" || echo '1')"
-log_output "Min TTL" "${CACHE_MIN_TTL}s"
-log_output "Max TTL" "${CACHE_MAX_TTL}s"
+log_output "Min TTL" $(bashio::config.has_value 'cache_min_ttl' && echo "${CACHE_MIN_TTL}s" || echo '0s')"
+log_output "Max TTL" $(bashio::config.has_value 'cache_max_ttl' && echo "${CACHE_MAX_TTL}s" || echo '86400s')"
 log_output "Cache persistence" "$([ "${NO_PERSIST_CACHE}" = "false" ] && echo 'enabled' || echo 'disabled')"
 log_output "Custom config" "$(bashio::config.has_value 'custom_config' && echo 'true' || echo 'false')"
 
