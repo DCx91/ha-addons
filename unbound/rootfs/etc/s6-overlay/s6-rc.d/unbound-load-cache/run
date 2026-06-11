@@ -1,7 +1,7 @@
 #!/usr/bin/with-contenv bashio
 
 NO_PERSIST_CACHE=$(bashio::config 'no_persist_cache')
-if [ "${NO_PERSIST_CACHE}" != "false" ]; then
+if [ "${NO_PERSIST_CACHE}" != "true" ]; then
     if [ -f "/config/unbound_cache.dump" ]; then
         bashio::log.info "Waiting for Unbound control socket..."
         until [ -S /config/unbound.control.sock ]; do sleep 0.5; done
@@ -11,7 +11,7 @@ if [ "${NO_PERSIST_CACHE}" != "false" ]; then
             || bashio::log.warning "Cache import failed - unbound-control returned an error."
     else
         bashio::log.warning "Cache import skipped - no cache file found at /config/unbound_cache.dump."
-
     fi
 fi
 exit 0
+    
