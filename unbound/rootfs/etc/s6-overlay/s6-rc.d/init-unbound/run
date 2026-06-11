@@ -10,8 +10,8 @@ config_or_default() {
 }
 
 # Read options
-LOG_LEVEL=$(bashio::config 'log_level')
-LISTEN_PORT=$(bashio::addon.port '5335/udp')
+UNBOUND_VERBOSITY=$(bashio::config 'unbound_verbosity')
+LISTEN_PORT=$(bashio::app.port '5335/udp')
 DO_IPV6=$(bashio::config 'do_ipv6')
 NUM_THREADS=$(bashio::config 'num_threads')
 NO_PERSIST_CACHE=$(config_or_default 'no_persist_cache' 'false')
@@ -57,10 +57,10 @@ bashio::log.info "Generating Unbound configuration..."
 
 cat > "${UNBOUND_CONF}" << EOF
 server:
-	verbosity: ${LOG_LEVEL}
+	verbosity: ${UNBOUND_VERBOSITY}
 	num-threads: ${NUM_THREADS}
 	username: ""
-$([ "${DO_IPV6}" = "false" ] && echo "    do-ip6: no"
+$([ "${DO_IPV6}" = "false" ] && echo "    do-ip6: no")
 
 	# Interfaces
 	interface: 0.0.0.0
@@ -119,8 +119,7 @@ ${ACCESS_CONTROL_LINES}
 
 	# Logging
 	use-syslog: no
-$([ "${LOG_LEVEL}" -ge 3 ] && echo "    log-queries: yes")
-$([ "${LOG_LEVEL}" -ge 3 ] && echo "    log-replies: yes")
+$([ "${UNBOUND_VERBOSITY}" -ge 3 ] && printf '    log-queries: yes\n    log-replies: yes')
 
 	# Include user-created config files
 	include-toplevel: "${CONF_D_DIR}/*.conf"
@@ -164,7 +163,7 @@ log_output() {
 }
 
 log_output "Port" "${LISTEN_PORT}"
-log_output "Log Level" "${LOG_LEVEL}"
+log_output "Log Level" "${UNBOUND_VERBOSITY}"
 log_output "IPv6" "${DO_IPV6}"
 log_output "Threads" "${NUM_THREADS}"
 log_output "Min TTL" "${CACHE_MIN_TTL}s"
