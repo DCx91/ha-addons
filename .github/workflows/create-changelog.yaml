@@ -1,4 +1,5 @@
 name: Update Changelog on version bump
+
 on:
   push:
     branches:
@@ -11,39 +12,71 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      pull-requests: read
+
     steps:
       - name: Checkout
         uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
+      - name: Authenticate GitHub CLI
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh auth status
+
       - name: Detect version change and update changelog
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
         run: |
-          # Find which addon's config.yaml changed
-          CHANGED=$(git diff HEAD~1 --name-only | grep 'config.yaml' | cut -d'/' -f1)
+          set -euo pipefail
+
+          CHANGED=$(git diff HEAD~1 --name-only | grep 'config.yaml' | cut -d'/' -f1 | sort -u || true)
 
           for ADDON in $CHANGED; do
-            NEW_VERSION=$(grep '^version:' "${ADDON}/config.yaml" | cut -d'"' -f2)
-            OLD_VERSION=$(git show HEAD~1:"${ADDON}/config.yaml" 2>/dev/null | grep '^version:' | cut -d'"' -f2 || echo "")
+            NEW_VERSION=$(sed -n 's/^version:[[:space:]]*"\(.*\)"/\1/p' "${ADDON}/config.yaml")
+            OLD_VERSION=$(git show HEAD~1:"${ADDON}/config.yaml" 2>/dev/null | sed -n 's/^version:[[:space:]]*"\(.*\)"/\1/p' || true)
 
-            if [ "$NEW_VERSION" = "$OLD_VERSION" ] || [ -z "$NEW_VERSION" ]; then
+            if [ "$NEW_VERSION" = "$OLD_VERSION" ] || [ -z "${NEW_VERSION}" ]; then
               echo "No version change in ${ADDON}, skipping."
               continue
             fi
 
             echo "Version changed in ${ADDON}: ${OLD_VERSION} → ${NEW_VERSION}"
 
-            # Find the previous commit where version last changed
             PREV_VERSION_COMMIT=$(git log --format="%H" -- "${ADDON}/config.yaml" | sed -n '2p')
 
-            if [ -z "$PREV_VERSION_COMMIT" ]; then
-              COMMITS=$(git log --pretty=format:"- %s (%h)" -- "${ADDON}/" \
-                | grep -v "github-actions\|Fix s6 script\|Update changelog\|version bump")
+            if [ -n "${PREV_VERSION_COMMIT}" ]; then
+              RANGE="${PREV_VERSION_COMMIT}..HEAD"
             else
-              COMMITS=$(git log ${PREV_VERSION_COMMIT}..HEAD \
-                --pretty=format:"- %s (%h)" \
-                -- "${ADDON}/" \
-                | grep -v "github-actions\|Fix s6 script\|Update changelog\|version bump")
+              RANGE="HEAD"
+            fi
+
+            mapfile -t ADDON_COMMITS < <(git log ${RANGE} --format="%H" -- "${ADDON}/" || true)
+
+            PR_LINES=""
+            declare -A SEEN_PRS=()
+
+            for SHA in "${ADDON_COMMITS[@]}"; do
+              while IFS=$'\t' read -r NUMBER TITLE URL; do
+                [ -z "${NUMBER}" ] && continue
+
+                if [ -z "${SEEN_PRS[$NUMBER]+x}" ]; then
+                  SEEN_PRS[$NUMBER]=1
+                  PR_LINES="${PR_LINES}- ${TITLE} (#${NUMBER})"$'\n'
+                fi
+              done < <(
+                gh api \
+                  -H "Accept: application/vnd.github+json" \
+                  "/repos/${REPO}/commits/${SHA}/pulls" \
+                  --jq '.[] | select(.merged_at != null) | [.number, .title, .html_url] | @tsv' \
+                  2>/dev/null || true
+              )
+            done
+
+            if [ -z "${PR_LINES}" ]; then
+              PR_LINES="- No pull requests found for this version bump."
             fi
 
             CHANGELOG_FILE="${ADDON}/CHANGELOG.md"
@@ -52,8 +85,8 @@ jobs:
             [ ! -f "$CHANGELOG_FILE" ] && printf "# Changelog\n\n" > "$CHANGELOG_FILE"
 
             TEMP=$(mktemp)
-            printf "# Changelog\n\n## v%s (%s)\n\n%s\n\n" "$NEW_VERSION" "$DATE" "$COMMITS" > "$TEMP"
-            tail -n +3 "$CHANGELOG_FILE" >> "$TEMP"
+            printf "# Changelog\n\n## v%s (%s)\n\n%s\n" "$NEW_VERSION" "$DATE" "$PR_LINES" > "$TEMP"
+            tail -n +3 "$CHANGELOG_FILE" >> "$TEMP" 2>/dev/null || true
             mv "$TEMP" "$CHANGELOG_FILE"
 
             git add "$CHANGELOG_FILE"
