@@ -1,5 +1,5 @@
 name: Unbound DNS
-version: ""
+version: "1.25.1"
 slug: unbound
 description: >-
   A validating, recursive, and caching DNS resolver
@@ -18,11 +18,11 @@ map:
 apparmor: true
 options:
   do_ipv6: false
-  log_level: "1 - Operational"
+  log_level: 1
   num_threads: 1
 schema:
   do_ipv6: bool
-  log_level: list(0 - Error|1 - Operational|2 - Detailed|3 - Query|4 - Algorithm|5 - Cache Misses)
+  log_level: list(0|1|2|3|4|5)
   num_threads: int(1,32)
   no_persist_cache: bool?
   cache_min_ttl: int(0,3600)?
