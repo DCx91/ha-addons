@@ -3,18 +3,12 @@
 set -e
 bashio::log.info "Initialising Unbound DNS add-on..."
 
-# Helper for optional config values with defaults
-config_or_default() {
-	local key="$1" default="$2"
-	bashio::config.has_value "${key}" && bashio::config "${key}" || echo "${default}"
-}
-
 # Read options
 UNBOUND_VERBOSITY=$(bashio::config 'unbound_verbosity')
 LISTEN_PORT=$(bashio::app.port '5335/udp')
 DO_IPV6=$(bashio::config 'do_ipv6')
 NUM_THREADS=$(bashio::config 'num_threads')
-NO_PERSIST_CACHE=$(config_or_default 'no_persist_cache' 'false')
+NO_PERSIST_CACHE=$(bashio::config 'no_persist_cache')
 CACHE_MIN_TTL=$(bashio::config 'cache_min_ttl')
 CACHE_MAX_TTL=$(bashio::config 'cache_max_ttl')
 
@@ -171,7 +165,7 @@ log_output "IPv6" "${DO_IPV6}"
 log_output "Threads" "$(bashio::config.has_value 'num_threads' && echo "${NUM_THREADS}" || echo '1')"
 log_output "Min TTL" $(bashio::config.has_value 'cache_min_ttl' && echo "${CACHE_MIN_TTL}s" || echo '0s')"
 log_output "Max TTL" $(bashio::config.has_value 'cache_max_ttl' && echo "${CACHE_MAX_TTL}s" || echo '86400s')"
-log_output "Cache persistence" "$([ "${NO_PERSIST_CACHE}" = "false" ] && echo 'enabled' || echo 'disabled')"
+log_output "Cache persistence" "$([ "${NO_PERSIST_CACHE}" = "true" ] && echo 'disabled' || echo 'enabled')"
 log_output "Custom config" "$(bashio::config.has_value 'custom_config' && echo 'true' || echo 'false')"
 
 exit 0
