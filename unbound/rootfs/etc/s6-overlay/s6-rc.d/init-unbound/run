@@ -57,9 +57,9 @@ bashio::log.info "Generating Unbound configuration..."
 
 cat > "${UNBOUND_CONF}" << EOF
 server:
-	verbosity: ${UNBOUND_VERBOSITY}
-	num-threads: ${NUM_THREADS}
 	username: ""
+	verbosity: ${UNBOUND_VERBOSITY}
+$(bashio::config.has_value 'num_threads' && echo "    num-threads: ${NUM_THREADS}")
 $([ "${DO_IPV6}" = "false" ] && echo "    do-ip6: no")
 
 	# Interfaces
@@ -168,7 +168,7 @@ log_output() {
 log_output "Port" "${LISTEN_PORT}"
 log_output "Verbosity" "${UNBOUND_VERBOSITY}"
 log_output "IPv6" "${DO_IPV6}"
-log_output "Threads" "${NUM_THREADS}"
+log_output "Threads" "$(bashio::config.has_value 'num_threads' && echo "${NUM_THREADS}" || echo '1')"
 log_output "Min TTL" "${CACHE_MIN_TTL}s"
 log_output "Max TTL" "${CACHE_MAX_TTL}s"
 log_output "Cache persistence" "$([ "${NO_PERSIST_CACHE}" = "false" ] && echo 'enabled' || echo 'disabled')"
