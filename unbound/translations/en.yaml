@@ -4,8 +4,8 @@ configuration:
     description: >-
       Allow Unbound to listen and resolve over IPv6. 
       Disable if your network has no IPv6.
-  log_level:
-    name: Log Level
+  unbound_verbosity:
+    name: Verbosity
     description: >-
       Logging verbosity. https://unbound.docs.nlnetlabs.nl/en/latest/manpages/unbound.conf.html#unbound-conf-verbosity
       Levels 3+ may significantly affect performance.
