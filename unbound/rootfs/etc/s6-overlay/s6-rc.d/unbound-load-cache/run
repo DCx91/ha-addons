@@ -1,7 +1,6 @@
 #!/usr/bin/with-contenv bashio
-# shellcheck shell=bash
-PERSIST_CACHE=$(bashio::config 'persist_cache')
 
+PERSIST_CACHE=$(bashio::config 'persist_cache')
 if [ "${PERSIST_CACHE}" != "false" ]; then
     if [ -f "/config/unbound_cache.dump" ]; then
         bashio::log.info "Waiting for Unbound control socket..."
@@ -15,3 +14,4 @@ if [ "${PERSIST_CACHE}" != "false" ]; then
 
     fi
 fi
+exit 0
