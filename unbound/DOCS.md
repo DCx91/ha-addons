@@ -37,7 +37,6 @@ It also validates DNSSEC signatures, protecting you from DNS spoofing attacks.
 | `do_ipv6` | `false` | Enable IPv6 resolution |
 | `num_threads` | `1` | Worker thread count |
 | `access_control` | RFC 1918 ranges | Subnets allowed to query Unbound |
-| `hyperlocal` | `true` | Stores a local copy of the DNS root zone for faster resolution |
 | `no_persist_cache` | `false` | Disables cache dump & restore on reboot |
 | `cache_min_ttl` | `0` | Minimum TTL for cached records (seconds) |
 | `cache_max_ttl` | `86400` | Maximum TTL for cached records (seconds) |
