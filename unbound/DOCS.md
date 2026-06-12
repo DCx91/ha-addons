@@ -38,8 +38,8 @@ It also validates DNSSEC signatures, protecting you from DNS spoofing attacks.
 | `num_threads` | `1` | Worker thread count |
 | `access_control` | RFC 1918 ranges | Subnets allowed to query Unbound |
 | `hyperlocal` | `true` | Stores a local copy of the DNS root zone for faster resolution |
-| `persist_cache` | `true` | Dumps & restores cache on restart |
-| `cache_min_ttl` | `300` | Minimum TTL for cached records (seconds) |
+| `no_persist_cache` | `false` | Disables cache dump & restore on reboot |
+| `cache_min_ttl` | `0` | Minimum TTL for cached records (seconds) |
 | `cache_max_ttl` | `86400` | Maximum TTL for cached records (seconds) |
 | `custom_config` | `""` | Raw Unbound config appended to `unbound.conf` |
 
