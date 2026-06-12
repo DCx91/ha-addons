@@ -135,6 +135,7 @@ auth-zone:
 	zonefile: "/etc/unbound/root.zone"
 EOF
 
+# Validate configuration
 bashio::log.info "Validating configuration..."
 if CHECKCONF_OUTPUT=$(unbound-checkconf "${UNBOUND_CONF}" 2>&1); then
     bashio::log.info "Configuration valid!"
