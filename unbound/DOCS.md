@@ -59,7 +59,7 @@ resolution.
 ## Custom Configuration Files
 
 You can place additional `.conf` files in the persistent config directory
-(`/addon_configs/<slug>/conf.d/`). These are included automatically, letting
+(`/addon_configs/61709215_unbound/conf.d/`). These are included automatically, letting
 you add things like:
 
 - `forward-zone` entries for split-horizon DNS
