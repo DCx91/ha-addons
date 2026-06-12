@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.25.1-R3 (2026-06-12)
+
+- Removed healthcheck (#25)
+- Various tweaks (#24)
+
 ## v1.25.1-R2 (2026-06-11)
 
 - Various tweaks (#24)
