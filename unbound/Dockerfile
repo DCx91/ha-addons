@@ -1,6 +1,6 @@
 ARG BUILD_FROM=ghcr.io/hassio-addons/base:21.0.0
 FROM ${BUILD_FROM}
-RUN apk add --no-cache unbound bind-tools
+RUN apk add --no-cache unbound
 RUN curl -sSL "https://www.internic.net/domain/named.root" -o /etc/unbound/root.hints \
   && unbound-anchor -a /etc/unbound/root.key || true
 COPY rootfs /
