@@ -1,6 +1,6 @@
 #!/usr/bin/with-contenv bashio
 set -e
-bashio::log.info "Starting Unbound DNS add-on..."
+bashio::log.info "Starting Unbound DNS app..."
 
 # Read options
 UNBOUND_VERBOSITY=$(bashio::config 'unbound_verbosity')
@@ -146,7 +146,7 @@ else
 fi
 
 log_output() {
-    bashio::log.info "$(printf '%-20s: %s' "$1" "$2")"
+    bashio::log.info "$(printf '%-17s: %s' "$1" "$2")"
 }
 
 log_output "Port" "${LISTEN_PORT}"
@@ -156,5 +156,4 @@ log_output "Threads" "$(bashio::config.has_value 'num_threads' && echo "${NUM_TH
 log_output "Min TTL" "$(bashio::config.has_value 'cache_min_ttl' && echo "${CACHE_MIN_TTL}s" || echo '0s')"
 log_output "Max TTL" "$(bashio::config.has_value 'cache_max_ttl' && echo "${CACHE_MAX_TTL}s" || echo '86400s')"
 log_output "Cache persistence" "$([ "${NO_PERSIST_CACHE}" = "true" ] && echo 'disabled' || echo 'enabled')"
-
 exit 0
