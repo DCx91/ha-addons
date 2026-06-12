@@ -40,7 +40,6 @@ It also validates DNSSEC signatures, protecting you from DNS spoofing attacks.
 | `no_persist_cache` | `false` | Disables cache dump & restore on reboot |
 | `cache_min_ttl` | `0` | Minimum TTL for cached records (seconds) |
 | `cache_max_ttl` | `86400` | Maximum TTL for cached records (seconds) |
-| `custom_config` | `""` | Raw Unbound config appended to `unbound.conf` |
 
 ---
 
@@ -60,7 +59,7 @@ resolution.
 ## Custom Configuration Files
 
 You can place additional `.conf` files in the persistent config directory
-(`/addon_configs/<slug>/conf.d/`). These are included automatically, letting
+(`/addon_configs/61709215_unbound/conf.d/`). These are included automatically, letting
 you add things like:
 
 - `forward-zone` entries for split-horizon DNS

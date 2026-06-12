@@ -28,11 +28,6 @@ configuration:
     description: >-
       List of subnets allowed to query Unbound, e.g. "192.168.1.0/24 allow".
       All other sources are refused. Private LAN subnets are allowed by default.
-  custom_config:
-    name: Custom Unbound Config Snippet
-    description: >-
-      Raw Unbound config text appended to unbound.conf.
-      Useful for advanced options like forward-zone or local-data. Confirm structure in YAML mode.
   no_persist_cache:
     name: Disable Cache Persistence
     description: >-

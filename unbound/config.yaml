@@ -28,4 +28,3 @@ schema:
   cache_max_ttl: int(60,604800)?
   access_control:
     - str?
-  custom_config: str?

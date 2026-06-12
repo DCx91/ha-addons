@@ -1,7 +1,6 @@
 #!/usr/bin/with-contenv bashio
-# shellcheck shell=bash
 set -e
-bashio::log.info "Initialising Unbound DNS add-on..."
+bashio::log.info "Starting Unbound DNS add-on..."
 
 # Read options
 UNBOUND_VERBOSITY=$(bashio::config 'unbound_verbosity')
@@ -55,8 +54,8 @@ cat > "${UNBOUND_CONF}" << EOF
 server:
 	username: ""
 	verbosity: ${UNBOUND_VERBOSITY}
-$(bashio::config.has_value 'num_threads' && echo "    num-threads: ${NUM_THREADS}")
 $([ "${DO_IPV6}" = "false" ] && echo "    do-ip6: no")
+$(bashio::config.has_value 'num_threads' && echo "    num-threads: ${NUM_THREADS}")
 
 	# Interfaces
 	interface: 0.0.0.0
@@ -136,17 +135,6 @@ auth-zone:
 	zonefile: "/etc/unbound/root.zone"
 EOF
 
-# Apply any custom config
-if bashio::config.has_value 'custom_config'; then
-    CUSTOM_CONFIG=$(bashio::config 'custom_config')
-    bashio::log.info "Applying custom config snippet..."
-    {
-        echo ""
-        echo "# --- Custom config from app options ---"
-        echo "${CUSTOM_CONFIG}"
-    } >> "${UNBOUND_CONF}"
-fi
-
 # Validate configuration
 bashio::log.info "Validating configuration..."
 if CHECKCONF_OUTPUT=$(unbound-checkconf "${UNBOUND_CONF}" 2>&1); then
@@ -168,6 +156,5 @@ log_output "Threads" "$(bashio::config.has_value 'num_threads' && echo "${NUM_TH
 log_output "Min TTL" "$(bashio::config.has_value 'cache_min_ttl' && echo "${CACHE_MIN_TTL}s" || echo '0s')"
 log_output "Max TTL" "$(bashio::config.has_value 'cache_max_ttl' && echo "${CACHE_MAX_TTL}s" || echo '86400s')"
 log_output "Cache persistence" "$([ "${NO_PERSIST_CACHE}" = "true" ] && echo 'disabled' || echo 'enabled')"
-log_output "Custom config" "$(bashio::config.has_value 'custom_config' && echo 'true' || echo 'false')"
 
 exit 0
