@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.25.1-R4 (2026-06-20)
+
+- Added serve-expired-client-timeout: 0 (#26)
+
 ## v1.25.1-R3 (2026-06-12)
 
 - Removed healthcheck (#25)
