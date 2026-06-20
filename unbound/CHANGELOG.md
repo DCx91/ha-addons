@@ -1,5 +1,8 @@
 # Changelog
 
+## v1.25.1-R5 (2026-06-20)
+
+- No pull requests found for this version bump.
 ## v1.25.1-R4 (2026-06-20)
 
 - Added serve-expired-client-timeout: 0 (#26)
