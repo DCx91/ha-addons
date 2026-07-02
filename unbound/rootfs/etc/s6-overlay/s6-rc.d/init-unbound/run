@@ -3,13 +3,13 @@ set -e
 bashio::log.info "Starting Unbound DNS add-on..."
 
 # Read options
-UNBOUND_VERBOSITY=$(bashio::config 'unbound_verbosity')
 LISTEN_PORT=$(bashio::app.port '5335/udp')
+UNBOUND_VERBOSITY=$(bashio::config 'unbound_verbosity')
 DO_IPV6=$(bashio::config 'do_ipv6')
 NUM_THREADS=$(bashio::config 'num_threads')
-NO_PERSIST_CACHE=$(bashio::config 'no_persist_cache')
 CACHE_MIN_TTL=$(bashio::config 'cache_min_ttl')
 CACHE_MAX_TTL=$(bashio::config 'cache_max_ttl')
+NO_PERSIST_CACHE=$(bashio::config 'no_persist_cache')
 
 # Cap threads to CPU core count
 if bashio::config.has_value 'num_threads'; then
@@ -19,6 +19,18 @@ if bashio::config.has_value 'num_threads'; then
 		NUM_THREADS=${MAX_THREADS}
 	fi
 fi
+
+log_output() {
+    bashio::log.info "$(printf '%-20s: %s' "$1" "$2")"
+}
+
+log_output "Port" "${LISTEN_PORT}"
+log_output "Verbosity" "${UNBOUND_VERBOSITY}"
+log_output "IPv6" "${DO_IPV6}"
+log_output "Threads" "$(bashio::config.has_value 'num_threads' && echo "${NUM_THREADS}" || echo '1')"
+log_output "Min TTL" "$(bashio::config.has_value 'cache_min_ttl' && echo "${CACHE_MIN_TTL}s" || echo '0s')"
+log_output "Max TTL" "$(bashio::config.has_value 'cache_max_ttl' && echo "${CACHE_MAX_TTL}s" || echo '86400s')"
+log_output "Cache persistence" "$([ "${NO_PERSIST_CACHE}" = "true" ] && echo 'disabled' || echo 'enabled')"
 
 # Persistent config directory
 CONFIG_DIR="/config"
@@ -39,12 +51,16 @@ if [ ! -f "${HINTS_FILE}" ] || \
 		|| bashio::log.warning "Could not refresh root hints; using cached copy."
 fi
 
-# Build access-control lines
-ACCESS_CONTROL_LINES=""
-if bashio::config.has_value 'access_control'; then
-    while read -r acl; do
-        ACCESS_CONTROL_LINES+="    access-control: ${acl}"$'\n'
-    done < <(jq -r '.access_control[]' /data/options.json)
+# Check for existing unbound.conf and use it if found.
+if [ -f "${UNBOUND_CONF}" ]; then
+	bashio::log.info "Existing unbound.conf found, validating..."
+	if CHECKCONF_OUTPUT=$(unbound-checkconf "${UNBOUND_CONF}" 2>&1); then
+		bashio::log.info "Existing configuration validated. Will use that."
+		exit 0
+	else
+		bashio::log.warning "Existing unbound.conf is invalid, regenerating..."
+		echo "${CHECKCONF_OUTPUT}"
+	fi
 fi
 
 # Generate unbound.conf
@@ -70,7 +86,6 @@ $([ "${DO_IPV6}" = "true" ] && echo "    interface: ::0")
 	access-control: 172.16.0.0/12 allow
 	access-control: 192.168.0.0/16 allow
 $([ "${DO_IPV6}" = "true" ] && printf '    access-control: ::1/128 allow\n    access-control: fe80::/10 allow\n    access-control: fd00::/8 allow')
-${ACCESS_CONTROL_LINES}
 
 	# DNSSEC
 	auto-trust-anchor-file: "${ROOT_KEY}"
@@ -139,23 +154,11 @@ EOF
 # Validate configuration
 bashio::log.info "Validating configuration..."
 if CHECKCONF_OUTPUT=$(unbound-checkconf "${UNBOUND_CONF}" 2>&1); then
-    bashio::log.info "Configuration valid!"
+    bashio::log.info "Configuration validated."
 else
     bashio::log.fatal "Unbound configuration is invalid."
     echo "${CHECKCONF_OUTPUT}"
     exit 1
 fi
-
-log_output() {
-    bashio::log.info "$(printf '%-20s: %s' "$1" "$2")"
-}
-
-log_output "Port" "${LISTEN_PORT}"
-log_output "Verbosity" "${UNBOUND_VERBOSITY}"
-log_output "IPv6" "${DO_IPV6}"
-log_output "Threads" "$(bashio::config.has_value 'num_threads' && echo "${NUM_THREADS}" || echo '1')"
-log_output "Min TTL" "$(bashio::config.has_value 'cache_min_ttl' && echo "${CACHE_MIN_TTL}s" || echo '0s')"
-log_output "Max TTL" "$(bashio::config.has_value 'cache_max_ttl' && echo "${CACHE_MAX_TTL}s" || echo '86400s')"
-log_output "Cache persistence" "$([ "${NO_PERSIST_CACHE}" = "true" ] && echo 'disabled' || echo 'enabled')"
 
 exit 0

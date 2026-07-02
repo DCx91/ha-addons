@@ -23,11 +23,6 @@ configuration:
     description: >-
       Number of Unbound worker threads. For most home setups 1-2 is sufficient.
       Max: 32 (capped to CPU core count).
-  access_control:
-    name: Access Control List
-    description: >-
-      List of subnets allowed to query Unbound, e.g. "192.168.1.0/24 allow".
-      All other sources are refused. Private LAN subnets are allowed by default.
   no_persist_cache:
     name: Disable Cache Persistence
     description: >-
