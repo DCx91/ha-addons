@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.25.1-R6 (2026-07-02)
+
+- Add check for existing unbound.conf (#28)
+
 ## v1.25.1-R5 (2026-06-20)
 
 - No pull requests found for this version bump.
