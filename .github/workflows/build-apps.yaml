@@ -6,6 +6,16 @@ on:
   release:
     types:
       - published
+  workflow_dispatch:
+    inputs:
+      addon:
+        description: "Force-build"
+        required: true
+        type: choice
+        options:
+          - unbound
+          - aiostreams
+          - music_assistant_alexa_beta
 
 jobs:
   fix-permissions:
@@ -32,13 +42,18 @@ jobs:
   changed:
     runs-on: ubuntu-latest
     outputs:
-      addons: ${{ steps.filter.outputs.changes }}
+      addons: ${{ steps.force.outputs.addons || steps.filter.outputs.changes }}
     steps:
       - name: Checkout
         uses: actions/checkout@v7
         with:
           fetch-depth: 0
+      - name: Force single addon on manual dispatch
+        if: github.event_name == 'workflow_dispatch'
+        id: force
+        run: echo "addons=[\"${{ inputs.addon }}\"]" >> "$GITHUB_OUTPUT"
       - name: Detect changed addons
+        if: github.event_name != 'workflow_dispatch'
         uses: dorny/paths-filter@v4
         id: filter
         with:
