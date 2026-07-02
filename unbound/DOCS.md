@@ -1,7 +1,6 @@
 # Unbound DNS — Home Assistant App
 
-A validating, recursive, caching DNS resolver for your home network, adapted
-from [madnuttah/unbound-docker](https://github.com/madnuttah/unbound-docker).
+A validating, recursive, caching DNS resolver for your home network.
 
 ---
 
@@ -19,7 +18,7 @@ It also validates DNSSEC signatures, protecting you from DNS spoofing attacks.
 ## Installation
 
 1. Add this repository to Home Assistant:
-   **Settings → Add-ons → Add-on Store → ⋮ → Repositories**
+   **Settings → Apps → Install App → ⋮ → Repositories**
    Paste in the URL of this repo.
 
 2. Find **Unbound DNS** in the store and click **Install**.
@@ -92,6 +91,4 @@ server:
 
 ## Credits
 
-This add-on is a Home Assistant adaptation of the excellent
-[madnuttah/unbound-docker](https://github.com/madnuttah/unbound-docker) project.
-Unbound itself is developed by [NLnet Labs](https://nlnetlabs.nl/projects/unbound/).
+Unbound is developed by [NLnet Labs](https://nlnetlabs.nl/projects/unbound/).
