@@ -36,7 +36,6 @@ It also validates DNSSEC signatures, protecting you from DNS spoofing attacks.
 | `listen_port` | `5335` | Port Unbound listens on (UDP + TCP) |
 | `do_ipv6` | `false` | Enable IPv6 resolution |
 | `num_threads` | `1` | Worker thread count |
-| `access_control` | RFC 1918 ranges | Subnets allowed to query Unbound |
 | `no_persist_cache` | `false` | Disables cache dump & restore on reboot |
 | `cache_min_ttl` | `0` | Minimum TTL for cached records (seconds) |
 | `cache_max_ttl` | `86400` | Maximum TTL for cached records (seconds) |
@@ -56,6 +55,13 @@ resolution.
 
 ---
 
+## Editing unbound.conf
+
+You can edit the generated unbound.conf from `/addon_configs/61709215_unbound/unbound.conf`
+
+Any changes made will persist across restarts, but it will be regenerated to the default if unbound-checkconf fails on boot.
+
+---
 ## Custom Configuration Files
 
 You can place additional `.conf` files in the persistent config directory
