@@ -51,7 +51,7 @@ if [ ! -f "${HINTS_FILE}" ] || \
 		|| bashio::log.warning "Could not refresh root hints; using cached copy."
 fi
 
-# Use existing unbound.conf (if)
+# Check for existing unbound.conf and use it if found.
 if [ -f "${UNBOUND_CONF}" ]; then
 	bashio::log.info "Existing unbound.conf found, validating..."
 	if CHECKCONF_OUTPUT=$(unbound-checkconf "${UNBOUND_CONF}" 2>&1); then
