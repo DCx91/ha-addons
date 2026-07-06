@@ -55,7 +55,8 @@ def replace_ip_in_url(url, hostname):
     if not url:
         return url
     try:
-        new_url = re.sub(r'^https?://[^/]+', hostname, url)    except re.error:
+        new_url = re.sub(r'^https?://[^/]+', hostname, url)
+    except re.error:
         # In case the regex fails for some odd reason, just return original
         return url.replace(' ', '%20')
     return new_url.replace(' ', '%20')
@@ -365,4 +366,3 @@ def schedule_apl_refresh(response_builder, delay_ms=1000):
         )
     except Exception:
         logging.exception('Error while scheduling APL refresh')
-
