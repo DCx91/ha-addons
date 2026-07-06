@@ -13,13 +13,12 @@ ports_description:
   5000/tcp: "Flask web UI and Alexa skill endpoint"
 map:
   - data:rw
-apparmor: true
 webui: http://[HOST]:[PORT:5000]/status
 image: ghcr.io/dcx91/music_assistant_alexa_beta
 options:
   SKILL_HOSTNAME: ""
   MA_HOSTNAME: ""
-  APP_USERNAME: ma-alexa
+  APP_USERNAME: ""
   APP_PASSWORD: ""
   LOCALE: en-GB
   AWS_DEFAULT_REGION: eu-west-2
@@ -30,4 +29,3 @@ schema:
   APP_PASSWORD: password
   LOCALE: str
   AWS_DEFAULT_REGION: str
-  PORT: int?
