@@ -1,13 +1,7 @@
 #!/usr/bin/with-contenv bashio
-# Helper for optional config values with defaults
-config_or_default() {
-	local key="$1" default="$2"
-	bashio::config.has_value "${key}" && bashio::config "${key}" || echo "${default}"
-}
-
 export TZ=$(bashio::info.timezone)
 export AWS_DEFAULT_REGION=$(bashio::config 'AWS_DEFAULT_REGION')
-export PORT=$(config_or_default 'port' '5000')
+export PORT=$(bashio::app.port '5000/tcp')
 
 bashio::log.info "Starting Alexa Skill application using port ${PORT}..."
 
