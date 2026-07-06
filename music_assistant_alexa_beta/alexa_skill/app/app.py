@@ -344,7 +344,7 @@ def setup_ui():
     try:
         for ln in initial_logs:
             try:
-                m = re.search(r"(https?://[^\s'\"]+)", ln)
+                m = re.search(r"(https://www\.amazon\.com/ap/oa[^\s'\"]+)", ln)
                 if m:
                     auth_url = m.group(1)
                     break
@@ -354,7 +354,7 @@ def setup_ui():
                         arr = json.loads(ln)
                         if isinstance(arr, list):
                             for item in arr:
-                                mm = re.search(r"(https?://[^\s'\"]+)", str(item))
+                                mm = re.search(r"(https://www\.amazon\.com/ap/oa[^\s'\"]+)", str(item))
                                 if mm:
                                     auth_url = mm.group(1)
                                     break

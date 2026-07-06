@@ -17,10 +17,6 @@ configuration:
     name: Music Assistant Password
     description: >-
       Password for the Music Assistant web UI and API basic authentication.
-  PORT:
-    name: Listen Port
-    description: >-
-      Port the service listens on inside the container.
   LOCALE:
     name: Skill Locale
     description: >-

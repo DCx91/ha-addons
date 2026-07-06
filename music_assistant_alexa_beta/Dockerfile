@@ -4,19 +4,14 @@ RUN apk add --no-cache \
     nodejs \
     npm \
     openssl \
+    gnupg \
     python3
 WORKDIR /app
-COPY alexa_skill /app
+COPY alexa_skill/app/requirements.txt app/requirements.txt
 RUN python3 -m venv venv \
-    && . venv/bin/activate \
-    && pip install --upgrade pip \
-    && pip install -r /app/app/requirements.txt \
-    && venv/bin/python /app/scripts/patch_verifier.py
+    && venv/bin/pip install --upgrade pip \
+    && venv/bin/pip install --no-cache-dir -r app/requirements.txt
+COPY alexa_skill /app
+RUN venv/bin/python scripts/patch_verifier.py
 RUN npm install -g ask-cli
 COPY rootfs /
-RUN chmod a+x \
-    /app/scripts/ask_create_skill.sh \
-    /etc/s6-overlay/s6-rc.d/init-alexa-skill/up \
-    /etc/s6-overlay/s6-rc.d/init-alexa-skill/run \
-    /etc/s6-overlay/s6-rc.d/alexa-skill/run \
-    /etc/s6-overlay/s6-rc.d/alexa-skill/finish

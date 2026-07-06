@@ -1,7 +1,7 @@
 #!/usr/bin/with-contenv bashio
 export TZ=$(bashio::info.timezone)
 export AWS_DEFAULT_REGION=$(bashio::config 'AWS_DEFAULT_REGION')
-export PORT=$(bashio::config 'PORT')
+export PORT=$(bashio::app.port '5000/tcp')
 
 bashio::log.info "Starting Alexa Skill application using port ${PORT}..."
 
