@@ -1,5 +1,5 @@
 name: "Music Assistant Alexa Skill"
-version: "0.0.39-beta"
+version: "0.0.39-beta2"
 slug: "music_assistant_alexa_skill"
 description: "Alexa skill backend for Music Assistant"
 url: "https://github.com/alams154/music-assistant-alexa-skill-prototype"
