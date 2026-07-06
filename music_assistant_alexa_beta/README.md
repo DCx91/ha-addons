@@ -1,29 +1,29 @@
-# Music Assistant Alexa Skill — Home Assistant Add-on
+# Music Assistant Alexa Skill — Home Assistant App
 
-A Home Assistant add-on that runs the [Music Assistant Alexa Skill](https://github.com/alams154/music-assistant-alexa-skill-prototype) as a native supervised add-on, replacing the standalone Docker Compose deployment.
+A Home Assistant app that runs the [Music Assistant Alexa Skill](https://github.com/alams154/music-assistant-alexa-skill-prototype) as a native supervised app, replacing the standalone Docker Compose deployment.
 
 ## About
 
-This add-on wraps the Music Assistant Alexa Skill prototype in a Home Assistant add-on, providing:
+This app wraps the Music Assistant Alexa Skill prototype in a Home Assistant app, providing:
 
 - Automatic startup and supervision via s6-overlay
 - Persistent ASK CLI credentials across restarts via `/data/.ask`
-- Configuration through the Home Assistant add-on UI
+- Configuration through the Home Assistant app UI
 - Log output directly in the Home Assistant Supervisor log viewer
 
 The skill itself is a Flask web service that acts as an endpoint for a custom Alexa skill, allowing Alexa devices to control playback on your Music Assistant server.
 
 ## Prerequisites
 
-Before installing this add-on you will need:
+Before installing this app you will need:
 
 - [Music Assistant](https://music-assistant.io) running in your Home Assistant instance
 - An [Amazon Developer account](https://developer.amazon.com/en-US/docs/alexa/ask-overviews/create-developer-account.html) with Skill Access Management enabled
-- A publicly reachable HTTPS endpoint pointing at this add-on's port (e.g. via NGINX Proxy Manager or Cloudflare)
+- A publicly reachable HTTPS endpoint pointing at this app's port (e.g. via NGINX Proxy Manager or Cloudflare)
 
 ## Installation
 
-1. Navigate to **Settings → Add-ons → Add-on Store** in Home Assistant
+1. Navigate to **Settings → apps → app Store** in Home Assistant
 2. Click the menu in the top right and select **Repositories**
 3. Add this repository URL and click **Add**
 4. Find **Music Assistant Alexa Skill** in the store and click **Install**
@@ -32,47 +32,45 @@ Before installing this add-on you will need:
 
 | Option | Required | Default | Description |
 |---|---|---|---|
-| `SKILL_HOSTNAME` | Yes | — | Public HTTPS hostname Alexa will use to reach this add-on (e.g. `alexa.example.com`). Must be reachable by Amazon. |
+| `SKILL_HOSTNAME` | Yes | — | Public HTTPS hostname Alexa will use to reach this app (e.g. `alexa.example.com`). Must be reachable by Amazon. |
 | `MA_HOSTNAME` | No | — | Public HTTPS hostname of your Music Assistant stream. Required if your Alexa devices don't support APL, or if you want album art. |
-| `APP_USERNAME` | Yes | `ma-alexa` | Username for the web UI and API basic authentication. |
+| `APP_USERNAME` | Yes | — | Username for the web UI and API basic authentication. |
 | `APP_PASSWORD` | No | — | Password for the web UI and API basic authentication. |
-| `PORT` | Yes | `5000` | Port the Flask app listens on. Update your reverse proxy to match if changed. |
 | `LOCALE` | Yes | `en-GB` | Skill locale (e.g. `en-US`, `de-DE`). |
 | `AWS_DEFAULT_REGION` | Yes | `eu-west-1` | AWS region for SMAPI calls. |
 
 ## Setup
 
-Once the add-on is running and your reverse proxy is configured:
+Once the app is running and your reverse proxy is configured:
 
-1. Open the add-on web UI at `http://homeassistant:5000/setup` (or via the **Open Web UI** button)
-2. Click **Start Setup** — the add-on will create the Alexa skill automatically
+1. Open the app web UI at `http://homeassistant:5000/setup` (or via the **Open Web UI** button)
+2. Click **Start Setup** — the app will create the Alexa skill automatically
 3. Monitor progress in the setup logs shown on the page
 4. Once complete, open the status page at `/status` to verify everything is green
 
 ### Persistent ASK Credentials
 
-ASK CLI credentials are stored in `/data/.ask` and persist across add-on restarts and updates. If you need to re-authenticate, delete the contents of that directory and run setup again.
+ASK CLI credentials are stored in `/data/.ask` and persist across app restarts and updates. If you need to re-authenticate, delete the contents of that directory and run setup again.
 
 ## Reverse Proxy
 
-Alexa requires a valid HTTPS endpoint. Your `SKILL_HOSTNAME` must resolve to port 443 externally and proxy through to this add-on's port internally.
+Alexa requires a valid HTTPS endpoint. Your `SKILL_HOSTNAME` must resolve to port 443 externally and proxy through to this app's port internally.
 
-Example NGINX Proxy Manager custom location:
+Example NGINX Proxy Manager:
 
 | Field | Value |
 |---|---|
-| Location | `/` |
 | Scheme | `http` |
 | Forward Hostname | `homeassistant` |
 | Forward Port | `5000` |
 
-If you also want album art and non-APL device support, your `MA_HOSTNAME` must similarly proxy to Music Assistant's stream port (`8097` by default).
+If you also want album art and non-APL (no touch screen) device support, your `MA_HOSTNAME` must similarly proxy to Music Assistant's stream port (`8097` by default).
 
 ## Music Assistant Configuration
 
 In Music Assistant, configure the Alexa provider with:
 
-- **API URL**: `https://your-skill-hostname/alexa`
+- **API URL**: `https://your-skill-hostname`
 - **API Username**: the value of `APP_USERNAME`
 - **API Password**: the value of `APP_PASSWORD`
 
@@ -90,4 +88,4 @@ In Music Assistant, configure the Alexa provider with:
 
 ## Credits
 
-The Alexa skill prototype is developed and maintained by [@alams154](https://github.com/alams154). This add-on packages that work for Home Assistant Supervisor.
+The Alexa skill prototype is developed and maintained by [@alams154](https://github.com/alams154). This app packages that work for Home Assistant Supervisor.
