@@ -2,7 +2,13 @@
 
 ## v2.30.6-R1 (2026-07-13)
 
-- No pull requests found for this version bump.
+### Changed
+- Removed `npm`/`pnpm` from the final image, reducing image size by ~90MB
+- Added `LOG_FORMAT=text` to restore human-readable logs
+
+### Bug Fixes
+- Fixed a startup crash by replacing the glibc-compiled `better-sqlite3` with a musl build
+
 ## v2.30.6
 
 ## [2.30.6](https://github.com/Viren070/AIOStreams/compare/v2.30.5...v2.30.6) (2026-07-05)
