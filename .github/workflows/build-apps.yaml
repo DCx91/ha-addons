@@ -121,6 +121,7 @@ jobs:
           platforms: ${{ matrix.platform }}
           provenance: false
           sbom: false
+          build-args: BUILD_ARCH=${{ matrix.arch }}
           labels: |
             io.hass.version=${{ steps.version.outputs.version }}
             io.hass.type=addon
