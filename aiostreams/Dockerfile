@@ -1,7 +1,7 @@
 ARG BUILD_FROM=ghcr.io/hassio-addons/base:21.0.0
 FROM ghcr.io/viren070/aiostreams:latest AS aiostreams
 FROM ${BUILD_FROM}
-RUN apk add --no-cache nodejs openssl gcompat
+RUN apk add --no-cache nodejs openssl
 COPY --from=aiostreams /app /app
 
 ARG SQLITE_VER="12.11.2"
