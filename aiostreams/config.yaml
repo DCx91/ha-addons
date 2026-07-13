@@ -1,5 +1,5 @@
 name: AIOStreams
-version: "2.30.6"
+version: "2.30.6-R1"
 slug: aiostreams
 description: >-
   Consolidates multiple Stremio addons and debrid 
@@ -19,7 +19,7 @@ map:
   - data:rw
 options:
   base_url: ""
-  log_level: "info"
+  log_level: "error"
   trakt_id: ""
   addon_password: ""
   anime_api: false
