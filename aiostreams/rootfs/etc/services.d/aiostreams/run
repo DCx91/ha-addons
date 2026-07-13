@@ -5,12 +5,6 @@
 mkdir -p /data
 export DATABASE_URI="sqlite:///data/db.sqlite"
 
-# Helper for optional config values with defaults
-config_or_default() {
-	local key="$1" default="$2"
-  bashio::config.has_value "${key}" && bashio::config "${key}" || echo "${default}"
-}
-
 # Secret key - use the value from config if set, otherwise auto-generate
 # and persist it to /data/secret_key so it survives restarts.
 SECRET_KEY_FILE="/data/secret_key"
@@ -18,17 +12,17 @@ SECRET_KEY_FILE="/data/secret_key"
 bashio::log.info "Checking secret key..."
 if bashio::config.has_value 'secret_key'; then
   SECRET_KEY=$(bashio::config 'secret_key')
-  bashio::log.info "Using secret_key from app configuration."
+  bashio::log.info "Using secret key from app configuration."
 else
   if [[ -f "${SECRET_KEY_FILE}" ]]; then
     SECRET_KEY=$(cat "${SECRET_KEY_FILE}")
-    bashio::log.info "Using existing auto-generated secret_key from ${SECRET_KEY_FILE}."
+    bashio::log.info "Using existing auto-generated secret key from ${SECRET_KEY_FILE}."
   else
-    bashio::log.info "Generating new secret_key..."
+    bashio::log.info "Generating new secret key..."
     SECRET_KEY=$(openssl rand -hex 32)
     echo "${SECRET_KEY}" > "${SECRET_KEY_FILE}"
     chmod 600 "${SECRET_KEY_FILE}"
-    bashio::log.info "Generated new secret_key and saved to ${SECRET_KEY_FILE}."
+    bashio::log.info "Generated new secret key and saved to ${SECRET_KEY_FILE}."
   fi
 fi
 export SECRET_KEY="${SECRET_KEY}"
@@ -36,13 +30,14 @@ export SECRET_KEY="${SECRET_KEY}"
 # Map app options to AIOStreams environment variables
 bashio::log.info "Reading configuration..."
 
+export LOG_FORMAT=text
 export LOG_LEVEL=$(bashio::config 'log_level')
 export LOG_TIMEZONE=$(bashio::info.timezone)
-export PORT=$(bashio::addon.port "3000/tcp")
+export PORT=$(bashio::app.port "3000/tcp")
 export ADDON_NAME="AIOStreams"
 export ADDON_ID="aiostreams"
 export BUILTIN_STREMTHRU_URL="https://stremthru.13377001.xyz"
-export LOG_SENSITIVE_INFO="$(config_or_default 'sensitive_info' false)"
+export LOG_SENSITIVE_INFO="$(bashio::config 'sensitive_info' false)"
 export NODE_OPTIONS="--max-old-space-size=500"
 
 # Base URL
@@ -81,4 +76,4 @@ fi
 
 # Start AIOStreams
 cd /app
-exec pnpm run start
+exec node packages/server/dist/server.js
