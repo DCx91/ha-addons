@@ -37,8 +37,8 @@ export NODE_OPTIONS="--max-old-space-size=500"
 bashio::config.has_value 'base_url' && export BASE_URL="$(bashio::config 'base_url')" || export BASE_URL="http://homeassistant.local:${PORT}"
 
 # Password protection
-ADDON_USERNAME=bashio::config 'addon_username'
-ADDON_PASSWORD=bashio::config 'addon_password'
+ADDON_USERNAME=$(bashio::config 'addon_username')
+ADDON_PASSWORD=$(bashio::config 'addon_password')
 export AIOSTREAMS_AUTH="${ADDON_USERNAME}:${ADDON_PASSWORD}"
 
 # Trakt Client ID
