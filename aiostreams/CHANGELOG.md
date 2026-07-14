@@ -1,5 +1,8 @@
 # Changelog
 
+## v2.30.6-R3 (2026-07-14)
+
+- No pull requests found for this version bump.
 ## v2.30.6-R2 (2026-07-14)
 
 - No pull requests found for this version bump.
