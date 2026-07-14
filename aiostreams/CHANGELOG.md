@@ -6,6 +6,7 @@
 - Added Node ABI detection to install the correct better-sqlite build
 - Simplified install process
 - Removed leftover gcompat package
+- Removed option for manual secret key input
 
 ## v2.30.6-R1 (2026-07-13)
 
