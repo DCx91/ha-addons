@@ -28,7 +28,6 @@ schema:
   log_level: list(error|warn|info|http|verbose|debug|silly)
   trakt_id: str?
   addon_password: password?
-  anime_api: bool?
+  anime_api: bool
   sensitive_info: bool?
   trusted_uuid: str?
-  secret_key: str?
