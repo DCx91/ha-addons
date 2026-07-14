@@ -37,7 +37,9 @@ export NODE_OPTIONS="--max-old-space-size=500"
 bashio::config.has_value 'base_url' && export BASE_URL="$(bashio::config 'base_url')" || export BASE_URL="http://homeassistant.local:${PORT}"
 
 # Password protection
-bashio::config.has_value 'addon_password' && export ADDON_PASSWORD="$(bashio::config 'addon_password')"
+ADDON_USERNAME=bashio::config 'addon_username'
+ADDON_PASSWORD=bashio::config 'addon_password'
+export AIOSTREAMS_AUTH="${ADDON_USERNAME}:${ADDON_PASSWORD}"
 
 # Trakt Client ID
 bashio::config.has_value 'trakt_id' && export TRAKT_CLIENT_ID="$(bashio::config 'trakt_id')" || export FETCH_TRAKT_ALIASES=false
@@ -53,18 +55,21 @@ fi
 bashio::config.has_value 'trusted_uuid' && export TRUSTED_UUIDS="$(bashio::config 'trusted_uuid')"
 
 # Log basic info
+log_output() {
+    bashio::log.info "$(printf '%-15s: %s' "$1" "$2")"
+}
+
 if [[ "${LOG_LEVEL}" = "error" || "${LOG_LEVEL}" = "warning" ]]; then
 	bashio::log.info "Starting AIOStreams..."
-	bashio::log.info "Base URL				: ${BASE_URL}"
-	bashio::log.info "Port						: ${PORT}"
-	bashio::log.info "Database				: ${DATABASE_URI}"
-	bashio::log.info "Log Level				: ${LOG_LEVEL}"
-	bashio::log.info "Timezone				: ${LOG_TIMEZONE}"
-	bashio::log.info "Anime DB				: ${ANIME_API}"
-	bashio::log.info "Sensitive Info	: ${LOG_SENSITIVE_INFO}"
-	bashio::log.info "Password				: $(bashio::config.has_value 'addon_password' && echo 'enabled' || echo 'disabled')"
-	bashio::log.info "Trakt						: $(bashio::config.has_value 'trakt_id' && echo 'configured' || echo 'not set (aliases disabled)')"
-	bashio::log.info "Trusted UUID		: $(bashio::config.has_value 'trusted_uuid' && echo 'configured' || echo 'unconfigured')"
+	log_output "Base URL" "${BASE_URL}"
+	log_output "Port" "${PORT}"
+	log_output "Database" "${DATABASE_URI}"
+	log_output "Log Level" "${LOG_LEVEL}"
+	log_output "Timezone" "${LOG_TIMEZONE}"
+	log_output "Anime DB" "${ANIME_API}"
+	log_output "Sensitive Info" "${LOG_SENSITIVE_INFO}"
+	log_output "Trakt" "$(bashio::config.has_value 'trakt_id' && echo 'configured' || echo 'unconfigured')"
+	log_output "Trusted UUID" "$(bashio::config.has_value 'trusted_uuid' && echo 'configured' || echo 'unconfigured')"
 fi
 
 # Start AIOStreams
