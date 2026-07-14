@@ -18,16 +18,18 @@ webui: http://[HOST]:[PORT:3000]/
 map:
   - data:rw
 options:
+  addon_username: ""
+  addon_password: ""
   base_url: ""
   log_level: "error"
   trakt_id: ""
-  addon_password: ""
   anime_api: false
 schema:
+  addon_username: str
+  addon_password: password
   base_url: str?
   log_level: list(error|warn|info|http|verbose|debug|silly)
   trakt_id: str?
-  addon_password: password?
   anime_api: bool
   sensitive_info: bool?
   trusted_uuid: str?
