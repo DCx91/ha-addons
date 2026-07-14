@@ -15,12 +15,12 @@ configuration:
     description: >-
       Provide a trakt client ID for authorised requests to get trakt aliases.
       You can create a key here: https://trakt.tv/oauth/applications
+  addon_username:
+    name: Username
+    description: Username to log into AIOStreams instance.
   addon_password:
-    name: Addon Password
-    description: >-
-      API key to protect your addon installation and usage.
-      Leave empty to disable password protection.
-      Can be any string. Supports multiple passwords separated by commas.
+    name: Password
+    description: Password to log into AIOStreams instance.
   anime_api:
     name: Detailed Anime Metadata
     description: >-
