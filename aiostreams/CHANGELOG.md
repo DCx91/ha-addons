@@ -1,16 +1,11 @@
 # Changelog
 
-## v2.30.6
+## v2.30.6-R2 (2026-07-14)
 
-## [2.30.6](https://github.com/Viren070/AIOStreams/compare/v2.30.5...v2.30.6) (2026-07-05)
-
-
-### Bug Fixes
-
-* **builtins/easynews:** accept numeric dlFarm in search response schema ([#1054](https://github.com/Viren070/AIOStreams/issues/1054)) ([e640f63](https://github.com/Viren070/AIOStreams/commit/e640f636d23a0c3ab8a426d0305563c9a198b370))
-* **builtins/torbox-search:** adjust error parsing ([64aace5](https://github.com/Viren070/AIOStreams/commit/64aace5ea8c9e84e58e8d8a195722296a9959603))
-* **presets/baguettio:** add config for Tr4ker ([#1058](https://github.com/Viren070/AIOStreams/issues/1058)) ([da760e7](https://github.com/Viren070/AIOStreams/commit/da760e79976b1e7e9d2d4eec8c08eb361ea391eb))
-
+### Changed
+- Added Node ABI detection to install the correct better-sqlite build
+- Simplified install process
+- Removed leftover gcompat package
 
 ## v2.30.6-R1 (2026-07-13)
 
