@@ -2,6 +2,9 @@
 
 ## v2.30.6-R2 (2026-07-14)
 
+- No pull requests found for this version bump.
+## v2.30.6-R2 (2026-07-14)
+
 ### Changed
 - Added Node ABI detection to install the correct better-sqlite build
 - Simplified install process
