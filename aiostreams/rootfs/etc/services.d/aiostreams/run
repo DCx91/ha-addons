@@ -1,5 +1,4 @@
 #!/usr/bin/with-contenv bashio
-# shellcheck shell=bash
 
 # Persistent storage
 mkdir -p /data
@@ -34,7 +33,16 @@ export LOG_SENSITIVE_INFO="$(bashio::config 'sensitive_info' false)"
 export NODE_OPTIONS="--max-old-space-size=500"
 
 # Base URL
-bashio::config.has_value 'base_url' && export BASE_URL="$(bashio::config 'base_url')" || export BASE_URL="http://homeassistant.local:${PORT}"
+if bashio::config.has_value 'base_url'; then
+	RAW_BASE_URL="$(bashio::config 'base_url')"
+	case "${RAW_BASE_URL}" in
+		http://*|https://*) BASE_URL="${RAW_BASE_URL}" ;;
+		*) BASE_URL="https://${RAW_BASE_URL}" ;;
+	esac
+	export BASE_URL
+else
+	export BASE_URL="http://homeassistant.local:${PORT}"
+fi
 
 # Dashboard accesss
 if bashio::config.has_value 'addon_username' && bashio::config.has_value 'addon_password'; then
