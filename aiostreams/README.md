@@ -25,8 +25,9 @@ Once installed, click **Open Web UI** to configure AIOStreams and install it int
 
 | Option | Recommended | Description |
 |---|:---:|---|
+| `addon_username` | ✅ | Username for accessing the Dashboard. Case sensitive. |
+| `addon_password` | ✅ | Password for accessing the Dashboard. Case sensitive. |
 | `base_url` | ✅ | Public URL of this add-on, e.g. `https://[domain].duckdns.org`. Most addons require HTTPS. Defaults to `http://homeassistant.local:3000`. |
-| `addon_password` | ✅ | Password(s) protecting your instance. Comma-separate multiple passwords. |
 | `trakt_api` | ✅ | Trakt client ID for alias lookups. Create one at [trakt.tv/oauth/applications](https://trakt.tv/oauth/applications). Without this, Trakt alias fetching is disabled. |
 | `log_level` | 🟡 | Logging verbosity. One of `error`, `warn`, `info`, `http`, `verbose`, `debug`, `silly`. Default: `error`. |
 | `anime_api` | 🟡 | Increased detail for anime metadata. Increases memory usage. Default: `false`. |
