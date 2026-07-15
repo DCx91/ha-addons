@@ -17,10 +17,10 @@ configuration:
       You can create a key here: https://trakt.tv/oauth/applications
   addon_username:
     name: Username
-    description: Username to log into AIOStreams instance.
+    description: Username to log into the AIOStreams dashboard.
   addon_password:
     name: Password
-    description: Password to log into AIOStreams instance.
+    description: Password to log into the AIOStreams dashboard.
   anime_api:
     name: Detailed Anime Metadata
     description: >-
