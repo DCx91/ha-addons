@@ -3,15 +3,8 @@ FROM ghcr.io/viren070/aiostreams:latest AS aiostreams
 FROM ${BUILD_FROM}
 RUN apk add --no-cache nodejs openssl
 COPY --from=aiostreams /app /app
-RUN cd /app/node_modules/.pnpm && rm -rf \
-    react-* \
-    @reduxjs+toolkit@* \
-    @tanstack+table-core@* \
-    @tanstack+react-table@* \
-    victory-vendor@* \
-    @hookform+resolvers@* \
-    csstype@* \
-    immer@*
+COPY prune-deps.sh /tmp/prune-deps.sh
+RUN chmod +x /tmp/prune-deps.sh && /tmp/prune-deps.sh && rm /tmp/prune-deps.sh
 
 ARG SQLITE_VER="12.11.2"
 ARG BUILD_ARCH
