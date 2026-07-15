@@ -25,8 +25,8 @@ options:
   trakt_id: ""
   anime_api: false
 schema:
-  addon_username: str
-  addon_password: password
+  addon_username: str?
+  addon_password: password?
   base_url: str?
   log_level: list(error|warn|info|http|verbose|debug|silly)
   trakt_id: str?
