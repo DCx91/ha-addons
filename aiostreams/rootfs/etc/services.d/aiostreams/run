@@ -36,10 +36,14 @@ export NODE_OPTIONS="--max-old-space-size=500"
 # Base URL
 bashio::config.has_value 'base_url' && export BASE_URL="$(bashio::config 'base_url')" || export BASE_URL="http://homeassistant.local:${PORT}"
 
-# Password protection
-ADDON_USERNAME=$(bashio::config 'addon_username')
-ADDON_PASSWORD=$(bashio::config 'addon_password')
-export AIOSTREAMS_AUTH="${ADDON_USERNAME}:${ADDON_PASSWORD}"
+# Dashboard accesss
+if bashio::config.has_value 'addon_username' && bashio::config.has_value 'addon_password'; then
+	ADDON_USERNAME=$(bashio::config 'addon_username')
+	ADDON_PASSWORD=$(bashio::config 'addon_password')
+	export AIOSTREAMS_AUTH="${ADDON_USERNAME}:${ADDON_PASSWORD}"
+elif bashio::config.has_value 'addon_username' || bashio::config.has_value 'addon_password'; then
+	bashio::log.warning "Both username & password must be set to enable dashboard access."
+fi
 
 # Trakt Client ID
 bashio::config.has_value 'trakt_id' && export TRAKT_CLIENT_ID="$(bashio::config 'trakt_id')" || export FETCH_TRAKT_ALIASES=false
