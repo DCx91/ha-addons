@@ -2,7 +2,8 @@
 
 ## v1.25.1-R7 (2026-07-18)
 
-- Dcx91 patch 2 (#30)
+- Split HA GUI config options from main unbound.conf file so changes will be reflected in Unbound, but unbound.conf can still be manually edited.
+- Enabling IPv6 now detects HA's IPv6 prefix and adds it to access-control allow list.
 
 ## v1.25.1-R6 (2026-07-02)
 
