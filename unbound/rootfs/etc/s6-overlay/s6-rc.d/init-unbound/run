@@ -51,6 +51,35 @@ if [ ! -f "${HINTS_FILE}" ] || \
 		|| bashio::log.warning "Could not refresh root hints; using cached copy."
 fi
 
+# Detect the current global IPv6 prefix on the LAN interface
+GUA_ADDR=$(ip -6 addr show scope global | grep -oE '2[0-9a-f]{3}:[0-9a-f:]+/[0-9]+' | head -n1)
+
+if [ -n "${GUA_ADDR}" ]; then
+    # Derive a /64 network from the detected address for the access-control rule
+    GUA_PREFIX=$(ipcalc -b "${GUA_ADDR}" 2>/dev/null | awk '/Network/{print $2}')
+    # Fallback: just truncate to /64 manually if ipcalc isn't available
+    [ -z "${GUA_PREFIX}" ] && GUA_PREFIX="${GUA_ADDR%%::*}::/64"
+fi
+
+OPTIONS_CONF="${CONF_D_DIR}/00-ha-options.conf"
+cat > "${OPTIONS_CONF}" << EOF
+server:
+
+# Home Assistant GUI config options
+    verbosity: ${UNBOUND_VERBOSITY}
+$([ "${UNBOUND_VERBOSITY}" -ge 3 ] && printf '    log-queries: yes\n    log-replies: yes')
+$([ "${DO_IPV6}" = "false" ] && echo "    do-ip6: no")
+$(bashio::config.has_value 'num_threads' && echo "    num-threads: ${NUM_THREADS}")
+$(bashio::config.has_value 'cache_min_ttl' && echo "    cache-min-ttl: ${CACHE_MIN_TTL}")
+$(bashio::config.has_value 'cache_max_ttl' && echo "    cache-max-ttl: ${CACHE_MAX_TTL}")
+interface: 0.0.0.0
+port: ${LISTEN_PORT}
+$([ "${DO_IPV6}" = "true" ] && echo "    interface: ::0")
+$([ "${DO_IPV6}" = "true" ] && printf '    access-control: ::1/128 allow\n    access-control: fe80::/10 allow\n    access-control: fd00::/8 allow'\n    access-control: ${GUA_PREFIX)
+
+EOF
+
+
 # Check for existing unbound.conf and use it if found.
 if [ -f "${UNBOUND_CONF}" ]; then
 	bashio::log.info "Existing unbound.conf found, validating..."
@@ -69,14 +98,9 @@ bashio::log.info "Generating Unbound configuration..."
 cat > "${UNBOUND_CONF}" << EOF
 server:
 	username: ""
-	verbosity: ${UNBOUND_VERBOSITY}
-$([ "${DO_IPV6}" = "false" ] && echo "    do-ip6: no")
-$(bashio::config.has_value 'num_threads' && echo "    num-threads: ${NUM_THREADS}")
 
 	# Interfaces
 	interface: 0.0.0.0
-	port: ${LISTEN_PORT}
-$([ "${DO_IPV6}" = "true" ] && echo "    interface: ::0")
 
 	# Access control
 	access-control: 0.0.0.0/0 refuse
@@ -85,7 +109,6 @@ $([ "${DO_IPV6}" = "true" ] && echo "    interface: ::0")
 	access-control: 127.0.0.0/8 allow
 	access-control: 172.16.0.0/12 allow
 	access-control: 192.168.0.0/16 allow
-$([ "${DO_IPV6}" = "true" ] && printf '    access-control: ::1/128 allow\n    access-control: fe80::/10 allow\n    access-control: fd00::/8 allow')
 
 	# DNSSEC
 	auto-trust-anchor-file: "${ROOT_KEY}"
@@ -116,8 +139,6 @@ $([ "${DO_IPV6}" = "true" ] && printf '    access-control: ::1/128 allow\n    ac
 	prefetch: yes
 	prefetch-key: yes
 	neg-cache-size: 4m
-$(bashio::config.has_value 'cache_min_ttl' && echo "    cache-min-ttl: ${CACHE_MIN_TTL}")
-$(bashio::config.has_value 'cache_max_ttl' && echo "    cache-max-ttl: ${CACHE_MAX_TTL}")
 
 	# Performance
 	so-rcvbuf: 4m
@@ -130,7 +151,6 @@ $(bashio::config.has_value 'cache_max_ttl' && echo "    cache-max-ttl: ${CACHE_M
 
 	# Logging
 	use-syslog: no
-$([ "${UNBOUND_VERBOSITY}" -ge 3 ] && printf '    log-queries: yes\n    log-replies: yes')
 
 	# Include user-created config files
 	include-toplevel: "${CONF_D_DIR}/*.conf"
