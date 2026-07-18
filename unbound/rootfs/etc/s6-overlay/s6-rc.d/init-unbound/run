@@ -52,31 +52,30 @@ if [ ! -f "${HINTS_FILE}" ] || \
 fi
 
 # Detect the current global IPv6 prefix on the LAN interface
-GUA_ADDR=$(ip -6 addr show scope global | grep -oE '2[0-9a-f]{3}:[0-9a-f:]+/[0-9]+' | head -n1)
+GUA_PREFIX=""
+NETWORK_INFO=$(curl -s -H "Authorization: Bearer ${SUPERVISOR_TOKEN}" "http://supervisor/network/info" 2>/dev/null || true)
+GUA_ADDR=$(echo "${NETWORK_INFO}" | jq -r '.data.interfaces[].ipv6.address[]?' 2>/dev/null | grep -E '^[23][0-9a-f]{3}:' | head -n1 || true)
 
 if [ -n "${GUA_ADDR}" ]; then
-    # Derive a /64 network from the detected address for the access-control rule
-    GUA_PREFIX=$(ipcalc -b "${GUA_ADDR}" 2>/dev/null | awk '/Network/{print $2}')
-    # Fallback: just truncate to /64 manually if ipcalc isn't available
-    [ -z "${GUA_PREFIX}" ] && GUA_PREFIX="${GUA_ADDR%%::*}::/64"
+    GUA_PREFIX="${GUA_ADDR%%::*}::/64"
+    bashio::log.info "Detected global IPv6 prefix: ${GUA_PREFIX}"
+else
+    bashio::log.warning "Could not detect a global IPv6 prefix via Supervisor API; IPv6 LAN clients may be refused."
 fi
 
 OPTIONS_CONF="${CONF_D_DIR}/00-ha-options.conf"
 cat > "${OPTIONS_CONF}" << EOF
-server:
-
 # Home Assistant GUI config options
+server:
     verbosity: ${UNBOUND_VERBOSITY}
+	port: ${LISTEN_PORT}
 $([ "${UNBOUND_VERBOSITY}" -ge 3 ] && printf '    log-queries: yes\n    log-replies: yes')
 $([ "${DO_IPV6}" = "false" ] && echo "    do-ip6: no")
 $(bashio::config.has_value 'num_threads' && echo "    num-threads: ${NUM_THREADS}")
 $(bashio::config.has_value 'cache_min_ttl' && echo "    cache-min-ttl: ${CACHE_MIN_TTL}")
 $(bashio::config.has_value 'cache_max_ttl' && echo "    cache-max-ttl: ${CACHE_MAX_TTL}")
-interface: 0.0.0.0
-port: ${LISTEN_PORT}
 $([ "${DO_IPV6}" = "true" ] && echo "    interface: ::0")
-$([ "${DO_IPV6}" = "true" ] && printf '    access-control: ::1/128 allow\n    access-control: fe80::/10 allow\n    access-control: fd00::/8 allow'\n    access-control: ${GUA_PREFIX)
-
+$([ "${DO_IPV6}" = "true" ] && printf '    access-control: ::1/128 allow\n    access-control: fe80::/10 allow\n    access-control: fd00::/8 allow\n    access-control: %s allow\n' "${GUA_PREFIX}")
 EOF
 
 
