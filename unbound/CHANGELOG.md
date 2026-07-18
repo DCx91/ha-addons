@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.25.1-R7 (2026-07-18)
+
+- Dcx91 patch 2 (#30)
+
 ## v1.25.1-R6 (2026-07-02)
 
 - Add check for existing unbound.conf (#28)
