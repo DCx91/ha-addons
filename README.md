@@ -34,7 +34,6 @@ Then find your desired app in the store and click **Install**.
 
 ## Credits
 
-- Unbound app adapted from [madnuttah/unbound-docker](https://github.com/madnuttah/unbound-docker).
-Unbound is developed by [NLnet Labs](https://nlnetlabs.nl/projects/unbound/about/).
-- AIOStreams app adapted from [Viren070/AIOStreams](https://github.com/Viren070/aiostreams).
+- Unbound is developed by [NLnet Labs](https://nlnetlabs.nl/projects/unbound/about/).
+- AIOStreams adapted from [Viren070/AIOStreams](https://github.com/Viren070/aiostreams).
 - Music Assistant - Alexa adapted from [alams154/music-assistant-alexa-skill-prototype](https://github.com/alams154/music-assistant-alexa-skill-prototype/tree/master)
