@@ -16,7 +16,7 @@ on:
           - unbound
           - aiostreams
           - music_assistant_alexa_beta
-
+          - nginxproxymanager
 jobs:
   fix-permissions:
     runs-on: ubuntu-latest
@@ -65,6 +65,8 @@ jobs:
               - 'aiostreams/**'
             music_assistant_alexa_beta:
               - 'music_assistant_alexa_beta/**'
+            nginxproxymanager:
+              - 'nginxproxymanager/**'
 
   build:
     needs:
