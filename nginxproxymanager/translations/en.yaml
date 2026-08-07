@@ -1,0 +1,12 @@
+configuration:
+  geoip2:
+    name: Enable GeoIP2
+    description: >
+      Loads the GeoIP2 NGINX modules, allowing custom NGINX configurations to
+      use MaxMind Geolocation databases.
+
+  max_old_space:
+    name: Node.js maximum heap size
+    description: >
+      Sets the maximum heap size (in MB) for the Node.js process. Increase this
+      value if Nginx Proxy Manager runs out of memory. Default: 250 MB.

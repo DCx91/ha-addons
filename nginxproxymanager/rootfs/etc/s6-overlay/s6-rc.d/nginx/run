@@ -1,0 +1,12 @@
+#!/command/with-contenv bashio
+# shellcheck shell=bash
+
+bashio::log.info "Starting Nginx..."
+
+# Create required folders
+mkdir -p \
+  /var/log/nginx \
+  /var/cache/nginx/proxy_temp
+
+# Run
+exec nginx

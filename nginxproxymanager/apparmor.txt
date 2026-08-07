@@ -1,0 +1,71 @@
+#include <tunables/global>
+
+profile npm flags=(attach_disconnected,mediate_deleted) {
+  #include <abstractions/base>
+
+  # Capabilities
+  capability kill,
+  file,
+  signal (send) set=(kill,term,int,hup,cont),
+
+  # S6-Overlay
+  /init ix,
+  /bin/** ix,
+  /usr/bin/** ix,
+  /run/{s6,s6-rc*,service}/** ix,
+  /package/** ix,
+  /command/** ix,
+  /etc/services.d/** rwix,
+  /etc/cont-init.d/** rwix,
+  /etc/cont-finish.d/** rwix,
+  /run/{,**} rwk,
+  /dev/tty rw,
+
+  # Bashio
+  /usr/lib/bashio/** ix,
+  /tmp/** rwk,
+
+  # Access to options.json and other files within your addon
+  /data/** rw,
+
+  # Start new profile for service
+  /usr/sbin/nginx cx -> npm,
+
+  profile npm flags=(attach_disconnected,mediate_deleted) {
+    #include <abstractions/base>
+
+    # Capabilities
+    capability setgid,
+    capability setuid,
+    capability dac_override,
+
+    # Receive signals from S6-Overlay
+    signal (receive) peer=*_nginxproxymanager*,
+    ptrace (read) peer=*_nginxproxymanager*,
+
+    # Access to options.json and other files within your addon
+    /data/** rw,
+    /config/** rw,
+    /tmp/nginx/** rwk,
+
+    # Access to mapped volumes specified in config.json
+    /share/** rw,
+
+    # Access required for service functionality
+    /usr/sbin/nginx rix,
+    /bin/bash rix,
+    /bin/echo ix,
+    /etc/passwd r,
+    /dev/tty rw,
+    /etc/nginx/** rw,
+    /etc/ssl/openssl.cnf r,
+    /etc/group r,
+    /etc/hosts r,
+    /etc/resolv.conf r,
+    /opt/nginx-proxy-manager/** r,
+    /proc/1/fd/1 rw,
+    /proc/1/fd/2 rw,
+    /run/nginx/** rwk,
+    /var/lib/nginx/** rwk,
+  }
+}
