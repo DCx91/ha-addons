@@ -1,0 +1,7 @@
+#!/command/with-contenv bashio
+# shellcheck shell=bash
+declare dns_host
+
+dns_host=$(bashio::dns.host)
+sed -i "s/%%dns_host%%/${dns_host}/g" \
+    /etc/nginx/conf.d/include/resolvers.conf
