@@ -3,6 +3,7 @@ version: 2.15.1
 slug: nginxproxymanager
 description: Manage Nginx proxy hosts with a simple, powerful interface
 url: https://github.com/DCx91/ha-addons/nginxproxymanager
+image: ghcr.io/dcx91/nginxproxymanager
 webui: http://[HOST]:[PORT:81]
 startup: services
 init: false
