@@ -38,6 +38,7 @@ if bashio::config.true 'geoip2'; then
         echo "load_module /usr/lib/nginx/modules/ngx_http_geoip2_module.so;"
         echo "load_module /usr/lib/nginx/modules/ngx_stream_geoip2_module.so;"
     } >> "$ROOT_TOP"
+    mkdir -p /config/geoip2
 fi
 
 ln -s /tmp/nginx /var/tmp/nginx
