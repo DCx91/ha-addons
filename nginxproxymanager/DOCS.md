@@ -12,37 +12,35 @@ With this app you can:
 
 ## Installation
 
-Installing the app is the same as installing any other Home Assistant app.
+1. Add this repository to Home Assistant:
 
-1. Open the app page in your Home Assistant instance.
+   [![Add repository to Home Assistant](https://my.home-assistant.io/badges/supervisor_add_addon_repository.svg)](https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2FDCx91%2Fha-addons)
 
-2. Click **Install**.
+2. Find **Nginx Proxy Manager** in the store and click **Install**.
 
-3. Start the **Nginx Proxy Manager** app.
+3. Check the app logs to ensure it started successfully.
 
-4. Check the app logs to ensure it started successfully.
+4. Click **Open Web UI**.
 
-5. Click **Open Web UI**.
-
-6. Create an account, for example:
+5. Create an account, for example:
 
    ```
    Email:    admin@example.com
    Password: changeme
    ```
 
-7. Add hosts!
+6. Add hosts!
 
 ## GeoIP2 support
 
-This add-on can load the optional GeoIP2 NGINX modules, allowing you to use
+This app can load the optional GeoIP2 NGINX modules, allowing you to use
 MaxMind GeoIP2 databases in custom NGINX configurations.
 
 To enable GeoIP2:
 
-1. Enable the **GeoIP2** option in the add-on configuration.
+1. Enable the **GeoIP2** option in the app configuration.
 2. Download a GeoLite2 or GeoIP2 database from MaxMind.
-3. Copy the database to your add-on configuration directory, for example:
+3. Copy the database to your app configuration directory, for example:
 
    ```
    /addon_configs/61709215_nginxproxymanager/geoip2/GeoLite2-Country.mmdb
