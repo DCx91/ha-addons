@@ -40,8 +40,8 @@ profile npm flags=(attach_disconnected,mediate_deleted) {
     capability dac_override,
 
     # Receive signals from S6-Overlay
-    signal (receive) peer=*_nginxproxymanager*,
-    ptrace (read) peer=*_nginxproxymanager*,
+    signal (receive) peer=*_nginxproxymanager,
+    ptrace (read) peer=*_nginxproxymanager,
 
     # Access to options.json and other files within your addon
     /data/** rw,
