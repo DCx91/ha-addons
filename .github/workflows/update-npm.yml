@@ -1,0 +1,95 @@
+name: Update NPM version
+
+on:
+  schedule:
+    - cron: '0 6 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Get latest upstream version
+        id: upstream
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          VERSION=$(curl -fsSL \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            https://api.github.com/repos/NginxProxyManager/nginx-proxy-manager/releases/latest \
+            | jq -r '.tag_name | sub("^v"; "")')
+
+          if [ -z "$VERSION" ] || [ "$VERSION" = "null" ]; then
+            echo "Failed to determine upstream version"
+            exit 1
+          fi
+
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Get current app version
+        id: current
+        run: |
+          VERSION=$(grep '^version:' nginxproxymanager/config.yaml \
+            | awk '{print $2}' \
+            | tr -d '"')
+
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Update app
+        if: steps.upstream.outputs.version != steps.current.outputs.version
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ steps.upstream.outputs.version }}
+        run: |
+          set -e
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          RELEASE_JSON=$(curl -fsSL \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            https://api.github.com/repos/NginxProxyManager/nginx-proxy-manager/releases/latest)
+
+          RELEASE_NOTES=$(echo "$RELEASE_JSON" | jq -r '.body')
+
+          sed -i "s/^version: .*/version: \"$VERSION\"/" \
+            nginxproxymanager/config.yaml
+
+          sed -i "s/^ARG NGINX_PROXY_MANAGER_VERSION=.*/ARG NGINX_PROXY_MANAGER_VERSION=\"v$VERSION\"/" \
+            nginxproxymanager/Dockerfile
+
+          CHANGELOG_FILE="nginxproxymanager/CHANGELOG.md"
+
+          if [ ! -f "$CHANGELOG_FILE" ]; then
+            printf "# Changelog\n\n" > "$CHANGELOG_FILE"
+          fi
+
+          # Don't duplicate an existing release entry.
+          if ! grep -q "^## v$VERSION$" "$CHANGELOG_FILE"; then
+            TEMP=$(mktemp)
+
+            printf "# Changelog\n\n## v%s\n\n%s\n\n" \
+              "$VERSION" \
+              "$RELEASE_NOTES" > "$TEMP"
+
+            sed '1,2d' "$CHANGELOG_FILE" >> "$TEMP"
+
+            mv "$TEMP" "$CHANGELOG_FILE"
+          fi
+
+          git add -A
+
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+            exit 0
+          fi
+
+          git commit -m "Update NPM to v$VERSION"
+          git push origin main
