@@ -15,7 +15,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v7
-
+        with:
+          token: ${{ secrets.PAT_BUMP_TOKEN }}
       - name: Get latest upstream version
         id: upstream
         env:
