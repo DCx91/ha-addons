@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.25.2-R1 (2026-08-10)
+
+- Update ghcr.io/hassio-addons/base Docker tag to v21.0.1 (#32)
+
 ## v1.25.1-R7 (2026-07-18)
 
 - Split HA GUI config options from main unbound.conf file so changes will be reflected in Unbound, but unbound.conf can still be manually edited.
