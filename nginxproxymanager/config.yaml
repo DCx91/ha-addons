@@ -1,5 +1,5 @@
 name: Nginx Proxy Manager
-version: "2.15.1"
+version: "2.15.1-R2"
 slug: nginxproxymanager
 description: Manage Nginx proxy hosts with a simple, powerful interface
 url: https://github.com/DCx91/ha-addons/nginxproxymanager
