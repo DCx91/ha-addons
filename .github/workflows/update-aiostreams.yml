@@ -3,30 +3,27 @@ on:
   schedule:
     - cron: '0 6 * * *' 
   workflow_dispatch:
-
 permissions:
   contents: write
   pull-requests: write
-
 jobs:
   update:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-
+        with:
+          token: ${{ secrets.PAT_BUMP_TOKEN }}
       - name: Get latest upstream version
         id: upstream
         run: |
           VERSION=$(curl -s https://api.github.com/repos/Viren070/AIOStreams/releases/latest \
             | jq -r .tag_name | sed 's/^v//')
           echo "version=$VERSION" >> $GITHUB_OUTPUT
-
       - name: Get current addon version
         id: current
         run: |
           VERSION=$(grep '^version:' aiostreams/config.yaml | awk '{print $2}' | tr -d '"')
           echo "version=$VERSION" >> $GITHUB_OUTPUT
-
       - name: Bump version and update changelog
         if: steps.upstream.outputs.version != steps.current.outputs.version
         env:
@@ -36,19 +33,16 @@ jobs:
           git config user.email "actions@github.com"
           
           sed -i 's/^version: .*/version: "${{ steps.upstream.outputs.version }}"/' aiostreams/config.yaml
-
           RELEASE_NOTES=$(curl -s \
             -H "Authorization: Bearer $GH_TOKEN" \
             https://api.github.com/repos/Viren070/AIOStreams/releases/latest \
             | jq -r .body)
-
           CHANGELOG_FILE="aiostreams/CHANGELOG.md"
           [ ! -f "$CHANGELOG_FILE" ] && printf "# Changelog\n\n" > "$CHANGELOG_FILE"
           TEMP=$(mktemp)
           printf "# Changelog\n\n## v${{ steps.upstream.outputs.version }}\n\n%s\n\n" "$RELEASE_NOTES" > "$TEMP"
           tail -n +2 "$CHANGELOG_FILE" >> "$TEMP"
           mv "$TEMP" "$CHANGELOG_FILE"
-
           git add -A
           git commit -m "Update AIOStreams to v${{ steps.upstream.outputs.version }}"
           git push origin main
