@@ -550,7 +550,7 @@ diff --git a/docker/rootfs/etc/s6-overlay/s6-rc.d/prepare/50-ipv6.sh b/docker/ro
 index 36387a9..27094a9 100755
 --- a/docker/rootfs/etc/s6-overlay/s6-rc.d/prepare/50-ipv6.sh
 +++ b/docker/rootfs/etc/s6-overlay/s6-rc.d/prepare/50-ipv6.sh
-@@ -46,4 +46,4 @@ process_folder () {
+@@ -44,4 +44,4 @@ process_folder () {
  }
  
  process_folder /etc/nginx/conf.d
