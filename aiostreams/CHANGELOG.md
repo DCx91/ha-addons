@@ -1,5 +1,9 @@
 # Changelog
 
+## v2.33.1 (2026-08-11)
+
+- Add logging verbosity toggle to NPM (#35)
+
 ## vseanime-extensions-v0.10.1 (2026-08-11)
 
 - No pull requests found for this version bump.
