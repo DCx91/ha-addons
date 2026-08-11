@@ -1,5 +1,8 @@
 # Changelog
 
+## vseanime-extensions-v0.10.1 (2026-08-11)
+
+- No pull requests found for this version bump.
 ## vseanime-extensions-v0.10.1
 
 ## [0.10.1](https://github.com/Viren070/AIOStreams/compare/seanime-extensions-v0.10.0...seanime-extensions-v0.10.1) (2026-08-10)
