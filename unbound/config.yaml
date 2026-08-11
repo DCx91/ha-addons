@@ -15,7 +15,7 @@ ports:
   5335/udp: 5335
   5335/tcp: 5335
 map:
-  - addon_config:rw
+  - app_config:rw
 options:
   do_ipv6: false
   unbound_verbosity: 1
