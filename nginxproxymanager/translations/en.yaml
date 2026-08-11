@@ -1,10 +1,13 @@
 configuration:
+  verbose:
+    name: Verbose
+    description: >
+      Increases logging verbosity to include successful requests (2xx/3xx).
   geoip2:
     name: Enable GeoIP2
     description: >
       Loads the GeoIP2 NGINX modules, allowing custom NGINX configurations to
       use MaxMind Geolocation databases.
-
   max_old_space:
     name: Node.js maximum heap size
     description: >

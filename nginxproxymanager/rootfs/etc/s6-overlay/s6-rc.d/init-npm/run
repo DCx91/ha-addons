@@ -23,6 +23,23 @@ mkdir -p \
     /var/lib/nginx/
 
 ROOT_TOP="/config/nginx/custom/root_top.conf"
+HTTP_TOP="/config/nginx/custom/http_top.conf"
+
+# Enable/disable logging of successful requests
+if bashio::config.true 'verbose'; then
+    cat > "$HTTP_TOP" <<'EOF'
+map $status $loggable {
+    default 1;
+}
+EOF
+else
+    cat > "$HTTP_TOP" <<'EOF'
+map $status $loggable {
+    ~^[23] 0;
+    default 1;
+}
+EOF
+fi
 
 # Remove any existing GeoIP2 load_module lines.
 if [ -f "$ROOT_TOP" ]; then

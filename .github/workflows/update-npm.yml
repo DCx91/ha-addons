@@ -33,14 +33,10 @@ jobs:
           fi
 
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-
-      - name: Get current app version
+      - name: Get current base version from config.yaml
         id: current
         run: |
-          VERSION=$(grep '^version:' nginxproxymanager/config.yaml \
-            | awk '{print $2}' \
-            | tr -d '"')
-
+          VERSION=$(yq -r '.version | sub("-R[0-9]+$"; "")' nginxproxymanager/config.yaml)
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Update app

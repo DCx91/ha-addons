@@ -1,8 +1,14 @@
 # Changelog
 
-## v2.15.1 (2026-08-11)
+## v2.15.1-R2 (2026-08-11)
 
-- No pull requests found for this version bump.
+- Added logging verbosity toggle. Reduces noise by hiding successful requests from the HA log.
+- Merged patches.
+  
+## v2.15.1-R1 (2026-08-07)
+
+  - Fixed patches failing on build.
+
 ## v2.15.1
 
 <p>
@@ -22,10 +28,5 @@
 - [jc21/nginx-proxy-manager:latest](https://hub.docker.com/layers/jc21/nginx-proxy-manager/latest/images/sha256-99a885f56ca2203a2eb352a5f9e2cd5c1e25786508debd725ad48ebe955d114f)
 - [jc21/nginx-proxy-manager:2](https://hub.docker.com/layers/jc21/nginx-proxy-manager/2/images/sha256-99a885f56ca2203a2eb352a5f9e2cd5c1e25786508debd725ad48ebe955d114f)
 - [jc21/nginx-proxy-manager:2.15.1](https://hub.docker.com/layers/jc21/nginx-proxy-manager/2.15.1/images/sha256-99a885f56ca2203a2eb352a5f9e2cd5c1e25786508debd725ad48ebe955d114f)
-
-## v2.15.1-R2 (2026-08-10)
-
-- No pull requests found for this version bump.
-## v2.15.1 (2026-08-07)
 
 - No pull requests found for this version bump.
