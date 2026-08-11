@@ -20,7 +20,7 @@ ports_description:
   81/tcp: Nginx Proxy Manager administration interface
   443/tcp: HTTPS (SSL/TLS) web traffic
 map:
-  - addon_config:rw
+  - app_config:rw
 backup_exclude:
   - "*/logs"
 options:
