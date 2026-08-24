@@ -12,6 +12,7 @@ arch:
 hassio_api: true
 ingress: true
 ingress_port: 81
+panel_icon: mdi:ip-outline
 ports:
   80/tcp: 80
   443/tcp: 443
