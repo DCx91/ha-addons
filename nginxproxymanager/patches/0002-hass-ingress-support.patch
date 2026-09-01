@@ -1,0 +1,54 @@
+--- a/frontend/vite.config.ts	2026-08-13 12:15:14.947613197 +0000
++++ b/frontend/vite.config.ts	2026-08-13 12:15:19.107209676 +0000
+@@ -23,0 +23,1 @@
++    base: "./",
+--- a/frontend/src/Router.tsx	2026-08-13 11:27:18.483596438 +0000
++++ b/frontend/src/Router.tsx	2026-08-13 11:27:26.695950083 +0000
+@@ -13,6 +13,13 @@
+ import { useAuthState } from "src/context";
+ import { useHealth } from "src/hooks";
+ 
++function getRouterBasename(): string {
++	const match = window.location.pathname.match(
++		/^(\/api\/hassio_ingress\/[^/]+)/,
++	);
++	return match ? match[1] : "";
++}
++
+ const Setup = lazy(() => import("src/pages/Setup"));
+ const Login = lazy(() => import("src/pages/Login"));
+ const Dashboard = lazy(() => import("src/pages/Dashboard"));
+@@ -51,7 +63,7 @@
+ 	}
+ 
+ 	return (
+-		<BrowserRouter>
++		<BrowserRouter basename={getRouterBasename()}>
+ 			<Page>
+ 				<div>
+ 					<SiteHeader />
+--- a/frontend/src/api/backend/base.ts	2026-08-13 11:51:34.881524517 +0000
++++ b/frontend/src/api/backend/base.ts	2026-08-13 11:51:41.762471806 +0000
+@@ -6,6 +6,13 @@
+ const queryClient = new QueryClient();
+ const contentTypeHeader = "Content-Type";
+ 
++function getIngressPrefix(): string {
++	const match = window.location.pathname.match(
++		/^(\/api\/hassio_ingress\/[^/]+)/,
++	);
++	return match ? match[1] : "";
++}
++
+ interface BuildUrlArgs {
+ 	url: string;
+ 	params?: StringifiableRecord;
+@@ -25,7 +38,7 @@
+ 
+ function buildUrl({ url, params }: BuildUrlArgs) {
+ 	const endpoint = url.replace(/^\/|\/$/g, "");
+-	const baseUrl = `/api/${endpoint}`;
++	const baseUrl = `${getIngressPrefix()}/api/${endpoint}`;
+ 	const apiUrl = queryString.stringifyUrl({
+ 		url: baseUrl,
+ 		query: decamelizeParams(params),
