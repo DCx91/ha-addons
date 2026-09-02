@@ -1,11 +1,8 @@
-name: Build and Push Addons
+name: Build and Push Apps
 on:
   push:
     branches:
       - main
-  release:
-    types:
-      - published
   workflow_dispatch:
     inputs:
       addon:
@@ -17,17 +14,30 @@ on:
           - aiostreams
           - music_assistant_alexa_beta
           - nginxproxymanager
+
+env:
+  ARCHITECTURES: '["amd64", "aarch64"]'
+  MONITORED_FILES: "apparmor.txt build.yaml config.yaml Dockerfile data rootfs"
+
+permissions:
+  contents: read
+
 jobs:
   fix-permissions:
+    name: Fix execute permissions
     runs-on: ubuntu-latest
     permissions:
       contents: write
+
     steps:
-      - uses: actions/checkout@v7
+      - name: Check out repository
+        uses: actions/checkout@v7
+
       - name: Fix execute permissions
         run: |
           find . -path "*/s6-overlay/s6-rc.d*" \( -name "run" -o -name "finish" -o -name "up" \) \
             | xargs git update-index --chmod=+x
+
       - name: Commit if changed
         run: |
           if ! git diff --cached --quiet; then
@@ -39,138 +49,186 @@ jobs:
             echo "No permission changes needed."
           fi
 
-  changed:
+  init:
+    name: Initialize builds
+    needs: fix-permissions
     runs-on: ubuntu-latest
     outputs:
-      addons: ${{ steps.force.outputs.addons || steps.filter.outputs.changes }}
+      addons: ${{ steps.changed_addons.outputs.addons }}
+
     steps:
-      - name: Checkout
+      - name: Check out repository
         uses: actions/checkout@v7
         with:
           fetch-depth: 0
-      - name: Force single addon on manual dispatch
-        if: github.event_name == 'workflow_dispatch'
-        id: force
-        run: echo "addons=[\"${{ inputs.addon }}\"]" >> "$GITHUB_OUTPUT"
-      - name: Detect changed addons
-        if: github.event_name != 'workflow_dispatch'
-        uses: dorny/paths-filter@v4
-        id: filter
-        with:
-          base: ${{ github.event_name == 'release' && 'HEAD^' || github.ref }}
-          filters: |
-            unbound:
-              - 'unbound/**'
-            aiostreams:
-              - 'aiostreams/**'
-            music_assistant_alexa_beta:
-              - 'music_assistant_alexa_beta/**'
-            nginxproxymanager:
-              - 'nginxproxymanager/**'
+
+      - name: Get changed files
+        id: changed_files
+        uses: masesgroup/retrieve-changed-files@v4
+
+      - name: Get apps
+        id: addons
+        run: |
+          declare -a addons
+
+          for addon in $(find ./ -name config.yaml | cut -d "/" -f2 | sort -u); do
+            addons+=("$addon")
+          done
+
+          echo "addons=${addons[*]}" >> "$GITHUB_OUTPUT"
+
+      - name: Get changed apps
+        id: changed_addons
+        env:
+          ADDONS: ${{ steps.addons.outputs.addons }}
+          CHANGED_FILES: ${{ steps.changed_files.outputs.all }}
+        run: |
+          declare -a changed_addons
+
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            echo 'addons=["${{ inputs.addon }}"]' >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          for addon in ${ADDONS}; do
+            for file in ${{ env.MONITORED_FILES }}; do
+              if [[ "${CHANGED_FILES}" =~ ${addon}/${file} ]]; then
+                if [[ ! " ${changed_addons[*]} " =~ " ${addon} " ]]; then
+                  changed_addons+=("$addon")
+                fi
+                break
+              fi
+            done
+          done
+
+          if [[ ${#changed_addons[@]} -eq 0 ]]; then
+            echo 'addons=[]' >> "$GITHUB_OUTPUT"
+            echo "No apps require building."
+            exit 0
+          fi
+
+          addons_json=$(printf '%s\n' "${changed_addons[@]}" | jq -R . | jq -s -c .)
+
+          echo "Changed apps: ${addons_json}"
+          echo "addons=${addons_json}" >> "$GITHUB_OUTPUT"
 
   build:
-    needs:
-      - changed
-      - fix-permissions
-    if: ${{ needs.changed.outputs.addons != '[]' }}
+    name: Build ${{ matrix.addon }} ${{ matrix.arch }}
+    needs: init
+    if: needs.init.outputs.addons != '[]'
     runs-on: ${{ matrix.arch == 'aarch64' && 'ubuntu-26.04-arm' || 'ubuntu-latest' }}
+
     permissions:
       contents: read
+      id-token: write
       packages: write
+
     strategy:
+      fail-fast: false
       matrix:
-        addon: ${{ fromJson(needs.changed.outputs.addons) }}
-        arch: [aarch64, amd64]
-        include:
-          - arch: aarch64
-            platform: linux/arm64
-          - arch: amd64
-            platform: linux/amd64
+        addon: ${{ fromJSON(needs.init.outputs.addons) }}
+        arch:
+          - amd64
+          - aarch64
+
     steps:
-      - name: Checkout
+      - name: Check out repository
         uses: actions/checkout@v7
-      - name: Log in to GitHub Container Registry
-        uses: docker/login-action@v4
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Set up QEMU
-        if: matrix.arch != 'aarch64'
-        uses: docker/setup-qemu-action@v4
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v4
 
-      - name: Get addon version
-        id: version
-        run: |
-          echo "version=$(grep '^version:' ${{ matrix.addon }}/config.yaml | cut -d'"' -f2)" >> $GITHUB_OUTPUT
-
-      - name: Set lowercase owner
-        id: owner
-        run: echo "owner=$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
-
-      - name: Validate addon config
+      - name: Get app information
+        id: info
         uses: home-assistant/actions/helpers/info@master
         with:
           path: "./${{ matrix.addon }}"
 
-      - name: Build and push (${{ matrix.arch }})
-        uses: docker/build-push-action@v7
+      - name: Check architecture
+        id: architecture
+        env:
+          ARCHITECTURES: ${{ steps.info.outputs.architectures }}
+          ARCH: ${{ matrix.arch }}
+        run: |
+          if jq -e --arg arch "${ARCH}" 'index($arch) != null' <<< "${ARCHITECTURES}" > /dev/null; then
+            echo "supported=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "supported=false" >> "$GITHUB_OUTPUT"
+            echo "${ARCH} is not supported by ${{ matrix.addon }}, skipping."
+          fi
+
+      - name: Prepare image information
+        if: steps.architecture.outputs.supported == 'true'
+        id: image
+        env:
+          IMAGE: ${{ steps.info.outputs.image }}
+        run: |
+          registry="${IMAGE%%/*}"
+          image_path="${IMAGE#*/}"
+          owner="${image_path%%/*}"
+          image_name="${image_path#*/}"
+
+          echo "registry-prefix=${registry}/${owner}" >> "$GITHUB_OUTPUT"
+          echo "image-name=${image_name}" >> "$GITHUB_OUTPUT"
+
+      - name: Build image
+        if: steps.architecture.outputs.supported == 'true'
+        uses: home-assistant/builder/actions/build-image@master
         with:
+          arch: ${{ matrix.arch }}
           context: ${{ matrix.addon }}
-          file: ${{ matrix.addon }}/Dockerfile
-          push: true
-          platforms: ${{ matrix.platform }}
-          provenance: false
-          sbom: false
-          build-args: BUILD_ARCH=${{ matrix.arch }}
-          labels: |
-            io.hass.version=${{ steps.version.outputs.version }}
-            io.hass.type=addon
-            io.hass.arch=${{ matrix.arch }}
-            org.opencontainers.image.title=${{ matrix.addon }}
-            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
-            org.opencontainers.image.revision=${{ github.sha }}
-            org.opencontainers.image.version=${{ steps.version.outputs.version }}
-          tags: |
-            ghcr.io/${{ steps.owner.outputs.owner }}/${{ matrix.addon }}:${{ steps.version.outputs.version }}-${{ matrix.arch }}
+          container-registry-password: ${{ secrets.GITHUB_TOKEN }}
+          image: ${{ steps.image.outputs.registry-prefix }}/${{ matrix.arch }}-${{ steps.image.outputs.image-name }}
+          image-tags: |
+            ${{ steps.info.outputs.version }}
+            latest
+          push: "true"
+          version: ${{ steps.info.outputs.version }}
 
   manifest:
+    name: Publish ${{ matrix.addon }} multi-arch manifest
     needs:
-      - changed
+      - init
       - build
-    if: ${{ needs.changed.outputs.addons != '[]' }}
+    if: needs.init.outputs.addons != '[]'
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
-    strategy:
-      matrix:
-        addon: ${{ fromJson(needs.changed.outputs.addons) }}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v7
-      - name: Log in to GitHub Container Registry
-        uses: docker/login-action@v4
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Get addon version
-        id: version
-        run: |
-          echo "version=$(grep '^version:' ${{ matrix.addon }}/config.yaml | cut -d'"' -f2)" >> $GITHUB_OUTPUT
-      - name: Set lowercase owner
-        id: owner
-        run: echo "owner=$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
 
-      - name: Create and push multi-arch manifest
+    permissions:
+      id-token: write
+      packages: write
+
+    strategy:
+      fail-fast: false
+      matrix:
+        addon: ${{ fromJSON(needs.init.outputs.addons) }}
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Get app information
+        id: info
+        uses: home-assistant/actions/helpers/info@master
+        with:
+          path: "./${{ matrix.addon }}"
+
+      - name: Prepare image information
+        id: image
+        env:
+          IMAGE: ${{ steps.info.outputs.image }}
         run: |
-          IMAGE="ghcr.io/${{ steps.owner.outputs.owner }}/${{ matrix.addon }}"
-          VERSION="${{ steps.version.outputs.version }}"
-          docker buildx imagetools create \
-            --tag "${IMAGE}:${VERSION}" \
-            --tag "${IMAGE}:latest" \
-            "${IMAGE}:${VERSION}-aarch64" \
-            "${IMAGE}:${VERSION}-amd64"
+          registry="${IMAGE%%/*}"
+          image_path="${IMAGE#*/}"
+          owner="${image_path%%/*}"
+          image_name="${image_path#*/}"
+
+          echo "registry-prefix=${registry}/${owner}" >> "$GITHUB_OUTPUT"
+          echo "image-name=${image_name}" >> "$GITHUB_OUTPUT"
+
+      - name: Publish multi-arch manifest
+        uses: home-assistant/builder/actions/publish-multi-arch-manifest@master
+        with:
+          architectures: ${{ env.ARCHITECTURES }}
+          container-registry-password: ${{ secrets.GITHUB_TOKEN }}
+          image-name: ${{ steps.image.outputs.image-name }}
+          image-tags: |
+            ${{ steps.info.outputs.version }}
+            latest
+          registry-prefix: ${{ steps.image.outputs.registry-prefix }}
