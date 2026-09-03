@@ -159,7 +159,13 @@ jobs:
         id: image
         env:
           IMAGE: ${{ steps.info.outputs.image }}
-        run: |
+          VERSION: ${{ steps.info.outputs.version }}
+        run: 
+          IMAGE="${IMAGE%\"}"
+          IMAGE="${IMAGE#\"}"
+          VERSION="${VERSION%\"}"
+          VERSION="${VERSION#\"}"
+
           registry="${IMAGE%%/*}"
           image_path="${IMAGE#*/}"
           owner="${image_path%%/*}"
@@ -167,6 +173,7 @@ jobs:
 
           echo "registry-prefix=${registry}/${owner}" >> "$GITHUB_OUTPUT"
           echo "image-name=${image_name}" >> "$GITHUB_OUTPUT"
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
 
       - name: Build image
         if: steps.architecture.outputs.supported == 'true'
@@ -177,10 +184,10 @@ jobs:
           container-registry-password: ${{ secrets.GITHUB_TOKEN }}
           image: ${{ steps.image.outputs.registry-prefix }}/${{ matrix.arch }}-${{ steps.image.outputs.image-name }}
           image-tags: |
-            ${{ steps.info.outputs.version }}
+            ${{ steps.image.outputs.version }}
             latest
           push: "true"
-          version: ${{ steps.info.outputs.version }}
+          version: ${{ steps.image.outputs.version }}
 
   manifest:
     name: Publish ${{ matrix.addon }} multi-arch manifest
@@ -213,7 +220,14 @@ jobs:
         id: image
         env:
           IMAGE: ${{ steps.info.outputs.image }}
+          VERSION: ${{ steps.info.outputs.version }}
         run: |
+          # The info helper returns JSON strings, so remove the surrounding quotes.
+          IMAGE="${IMAGE%\"}"
+          IMAGE="${IMAGE#\"}"
+          VERSION="${VERSION%\"}"
+          VERSION="${VERSION#\"}"
+
           registry="${IMAGE%%/*}"
           image_path="${IMAGE#*/}"
           owner="${image_path%%/*}"
@@ -221,6 +235,7 @@ jobs:
 
           echo "registry-prefix=${registry}/${owner}" >> "$GITHUB_OUTPUT"
           echo "image-name=${image_name}" >> "$GITHUB_OUTPUT"
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
 
       - name: Publish multi-arch manifest
         uses: home-assistant/builder/actions/publish-multi-arch-manifest@master
@@ -229,6 +244,7 @@ jobs:
           container-registry-password: ${{ secrets.GITHUB_TOKEN }}
           image-name: ${{ steps.image.outputs.image-name }}
           image-tags: |
-            ${{ steps.info.outputs.version }}
+            ${{ steps.image.outputs.version }}
             latest
           registry-prefix: ${{ steps.image.outputs.registry-prefix }}
+          
