@@ -36,7 +36,7 @@ jobs:
       - name: Fix execute permissions
         run: |
           find . -path "*/s6-overlay/s6-rc.d*" \( -name "run" -o -name "finish" -o -name "up" \) \
-            | xargs git update-index --chmod=+x
+            | xargs -r git update-index --chmod=+x
 
       - name: Commit if changed
         run: |
@@ -64,6 +64,7 @@ jobs:
 
       - name: Get changed files
         id: changed_files
+        if: github.event_name == 'push'
         uses: masesgroup/retrieve-changed-files@v4
 
       - name: Get apps
@@ -87,6 +88,7 @@ jobs:
 
           if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
             echo 'addons=["${{ inputs.addon }}"]' >> "$GITHUB_OUTPUT"
+            echo "Manual build requested for: ${{ inputs.addon }}"
             exit 0
           fi
 
@@ -160,7 +162,7 @@ jobs:
         env:
           IMAGE: ${{ steps.info.outputs.image }}
           VERSION: ${{ steps.info.outputs.version }}
-        run: 
+        run: |
           IMAGE="${IMAGE%\"}"
           IMAGE="${IMAGE#\"}"
           VERSION="${VERSION%\"}"
@@ -222,7 +224,6 @@ jobs:
           IMAGE: ${{ steps.info.outputs.image }}
           VERSION: ${{ steps.info.outputs.version }}
         run: |
-          # The info helper returns JSON strings, so remove the surrounding quotes.
           IMAGE="${IMAGE%\"}"
           IMAGE="${IMAGE#\"}"
           VERSION="${VERSION%\"}"
@@ -247,4 +248,3 @@ jobs:
             ${{ steps.image.outputs.version }}
             latest
           registry-prefix: ${{ steps.image.outputs.registry-prefix }}
-          
