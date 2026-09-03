@@ -23,12 +23,9 @@ export SECRET_KEY="${SECRET_KEY}"
 bashio::log.info "Reading configuration..."
 
 export LOG_FORMAT=text
-export LOG_LEVEL=$(bashio::config 'log_level')
+export LOG_LEVEL=$(bashio::config 'verbosity')
 export LOG_TIMEZONE=$(bashio::info.timezone)
 export PORT=$(bashio::app.port "3000/tcp")
-export ADDON_NAME="AIOStreams"
-export ADDON_ID="aiostreams"
-export BUILTIN_STREMTHRU_URL="https://stremthru.13377001.xyz"
 export LOG_SENSITIVE_INFO="$(bashio::config 'sensitive_info' false)"
 export NODE_OPTIONS="--max-old-space-size=500"
 
