@@ -2,7 +2,7 @@
 
 ## v0.0.39-beta3 (2026-09-03)
 
-- Random fixes (#40)
+- Installed ask-cli in builder image and copied over to remove NPM dependency from final image.
 - Update ghcr.io/hassio-addons/base Docker tag to v21.0.3 (#37)
 - Update ghcr.io/hassio-addons/base Docker tag to v21.0.1 (#32)
 
