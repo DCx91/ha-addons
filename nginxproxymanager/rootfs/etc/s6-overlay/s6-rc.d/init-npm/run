@@ -82,10 +82,10 @@ map $geoip2_data_country_code $allowed_country {
 EOF
     fi
 
-    if [ -f /config/geoip2/*.mmdb ]; then
+    if [ -f /config/geoip2/GeoLite2-country.mmdb ]; then
         echo "include $GEOIP2_CONF;" >> "$HTTP_TOP"
     else
-        bashio::log.warning "GeoIP2 enabled but no .mmdb file was found in /config/geoip2 - skipping"
+        bashio::log.warning "GeoIP2 enabled but GeoLite2-country.mmdb wasn't found in /config/geoip2 - skipping"
     fi
 fi
 
