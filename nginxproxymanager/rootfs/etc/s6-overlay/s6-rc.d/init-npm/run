@@ -24,6 +24,7 @@ mkdir -p \
 
 ROOT_TOP="/config/nginx/custom/root_top.conf"
 HTTP_TOP="/config/nginx/custom/http_top.conf"
+GEOIP2_CONF="/config/geoip2/geoip2.conf"
 
 # Enable/disable logging of successful requests
 if bashio::config.true 'verbose'; then
@@ -47,6 +48,41 @@ if [ -f "$ROOT_TOP" ]; then
         -e '\|load_module /usr/lib/nginx/modules/ngx_http_geoip2_module.so;|d' \
         -e '\|load_module /usr/lib/nginx/modules/ngx_stream_geoip2_module.so;|d' \
         "$ROOT_TOP"
+fi
+
+if bashio::config.true 'geoip2'; then
+    {
+        echo "load_module /usr/lib/nginx/modules/ngx_http_geoip2_module.so;"
+        echo "load_module /usr/lib/nginx/modules/ngx_stream_geoip2_module.so;"
+    } >> "$ROOT_TOP"
+    mkdir -p /config/geoip2
+
+    if [ ! -f "$GEOIP2_CONF" ]; then
+        bashio::log.info "Creating default GeoIP2 config at $GEOIP2_CONF"
+        cat > "$GEOIP2_CONF" <<'EOF'
+# GeoIP2 country lookup and allowlist.
+# Requires MaxMind's GeoIP2 database: https://www.maxmind.com
+# Edit the map block below to change which countries are allowed through.
+# Then restart the app for changes to take effect.
+
+geoip2 /config/geoip2/GeoLite2-country.mmdb {
+    auto_reload 5m;
+    $geoip2_data_country_code default=XX source=$remote_addr country iso_code;
+}
+
+map $geoip2_data_country_code $allowed_country {
+    default yes; # Change to 'default no;' to block access from all countries not listed below
+    GB yes;
+    US yes;
+}
+EOF
+    fi
+
+    if [ -f /config/geoip2/*.mmdb ]; then
+        echo "include $GEOIP2_CONF;" >> "$HTTP_TOP"
+    else
+        bashio::log.warning "geoip2 enabled but GeoLite2-country.mmdb not found in /config/geoip2 — skipping geo config"
+    fi
 fi
 
 # Add them back if enabled.
