@@ -1,5 +1,9 @@
 # Changelog
 
+## v2.34.0 (2026-09-05)
+
+- Random fixes (#40)
+
 ## v2.34.0
 
 ## [2.34.0](https://github.com/Viren070/AIOStreams/compare/v2.33.2...v2.34.0) (2026-09-04)
