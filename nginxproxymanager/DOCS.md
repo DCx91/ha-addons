@@ -40,26 +40,21 @@ To enable GeoIP2:
 
 1. Enable the **GeoIP2** option in the app configuration.
 2. Download a GeoLite2 or GeoIP2 database from MaxMind.
-3. Copy the database to your app configuration directory, for example:
+3. Copy the database to your app configuration directory:
 
    ```
-   /addon_configs/61709215_nginxproxymanager/geoip2/GeoLite2-Country.mmdb
+   /app_configs/61709215_nginxproxymanager/geoip2/GeoLite2-Country.mmdb
    ```
+4. In the same directory, edit `geoip2.conf` to whitelist/blacklist countries based on the ISO code (e.g. GB, US, RU)
 
-4. Add the required GeoIP2 directives to the **Advanced** tab of your Proxy Host,
+5. Add the required GeoIP2 config to the **Advanced** tab of your Proxy Host,
    for example:
 
-   ```nginx
-   geoip2 /config/geoip2/GeoLite2-Country.mmdb {
-       auto_reload 5m;
-       $geoip2_country_code country iso_code;
-   }
-
-   add_header X-GeoIP-Country $geoip2_country_code always;
    ```
-
-After saving the Proxy Host, requests will include an `X-GeoIP-Country` response
-header containing the ISO country code for the client IP address.
+   if ($allowed_country = no) {
+      return 444;
+   }
+   ```
 
 > [!NOTE]
 > Enabling the **GeoIP2** option only loads the required NGINX modules. It does
@@ -73,7 +68,6 @@ To allow external access, forward the following ports from your router to your H
 | ---- | -------------------------------------------------------------------------------------------- |
 | 80   | HTTP (for Let's Encrypt HTTP-01 certificate validation)                                      |
 | 443  | HTTPS                                                                                        |
-| 81   | Nginx Proxy Manager administration interface |
 
 If you are using IPv6 instead of IPv4, create the appropriate firewall rules on your router and allow access to your Home Assistant system's global IPv6 address.
 
