@@ -1,5 +1,10 @@
 # Changelog
 
+## v2.15.1-R5 (2026-09-10)
+
+- Changed to multi-stage build to reduce installed dependencies and size of the final image.
+- Added GeoIP2 config file creation.
+
 ## v2.15.1-R2 (2026-08-11)
 
 - Added logging verbosity toggle. Reduces noise by hiding successful requests from the HA log.
