@@ -66,7 +66,7 @@ if bashio::config.true 'geoip2'; then
 # Edit the map block below to change which countries are allowed through.
 # Then restart the app for changes to take effect.
 
-geoip2 /config/geoip2/GeoLite2-country.mmdb {
+geoip2 /config/geoip2/GeoLite2-Country.mmdb {
     auto_reload 5m;
     $geoip2_data_country_code default=XX source=$remote_addr country iso_code;
 }
@@ -78,14 +78,19 @@ geoip2 /config/geoip2/GeoLite2-country.mmdb {
 map $geoip2_data_country_code $allowed_country {
     default yes;
     
-    }
+}
+
+# Lastly, add the following to the advanced config of hosts you want geo-blocked and uncomment it:
+# if ($allowed_country = no) {
+#    return 444;
+# }
 EOF
     fi
 
-    if [ -f /config/geoip2/GeoLite2-country.mmdb ]; then
+    if [ -f /config/geoip2/GeoLite2-Country.mmdb ]; then
         echo "include $GEOIP2_CONF;" >> "$HTTP_TOP"
     else
-        bashio::log.warning "GeoIP2 enabled but GeoLite2-country.mmdb wasn't found in /config/geoip2 - skipping"
+        bashio::log.warning "GeoIP2 enabled but GeoLite2-Country.mmdb wasn't found in /config/geoip2 - skipping"
     fi
 fi
 
