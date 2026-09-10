@@ -36,7 +36,7 @@ jobs:
       - name: Fix execute permissions
         run: |
           find . -path "*/s6-overlay/s6-rc.d*" \( -name "run" -o -name "finish" -o -name "up" \) \
-            | xargs git update-index --chmod=+x
+            | xargs -r git update-index --chmod=+x
 
       - name: Commit if changed
         run: |
@@ -64,6 +64,7 @@ jobs:
 
       - name: Get changed files
         id: changed_files
+        if: github.event_name == 'push'
         uses: masesgroup/retrieve-changed-files@v4
 
       - name: Get apps
@@ -87,6 +88,7 @@ jobs:
 
           if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
             echo 'addons=["${{ inputs.addon }}"]' >> "$GITHUB_OUTPUT"
+            echo "Manual build requested for: ${{ inputs.addon }}"
             exit 0
           fi
 
@@ -159,7 +161,13 @@ jobs:
         id: image
         env:
           IMAGE: ${{ steps.info.outputs.image }}
+          VERSION: ${{ steps.info.outputs.version }}
         run: |
+          IMAGE="${IMAGE%\"}"
+          IMAGE="${IMAGE#\"}"
+          VERSION="${VERSION%\"}"
+          VERSION="${VERSION#\"}"
+
           registry="${IMAGE%%/*}"
           image_path="${IMAGE#*/}"
           owner="${image_path%%/*}"
@@ -167,6 +175,7 @@ jobs:
 
           echo "registry-prefix=${registry}/${owner}" >> "$GITHUB_OUTPUT"
           echo "image-name=${image_name}" >> "$GITHUB_OUTPUT"
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
 
       - name: Build image
         if: steps.architecture.outputs.supported == 'true'
@@ -177,10 +186,10 @@ jobs:
           container-registry-password: ${{ secrets.GITHUB_TOKEN }}
           image: ${{ steps.image.outputs.registry-prefix }}/${{ matrix.arch }}-${{ steps.image.outputs.image-name }}
           image-tags: |
-            ${{ steps.info.outputs.version }}
+            ${{ steps.image.outputs.version }}
             latest
           push: "true"
-          version: ${{ steps.info.outputs.version }}
+          version: ${{ steps.image.outputs.version }}
 
   manifest:
     name: Publish ${{ matrix.addon }} multi-arch manifest
@@ -213,7 +222,13 @@ jobs:
         id: image
         env:
           IMAGE: ${{ steps.info.outputs.image }}
+          VERSION: ${{ steps.info.outputs.version }}
         run: |
+          IMAGE="${IMAGE%\"}"
+          IMAGE="${IMAGE#\"}"
+          VERSION="${VERSION%\"}"
+          VERSION="${VERSION#\"}"
+
           registry="${IMAGE%%/*}"
           image_path="${IMAGE#*/}"
           owner="${image_path%%/*}"
@@ -221,6 +236,7 @@ jobs:
 
           echo "registry-prefix=${registry}/${owner}" >> "$GITHUB_OUTPUT"
           echo "image-name=${image_name}" >> "$GITHUB_OUTPUT"
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
 
       - name: Publish multi-arch manifest
         uses: home-assistant/builder/actions/publish-multi-arch-manifest@master
@@ -229,6 +245,6 @@ jobs:
           container-registry-password: ${{ secrets.GITHUB_TOKEN }}
           image-name: ${{ steps.image.outputs.image-name }}
           image-tags: |
-            ${{ steps.info.outputs.version }}
+            ${{ steps.image.outputs.version }}
             latest
           registry-prefix: ${{ steps.image.outputs.registry-prefix }}
