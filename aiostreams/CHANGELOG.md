@@ -1,5 +1,10 @@
 # Changelog
 
+## v2.34.1 (2026-09-16)
+
+- Update ghcr.io/hassio-addons/base Docker tag to v21.0.4 (#39)
+- Changes from main (#41)
+
 ## v2.34.1
 
 ## [2.34.1](https://github.com/Viren070/AIOStreams/compare/v2.34.0...v2.34.1) (2026-09-09)
