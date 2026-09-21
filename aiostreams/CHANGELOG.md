@@ -1,5 +1,8 @@
 # Changelog
 
+## vnull (2026-09-21)
+
+- No pull requests found for this version bump.
 ## vnull
 
 ## [2.34.1](https://github.com/Viren070/AIOStreams/compare/v2.34.0...v2.34.1) (2026-09-09)
