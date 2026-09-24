@@ -2,7 +2,7 @@ ARG BUILD_FROM=ghcr.io/hassio-addons/base:21.0.4
 
 # Fetch + patch source
 FROM ${BUILD_FROM} AS source
-ARG NGINX_PROXY_MANAGER_VERSION="v2.15.1"
+ARG NGINX_PROXY_MANAGER_VERSION="v2.16.0"
 
 COPY patches/*.patch /usr/src/
 RUN apk add --no-cache tar patch \
