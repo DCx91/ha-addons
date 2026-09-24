@@ -81,9 +81,18 @@ COPY --from=source /app/docker/rootfs/etc/logrotate.d/nginx-proxy-manager /etc/l
 COPY --from=build /app/frontend/dist /opt/nginx-proxy-manager/frontend
 COPY --from=build /opt/nginx-proxy-manager /opt/nginx-proxy-manager
 
+RUN set -e; \
+    t=/etc/nginx/conf.d/production.conf.template; \
+    [ -f "$t" ] || { echo "template missing" >&2; exit 1; }; \
+    sed -e "s#{{NPM_ADMIN_PORT}}#81#g" \
+        -e "s#root /app/frontend;#root /opt/nginx-proxy-manager/frontend;#" \
+        "$t" > /etc/nginx/conf.d/production.conf; \
+    ! grep -q '{{' /etc/nginx/conf.d/production.conf; \
+    grep -q "root /opt/nginx-proxy-manager/frontend;" /etc/nginx/conf.d/production.conf; \
+    rm -f "$t"
+
 RUN rm -f /etc/nginx/conf.d/dev.conf \
     && sed -i "s#user npm;#user root;#" /etc/nginx/nginx.conf \
-    && sed -i "s#root /app/frontend;#root /opt/nginx-proxy-manager/frontend;#" /etc/nginx/conf.d/production.conf \
     && mkdir -p \
         /run/nginx \
         /tmp/nginx/cache/public \
