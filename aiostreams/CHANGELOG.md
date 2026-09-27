@@ -1,5 +1,8 @@
 # Changelog
 
+## v2.35.0 (2026-09-27)
+
+- No pull requests found for this version bump.
 ## v2.35.0
 
 ## [2.35.0](https://github.com/Viren070/AIOStreams/compare/v2.34.1...v2.35.0) (2026-09-26)
