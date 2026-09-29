@@ -27,7 +27,7 @@ options:
 schema:
   addon_username: str?
   addon_password: password?
-  base_url: str?
+  base_url: url
   verbosity: list(error|warn|info|http|verbose|debug|silly)
   trakt_id: str?
   anime_api: bool
