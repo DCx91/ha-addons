@@ -13,8 +13,7 @@ if [[ -f "${SECRET_KEY_FILE}" ]]; then
 else
   bashio::log.info "Generating new secret key..."
   SECRET_KEY=$(openssl rand -hex 32)
-  echo "${SECRET_KEY}" > "${SECRET_KEY_FILE}"
-  chmod 600 "${SECRET_KEY_FILE}"
+  (umask 077; echo "${SECRET_KEY}" > "${SECRET_KEY_FILE}" )
   bashio::log.info "Generated new secret key and saved to ${SECRET_KEY_FILE}."
 fi
 export SECRET_KEY="${SECRET_KEY}"
