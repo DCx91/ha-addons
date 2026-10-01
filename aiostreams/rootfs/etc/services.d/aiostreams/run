@@ -50,11 +50,7 @@ export AIOSTREAMS_AUTH="${ADDON_USERNAME}:${ADDON_PASSWORD}"
 bashio::config.has_value 'trakt_id' && export TRAKT_CLIENT_ID="$(bashio::config 'trakt_id')" || export FETCH_TRAKT_ALIASES=false
 
 # Anime API
-if bashio::config.false 'anime_api'; then
-  export ANIME_DB_LEVEL_OF_DETAIL=none
-fi
-
-bashio::config.false 'anime_api' && export ANIME_DB_LEVEL_OF_DETAIL=none && export DEFAULT_MAX_CACHE_SIZE=5000
+bashio::config.false 'anime_api' && export ANIME_DB_LEVEL_OF_DETAIL=none
 
 # Trusted UUID
 bashio::config.has_value 'trusted_uuid' && export TRUSTED_UUIDS="$(bashio::config 'trusted_uuid')"
@@ -71,7 +67,7 @@ if [[ "${LOG_LEVEL}" = "error" || "${LOG_LEVEL}" = "warning" ]]; then
 	log_output "Database" "${DATABASE_URI}"
 	log_output "Log Level" "${LOG_LEVEL}"
 	log_output "Timezone" "${LOG_TIMEZONE}"
-	log_output "Anime DB" "${ANIME_API}"
+	log_output "Anime DB" "${bashio::config 'anime_api'}"
 	log_output "Sensitive Info" "${LOG_SENSITIVE_INFO}"
 	log_output "Trakt" "$(bashio::config.has_value 'trakt_id' && echo 'configured' || echo 'unconfigured')"
 	log_output "Trusted UUID" "$(bashio::config.has_value 'trusted_uuid' && echo 'configured' || echo 'unconfigured')"
