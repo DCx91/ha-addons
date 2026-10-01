@@ -20,6 +20,8 @@ RUN set -eux; \
       "https://github.com/WiseLibs/better-sqlite3/releases/download/v${SQLITE_VER}/better-sqlite3-v${SQLITE_VER}-node-v${NODE_ABI}-linuxmusl-${ARCH}.tar.gz" \
     && tar -xzf /tmp/better-sqlite3.tar.gz -C "${PKG_DIR}" \
     && rm -f /tmp/better-sqlite3.tar.gz /
-    && chmod +x /tmp/prune-deps.sh && /tmp/prune-deps.sh && rm /tmp/prune-deps.sh
+    && chmod +x /tmp/prune-deps.sh /
+    && /tmp/prune-deps.sh /
+    && rm /tmp/prune-deps.sh
 
 COPY rootfs /
