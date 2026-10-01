@@ -1,5 +1,9 @@
 # Changelog
 
+## v2.35.5 (2026-10-01)
+
+- AIOStreams update (#46)
+
 ## v2.35.4 (2026-09-29)
 
 - No pull requests found for this version bump.
