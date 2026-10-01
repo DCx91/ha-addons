@@ -67,7 +67,7 @@ if [[ "${LOG_LEVEL}" = "error" || "${LOG_LEVEL}" = "warning" ]]; then
 	log_output "Database" "${DATABASE_URI}"
 	log_output "Log Level" "${LOG_LEVEL}"
 	log_output "Timezone" "${LOG_TIMEZONE}"
-	log_output "Anime DB" "bashio::config 'anime_api'"
+	log_output "Anime DB" "$(bashio::config 'anime_api')"
 	log_output "Sensitive Info" "${LOG_SENSITIVE_INFO}"
 	log_output "Trakt" "$(bashio::config.has_value 'trakt_id' && echo 'configured' || echo 'unconfigured')"
 	log_output "Trusted UUID" "$(bashio::config.has_value 'trusted_uuid' && echo 'configured' || echo 'unconfigured')"
