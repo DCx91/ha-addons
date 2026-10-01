@@ -1,5 +1,5 @@
 name: AIOStreams
-version: "2.35.4"
+version: "2.35.5"
 slug: aiostreams
 description: >-
   Consolidates multiple Stremio addons and debrid 
@@ -25,9 +25,9 @@ options:
   trakt_id: ""
   anime_api: false
 schema:
-  addon_username: str?
-  addon_password: password?
-  base_url: str?
+  addon_username: str
+  addon_password: password
+  base_url: url
   verbosity: list(error|warn|info|http|verbose|debug|silly)
   trakt_id: str?
   anime_api: bool

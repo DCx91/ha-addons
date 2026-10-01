@@ -1,10 +1,9 @@
-ARG BUILD_FROM=ghcr.io/hassio-addons/base:21.0.4
+ARG BUILD_FROM=ghcr.io/hassio-addons/base:21.0.6
 FROM ghcr.io/viren070/aiostreams:latest AS aiostreams
 FROM ${BUILD_FROM}
 RUN apk add --no-cache nodejs openssl
 COPY --from=aiostreams /app /app
 COPY prune-deps.sh /tmp/prune-deps.sh
-RUN chmod +x /tmp/prune-deps.sh && /tmp/prune-deps.sh && rm /tmp/prune-deps.sh
 
 ARG SQLITE_VER="12.11.2"
 ARG BUILD_ARCH
@@ -20,6 +19,7 @@ RUN set -eux; \
     && curl -fsSL -o /tmp/better-sqlite3.tar.gz \
       "https://github.com/WiseLibs/better-sqlite3/releases/download/v${SQLITE_VER}/better-sqlite3-v${SQLITE_VER}-node-v${NODE_ABI}-linuxmusl-${ARCH}.tar.gz" \
     && tar -xzf /tmp/better-sqlite3.tar.gz -C "${PKG_DIR}" \
-    && rm -f /tmp/better-sqlite3.tar.gz
+    && rm -f /tmp/better-sqlite3.tar.gz /
+    && chmod +x /tmp/prune-deps.sh && /tmp/prune-deps.sh && rm /tmp/prune-deps.sh
 
 COPY rootfs /

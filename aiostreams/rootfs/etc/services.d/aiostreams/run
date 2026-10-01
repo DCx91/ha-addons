@@ -9,56 +9,52 @@ bashio::log.info "Checking secret key..."
 SECRET_KEY_FILE="/data/secret_key"
 if [[ -f "${SECRET_KEY_FILE}" ]]; then
 	SECRET_KEY=$(cat "${SECRET_KEY_FILE}")
-  bashio::log.info "Using existing auto-generated secret key from ${SECRET_KEY_FILE}."
+	bashio::log.info "Using existing auto-generated secret key from ${SECRET_KEY_FILE}."
 else
-  bashio::log.info "Generating new secret key..."
-  SECRET_KEY=$(openssl rand -hex 32)
-  echo "${SECRET_KEY}" > "${SECRET_KEY_FILE}"
-  chmod 600 "${SECRET_KEY_FILE}"
-  bashio::log.info "Generated new secret key and saved to ${SECRET_KEY_FILE}."
+	bashio::log.info "Generating new secret key..."
+	SECRET_KEY=$(openssl rand -hex 32)
+	(umask 077; echo "${SECRET_KEY}" > "${SECRET_KEY_FILE}" )
+	bashio::log.info "Generated new secret key and saved to ${SECRET_KEY_FILE}."
 fi
 export SECRET_KEY="${SECRET_KEY}"
 
 # Map app options to AIOStreams environment variables
 bashio::log.info "Reading configuration..."
 
+export AIOSTREAMS_AUTH_REQUIRED=true
+export DEFAULT_MAX_CACHE_SIZE=5000
+export DISK_CACHE_DIR=/tmp/cache
+export LOG_BUFFER_MAX_BYTES=8388608
+export LOG_BUFFER_MAX_ENTRIES=20000
 export LOG_FORMAT=text
 export LOG_LEVEL=$(bashio::config 'verbosity')
-export LOG_TIMEZONE=$(bashio::info.timezone)
-export PORT=$(bashio::app.port "3000/tcp")
 export LOG_SENSITIVE_INFO="$(bashio::config 'sensitive_info' false)"
+export LOG_TIMEZONE=$(bashio::info.timezone)
 export NODE_OPTIONS="--max-old-space-size=500"
+export PORT=$(bashio::app.port "3000/tcp")
+export SETTINGS_REFRESH_INTERVAL=0
 
 # Base URL
 if bashio::config.has_value 'base_url'; then
-	RAW_BASE_URL="$(bashio::config 'base_url')"
-	case "${RAW_BASE_URL}" in
-		http://*|https://*) BASE_URL="${RAW_BASE_URL}" ;;
-		*) BASE_URL="https://${RAW_BASE_URL}" ;;
-	esac
-	export BASE_URL
+	export BASE_URL="$(bashio::config 'base_url')"
 else
 	export BASE_URL="http://homeassistant.local:${PORT}"
 fi
 
-# Dashboard accesss
-if bashio::config.has_value 'addon_username' && bashio::config.has_value 'addon_password'; then
-	ADDON_USERNAME=$(bashio::config 'addon_username')
-	ADDON_PASSWORD=$(bashio::config 'addon_password')
-	export AIOSTREAMS_AUTH="${ADDON_USERNAME}:${ADDON_PASSWORD}"
-elif bashio::config.has_value 'addon_username' || bashio::config.has_value 'addon_password'; then
-	bashio::log.warning "Both username & password must be set to enable dashboard access."
-fi
+# AIOStreams Auth
+ADDON_USERNAME=$(bashio::config 'addon_username')
+ADDON_PASSWORD=$(bashio::config 'addon_password')
+export AIOSTREAMS_AUTH="${ADDON_USERNAME}:${ADDON_PASSWORD}"
 
 # Trakt Client ID
 bashio::config.has_value 'trakt_id' && export TRAKT_CLIENT_ID="$(bashio::config 'trakt_id')" || export FETCH_TRAKT_ALIASES=false
 
 # Anime API
-ANIME_API=$(bashio::config 'anime_api')
-if [[ "${ANIME_API}" == "false" ]]; then
+if bashio::config.false 'anime_api'; then
   export ANIME_DB_LEVEL_OF_DETAIL=none
-  export DEFAULT_MAX_CACHE_SIZE=5000
 fi
+
+bashio::config.false 'anime_api' && export ANIME_DB_LEVEL_OF_DETAIL=none && export DEFAULT_MAX_CACHE_SIZE=5000
 
 # Trusted UUID
 bashio::config.has_value 'trusted_uuid' && export TRUSTED_UUIDS="$(bashio::config 'trusted_uuid')"
