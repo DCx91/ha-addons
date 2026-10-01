@@ -1,4 +1,4 @@
-ARG BUILD_FROM=ghcr.io/hassio-addons/base:21.0.4
+ARG BUILD_FROM=ghcr.io/hassio-addons/base:21.0.7
 
 # Fetch + patch source
 FROM ${BUILD_FROM} AS source
