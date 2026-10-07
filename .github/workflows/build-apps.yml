@@ -14,6 +14,7 @@ on:
           - aiostreams
           - music_assistant_alexa_beta
           - nginxproxymanager
+          - aiometadata
 
 env:
   ARCHITECTURES: '["amd64", "aarch64"]'
