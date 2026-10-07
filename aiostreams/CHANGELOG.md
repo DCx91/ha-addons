@@ -1,10 +1,4 @@
 # Changelog
-
-## v2.35.9 (2026-10-04)
-
-- No pull requests found for this version bump.
-## v2.35.9
-
 ## [2.35.9](https://github.com/Viren070/AIOStreams/compare/v2.35.8...v2.35.9) (2026-10-03)
 
 
@@ -25,12 +19,6 @@
 * **jellyfin:** page Next Up through up to 200 recent shows ([4f51dc1](https://github.com/Viren070/AIOStreams/commit/4f51dc11b085fa096fd8c962fe2be587e91b2fed))
 * **jellyfin:** size the pointer cache by max versions ([c086df8](https://github.com/Viren070/AIOStreams/commit/c086df84b56e6c111936c8e7bdbc0b3d8c96b6f3))
 * **watch-state:** fold an item's spellings in the history list and counts ([4f82379](https://github.com/Viren070/AIOStreams/commit/4f823797deb3f490482e551d793029567a272071))
-
-
-## v2.35.8 (2026-10-03)
-
-- No pull requests found for this version bump.
-## v2.35.8
 
 ## [2.35.8](https://github.com/Viren070/AIOStreams/compare/v2.35.7...v2.35.8) (2026-10-02)
 
@@ -84,10 +72,6 @@
 * **watch-state:** sweep stale imports by listed keys instead of re-stamping them ([4e1cbbf](https://github.com/Viren070/AIOStreams/commit/4e1cbbf8ddc9a11657a4fce56046d606aa9b2bc5))
 
 
-## v2.35.7 (2026-10-02)
-
-- No pull requests found for this version bump.
-## v2.35.7
 
 ## [2.35.7](https://github.com/Viren070/AIOStreams/compare/v2.35.6...v2.35.7) (2026-10-01)
 
@@ -106,16 +90,6 @@
 * **jellyfin:** go on from the furthest watched episode in Next Up ([c77e031](https://github.com/Viren070/AIOStreams/commit/c77e031405efe58bad4c6809de8310866a7ed8f9))
 * **watch-state:** return one recent series row per show across its ids ([5389d49](https://github.com/Viren070/AIOStreams/commit/5389d49d8e1ffe128326cc3ef1918b00581eaf88))
 
-
-## v2.35.5 (2026-10-01)
-
-- AIOStreams update (#46)
-
-## v2.35.4 (2026-09-29)
-
-- No pull requests found for this version bump.
-## v2.35.4
-
 ## [2.35.4](https://github.com/Viren070/AIOStreams/compare/v2.35.3...v2.35.4) (2026-09-28)
 
 
@@ -125,11 +99,6 @@
 * **builtins/nab:** warn on missing infohash, fix hash-fallback bug ([#1261](https://github.com/Viren070/AIOStreams/issues/1261)) ([8b5aa22](https://github.com/Viren070/AIOStreams/commit/8b5aa22e397d9378216ecc1e0ccfd353fcd88e9e))
 * **desktop:** add Discord events for browsing and a connection status ([eb193b4](https://github.com/Viren070/AIOStreams/commit/eb193b47ff45fe30604c3ed66b0829509ccc7cf5))
 
-
-## v2.35.2 (2026-09-28)
-
-- No pull requests found for this version bump.
-## v2.35.2
 
 ## [2.35.2](https://github.com/Viren070/AIOStreams/compare/v2.35.1...v2.35.2) (2026-09-27)
 
@@ -145,11 +114,6 @@
 * **jellyfin-web:** brighten the calendar's episode art ([46a092c](https://github.com/Viren070/AIOStreams/commit/46a092c692d0544e005d5c6ede353d3c8985c57d))
 * **ui:** keep a modal open when a press closes a dialog above it ([c0c745b](https://github.com/Viren070/AIOStreams/commit/c0c745b78d3077bf5df36f6b1bc3a0f59ed349a5))
 
-
-## v2.35.0 (2026-09-27)
-
-- No pull requests found for this version bump.
-## v2.35.0
 
 ## [2.35.0](https://github.com/Viren070/AIOStreams/compare/v2.34.1...v2.35.0) (2026-09-26)
 
@@ -466,9 +430,78 @@
 * **wrapper:** skip re-validating a cached meta ([2dcf85c](https://github.com/Viren070/AIOStreams/commit/2dcf85c387af6f89c562dcc25c190ecd63acbc47))
 
 
-## v2.34.1 (2026-09-22)
+## [2.34.1](https://github.com/Viren070/AIOStreams/compare/v2.34.0...v2.34.1) (2026-09-09)
 
-- No pull requests found for this version bump.
+
+### Features
+
+* **core:** parse Torz's probed codec/HDR/audio/bitrate data ([#1237](https://github.com/Viren070/AIOStreams/issues/1237)) ([f7d0e67](https://github.com/Viren070/AIOStreams/commit/f7d0e6783be796d1bd757aeb65d86492a8b506ec))
+* **usenet:** track unreadable articles per provider ([2d8dd11](https://github.com/Viren070/AIOStreams/commit/2d8dd1116cb918e4f002546a24293fc6950dfcdf))
+* **usenet:** verify articles against their yEnc checksums ([72ac0a4](https://github.com/Viren070/AIOStreams/commit/72ac0a4d9625699fff28ff20a4b03a2ee83d80a6))
+
+
+### Bug Fixes
+
+* coalesce concurrent addon resource requests via distributed lock ([#1217](https://github.com/Viren070/AIOStreams/issues/1217)) ([248d1c4](https://github.com/Viren070/AIOStreams/commit/248d1c4aec817e29a401825dbaff2452c495315f))
+* **deduplicator:** update mediaInfoQuality on merged languages/subtitles ([#1291](https://github.com/Viren070/AIOStreams/issues/1291)) ([90eaf92](https://github.com/Viren070/AIOStreams/commit/90eaf921c6a99a9d7ff3856112c142a54c1e408f))
+* **metadata/scene-mappings:** update user agent ([c495b1d](https://github.com/Viren070/AIOStreams/commit/c495b1d55e7d0a4c58ce032d869b24071e2f73ad))
+* **presets:** link to account settings for Anime Tosho New and nekoBT API keys ([#1294](https://github.com/Viren070/AIOStreams/issues/1294)) ([4905648](https://github.com/Viren070/AIOStreams/commit/49056487e6a1f4c5b5bb23f7f24fe54eaa1f992d))
+* **usenet/ebml:** log where the hole-fill tracker lost alignment ([8eba1b8](https://github.com/Viren070/AIOStreams/commit/8eba1b834f27e80b469b74f3a80beeae975eaa10))
+* **usenet/rar:** size exact middles past volume 128 by the rar5 volume-number varint ([3459b6a](https://github.com/Viren070/AIOStreams/commit/3459b6a00f4ec27152518ec59c4f73655a61d43e))
+* **usenet:** cancel an entry's census shadow when it is deleted ([eb9fd78](https://github.com/Viren070/AIOStreams/commit/eb9fd78d686982c3efdc25b763a48d9b77f83c57))
+* **usenet:** fail reads whose decoded bytes disagree with their metadata ([9c0ec73](https://github.com/Viren070/AIOStreams/commit/9c0ec73626d7eb94beb5386edc717368a8df7113))
+* **usenet:** infer a volume's fragment when its header article is unreadable ([87c031b](https://github.com/Viren070/AIOStreams/commit/87c031b9193611ea7fed4031a86bc6a3aa2bf2b6))
+* **usenet:** keep a completed folder for every category the arrs know ([0844e0f](https://github.com/Viren070/AIOStreams/commit/0844e0fc05962a73dff2c52e9410f77bbeb338ce)), closes [#1282](https://github.com/Viren070/AIOStreams/issues/1282)
+* **usenet:** persist the volume sizes the archive parse resolved in the layout ([04120de](https://github.com/Viren070/AIOStreams/commit/04120dee4e5165f984744d33a66bcb6b9cff0045))
+
+
+### Performance Improvements
+
+* **usenet/rar:** emit exact middle fragments from one sampled volume in the lazy parse ([d1ddf73](https://github.com/Viren070/AIOStreams/commit/d1ddf73212f947863ea55d6d3726c1a926d5e00a))
+* **usenet:** queue eight tasks in the serve-path readables so the read-ahead ramp follows the player ([736fd38](https://github.com/Viren070/AIOStreams/commit/736fd38405b76e20124ea44ab50ec9f46bae04e9))
+* **usenet:** reuse the parsed nzb model on the first play of an upload ([8f91f9c](https://github.com/Viren070/AIOStreams/commit/8f91f9c645cc5c2965545bc33f556ea1b5eb311b))
+* **usenet:** run the census at an idle priority so it never delays probes or playback ([c425c5c](https://github.com/Viren070/AIOStreams/commit/c425c5c80f8b95e9008c3f01a00550fbb9465c81))
+* **usenet:** size archive volumes from a probed sibling instead of their last segment ([db31877](https://github.com/Viren070/AIOStreams/commit/db31877fdd24cac8e5443cc85e46c6a50a876804))
+* **usenet:** warm the playback target's first article after import ([8affadd](https://github.com/Viren070/AIOStreams/commit/8affadd9322e22ecd78b1de7506f8c36b0e84914))
+* **usenet:** warm the selected file's first article when a stream url is minted ([58000e8](https://github.com/Viren070/AIOStreams/commit/58000e86c959a3ab31c687c903fa09873ea7d808))
+
+
+## [2.34.1](https://github.com/Viren070/AIOStreams/compare/v2.34.0...v2.34.1) (2026-09-09)
+
+
+### Features
+
+* **core:** parse Torz's probed codec/HDR/audio/bitrate data ([#1237](https://github.com/Viren070/AIOStreams/issues/1237)) ([f7d0e67](https://github.com/Viren070/AIOStreams/commit/f7d0e6783be796d1bd757aeb65d86492a8b506ec))
+* **usenet:** track unreadable articles per provider ([2d8dd11](https://github.com/Viren070/AIOStreams/commit/2d8dd1116cb918e4f002546a24293fc6950dfcdf))
+* **usenet:** verify articles against their yEnc checksums ([72ac0a4](https://github.com/Viren070/AIOStreams/commit/72ac0a4d9625699fff28ff20a4b03a2ee83d80a6))
+
+
+### Bug Fixes
+
+* coalesce concurrent addon resource requests via distributed lock ([#1217](https://github.com/Viren070/AIOStreams/issues/1217)) ([248d1c4](https://github.com/Viren070/AIOStreams/commit/248d1c4aec817e29a401825dbaff2452c495315f))
+* **deduplicator:** update mediaInfoQuality on merged languages/subtitles ([#1291](https://github.com/Viren070/AIOStreams/issues/1291)) ([90eaf92](https://github.com/Viren070/AIOStreams/commit/90eaf921c6a99a9d7ff3856112c142a54c1e408f))
+* **metadata/scene-mappings:** update user agent ([c495b1d](https://github.com/Viren070/AIOStreams/commit/c495b1d55e7d0a4c58ce032d869b24071e2f73ad))
+* **presets:** link to account settings for Anime Tosho New and nekoBT API keys ([#1294](https://github.com/Viren070/AIOStreams/issues/1294)) ([4905648](https://github.com/Viren070/AIOStreams/commit/49056487e6a1f4c5b5bb23f7f24fe54eaa1f992d))
+* **usenet/ebml:** log where the hole-fill tracker lost alignment ([8eba1b8](https://github.com/Viren070/AIOStreams/commit/8eba1b834f27e80b469b74f3a80beeae975eaa10))
+* **usenet/rar:** size exact middles past volume 128 by the rar5 volume-number varint ([3459b6a](https://github.com/Viren070/AIOStreams/commit/3459b6a00f4ec27152518ec59c4f73655a61d43e))
+* **usenet:** cancel an entry's census shadow when it is deleted ([eb9fd78](https://github.com/Viren070/AIOStreams/commit/eb9fd78d686982c3efdc25b763a48d9b77f83c57))
+* **usenet:** fail reads whose decoded bytes disagree with their metadata ([9c0ec73](https://github.com/Viren070/AIOStreams/commit/9c0ec73626d7eb94beb5386edc717368a8df7113))
+* **usenet:** infer a volume's fragment when its header article is unreadable ([87c031b](https://github.com/Viren070/AIOStreams/commit/87c031b9193611ea7fed4031a86bc6a3aa2bf2b6))
+* **usenet:** keep a completed folder for every category the arrs know ([0844e0f](https://github.com/Viren070/AIOStreams/commit/0844e0fc05962a73dff2c52e9410f77bbeb338ce)), closes [#1282](https://github.com/Viren070/AIOStreams/issues/1282)
+* **usenet:** persist the volume sizes the archive parse resolved in the layout ([04120de](https://github.com/Viren070/AIOStreams/commit/04120dee4e5165f984744d33a66bcb6b9cff0045))
+
+
+### Performance Improvements
+
+* **usenet/rar:** emit exact middle fragments from one sampled volume in the lazy parse ([d1ddf73](https://github.com/Viren070/AIOStreams/commit/d1ddf73212f947863ea55d6d3726c1a926d5e00a))
+* **usenet:** queue eight tasks in the serve-path readables so the read-ahead ramp follows the player ([736fd38](https://github.com/Viren070/AIOStreams/commit/736fd38405b76e20124ea44ab50ec9f46bae04e9))
+* **usenet:** reuse the parsed nzb model on the first play of an upload ([8f91f9c](https://github.com/Viren070/AIOStreams/commit/8f91f9c645cc5c2965545bc33f556ea1b5eb311b))
+* **usenet:** run the census at an idle priority so it never delays probes or playback ([c425c5c](https://github.com/Viren070/AIOStreams/commit/c425c5c80f8b95e9008c3f01a00550fbb9465c81))
+* **usenet:** size archive volumes from a probed sibling instead of their last segment ([db31877](https://github.com/Viren070/AIOStreams/commit/db31877fdd24cac8e5443cc85e46c6a50a876804))
+* **usenet:** warm the playback target's first article after import ([8affadd](https://github.com/Viren070/AIOStreams/commit/8affadd9322e22ecd78b1de7506f8c36b0e84914))
+* **usenet:** warm the selected file's first article when a stream url is minted ([58000e8](https://github.com/Viren070/AIOStreams/commit/58000e86c959a3ab31c687c903fa09873ea7d808))
+
+
 ## v2.34.1
 
 ## [2.34.1](https://github.com/Viren070/AIOStreams/compare/v2.34.0...v2.34.1) (2026-09-09)
@@ -506,96 +539,6 @@
 * **usenet:** warm the playback target's first article after import ([8affadd](https://github.com/Viren070/AIOStreams/commit/8affadd9322e22ecd78b1de7506f8c36b0e84914))
 * **usenet:** warm the selected file's first article when a stream url is minted ([58000e8](https://github.com/Viren070/AIOStreams/commit/58000e86c959a3ab31c687c903fa09873ea7d808))
 
-
-## vnull (2026-09-21)
-
-- No pull requests found for this version bump.
-## vnull
-
-## [2.34.1](https://github.com/Viren070/AIOStreams/compare/v2.34.0...v2.34.1) (2026-09-09)
-
-
-### Features
-
-* **core:** parse Torz's probed codec/HDR/audio/bitrate data ([#1237](https://github.com/Viren070/AIOStreams/issues/1237)) ([f7d0e67](https://github.com/Viren070/AIOStreams/commit/f7d0e6783be796d1bd757aeb65d86492a8b506ec))
-* **usenet:** track unreadable articles per provider ([2d8dd11](https://github.com/Viren070/AIOStreams/commit/2d8dd1116cb918e4f002546a24293fc6950dfcdf))
-* **usenet:** verify articles against their yEnc checksums ([72ac0a4](https://github.com/Viren070/AIOStreams/commit/72ac0a4d9625699fff28ff20a4b03a2ee83d80a6))
-
-
-### Bug Fixes
-
-* coalesce concurrent addon resource requests via distributed lock ([#1217](https://github.com/Viren070/AIOStreams/issues/1217)) ([248d1c4](https://github.com/Viren070/AIOStreams/commit/248d1c4aec817e29a401825dbaff2452c495315f))
-* **deduplicator:** update mediaInfoQuality on merged languages/subtitles ([#1291](https://github.com/Viren070/AIOStreams/issues/1291)) ([90eaf92](https://github.com/Viren070/AIOStreams/commit/90eaf921c6a99a9d7ff3856112c142a54c1e408f))
-* **metadata/scene-mappings:** update user agent ([c495b1d](https://github.com/Viren070/AIOStreams/commit/c495b1d55e7d0a4c58ce032d869b24071e2f73ad))
-* **presets:** link to account settings for Anime Tosho New and nekoBT API keys ([#1294](https://github.com/Viren070/AIOStreams/issues/1294)) ([4905648](https://github.com/Viren070/AIOStreams/commit/49056487e6a1f4c5b5bb23f7f24fe54eaa1f992d))
-* **usenet/ebml:** log where the hole-fill tracker lost alignment ([8eba1b8](https://github.com/Viren070/AIOStreams/commit/8eba1b834f27e80b469b74f3a80beeae975eaa10))
-* **usenet/rar:** size exact middles past volume 128 by the rar5 volume-number varint ([3459b6a](https://github.com/Viren070/AIOStreams/commit/3459b6a00f4ec27152518ec59c4f73655a61d43e))
-* **usenet:** cancel an entry's census shadow when it is deleted ([eb9fd78](https://github.com/Viren070/AIOStreams/commit/eb9fd78d686982c3efdc25b763a48d9b77f83c57))
-* **usenet:** fail reads whose decoded bytes disagree with their metadata ([9c0ec73](https://github.com/Viren070/AIOStreams/commit/9c0ec73626d7eb94beb5386edc717368a8df7113))
-* **usenet:** infer a volume's fragment when its header article is unreadable ([87c031b](https://github.com/Viren070/AIOStreams/commit/87c031b9193611ea7fed4031a86bc6a3aa2bf2b6))
-* **usenet:** keep a completed folder for every category the arrs know ([0844e0f](https://github.com/Viren070/AIOStreams/commit/0844e0fc05962a73dff2c52e9410f77bbeb338ce)), closes [#1282](https://github.com/Viren070/AIOStreams/issues/1282)
-* **usenet:** persist the volume sizes the archive parse resolved in the layout ([04120de](https://github.com/Viren070/AIOStreams/commit/04120dee4e5165f984744d33a66bcb6b9cff0045))
-
-
-### Performance Improvements
-
-* **usenet/rar:** emit exact middle fragments from one sampled volume in the lazy parse ([d1ddf73](https://github.com/Viren070/AIOStreams/commit/d1ddf73212f947863ea55d6d3726c1a926d5e00a))
-* **usenet:** queue eight tasks in the serve-path readables so the read-ahead ramp follows the player ([736fd38](https://github.com/Viren070/AIOStreams/commit/736fd38405b76e20124ea44ab50ec9f46bae04e9))
-* **usenet:** reuse the parsed nzb model on the first play of an upload ([8f91f9c](https://github.com/Viren070/AIOStreams/commit/8f91f9c645cc5c2965545bc33f556ea1b5eb311b))
-* **usenet:** run the census at an idle priority so it never delays probes or playback ([c425c5c](https://github.com/Viren070/AIOStreams/commit/c425c5c80f8b95e9008c3f01a00550fbb9465c81))
-* **usenet:** size archive volumes from a probed sibling instead of their last segment ([db31877](https://github.com/Viren070/AIOStreams/commit/db31877fdd24cac8e5443cc85e46c6a50a876804))
-* **usenet:** warm the playback target's first article after import ([8affadd](https://github.com/Viren070/AIOStreams/commit/8affadd9322e22ecd78b1de7506f8c36b0e84914))
-* **usenet:** warm the selected file's first article when a stream url is minted ([58000e8](https://github.com/Viren070/AIOStreams/commit/58000e86c959a3ab31c687c903fa09873ea7d808))
-
-
-## v2.34.1 (2026-09-16)
-
-- Update ghcr.io/hassio-addons/base Docker tag to v21.0.4 (#39)
-- Changes from main (#41)
-
-## v2.34.1
-
-## [2.34.1](https://github.com/Viren070/AIOStreams/compare/v2.34.0...v2.34.1) (2026-09-09)
-
-
-### Features
-
-* **core:** parse Torz's probed codec/HDR/audio/bitrate data ([#1237](https://github.com/Viren070/AIOStreams/issues/1237)) ([f7d0e67](https://github.com/Viren070/AIOStreams/commit/f7d0e6783be796d1bd757aeb65d86492a8b506ec))
-* **usenet:** track unreadable articles per provider ([2d8dd11](https://github.com/Viren070/AIOStreams/commit/2d8dd1116cb918e4f002546a24293fc6950dfcdf))
-* **usenet:** verify articles against their yEnc checksums ([72ac0a4](https://github.com/Viren070/AIOStreams/commit/72ac0a4d9625699fff28ff20a4b03a2ee83d80a6))
-
-
-### Bug Fixes
-
-* coalesce concurrent addon resource requests via distributed lock ([#1217](https://github.com/Viren070/AIOStreams/issues/1217)) ([248d1c4](https://github.com/Viren070/AIOStreams/commit/248d1c4aec817e29a401825dbaff2452c495315f))
-* **deduplicator:** update mediaInfoQuality on merged languages/subtitles ([#1291](https://github.com/Viren070/AIOStreams/issues/1291)) ([90eaf92](https://github.com/Viren070/AIOStreams/commit/90eaf921c6a99a9d7ff3856112c142a54c1e408f))
-* **metadata/scene-mappings:** update user agent ([c495b1d](https://github.com/Viren070/AIOStreams/commit/c495b1d55e7d0a4c58ce032d869b24071e2f73ad))
-* **presets:** link to account settings for Anime Tosho New and nekoBT API keys ([#1294](https://github.com/Viren070/AIOStreams/issues/1294)) ([4905648](https://github.com/Viren070/AIOStreams/commit/49056487e6a1f4c5b5bb23f7f24fe54eaa1f992d))
-* **usenet/ebml:** log where the hole-fill tracker lost alignment ([8eba1b8](https://github.com/Viren070/AIOStreams/commit/8eba1b834f27e80b469b74f3a80beeae975eaa10))
-* **usenet/rar:** size exact middles past volume 128 by the rar5 volume-number varint ([3459b6a](https://github.com/Viren070/AIOStreams/commit/3459b6a00f4ec27152518ec59c4f73655a61d43e))
-* **usenet:** cancel an entry's census shadow when it is deleted ([eb9fd78](https://github.com/Viren070/AIOStreams/commit/eb9fd78d686982c3efdc25b763a48d9b77f83c57))
-* **usenet:** fail reads whose decoded bytes disagree with their metadata ([9c0ec73](https://github.com/Viren070/AIOStreams/commit/9c0ec73626d7eb94beb5386edc717368a8df7113))
-* **usenet:** infer a volume's fragment when its header article is unreadable ([87c031b](https://github.com/Viren070/AIOStreams/commit/87c031b9193611ea7fed4031a86bc6a3aa2bf2b6))
-* **usenet:** keep a completed folder for every category the arrs know ([0844e0f](https://github.com/Viren070/AIOStreams/commit/0844e0fc05962a73dff2c52e9410f77bbeb338ce)), closes [#1282](https://github.com/Viren070/AIOStreams/issues/1282)
-* **usenet:** persist the volume sizes the archive parse resolved in the layout ([04120de](https://github.com/Viren070/AIOStreams/commit/04120dee4e5165f984744d33a66bcb6b9cff0045))
-
-
-### Performance Improvements
-
-* **usenet/rar:** emit exact middle fragments from one sampled volume in the lazy parse ([d1ddf73](https://github.com/Viren070/AIOStreams/commit/d1ddf73212f947863ea55d6d3726c1a926d5e00a))
-* **usenet:** queue eight tasks in the serve-path readables so the read-ahead ramp follows the player ([736fd38](https://github.com/Viren070/AIOStreams/commit/736fd38405b76e20124ea44ab50ec9f46bae04e9))
-* **usenet:** reuse the parsed nzb model on the first play of an upload ([8f91f9c](https://github.com/Viren070/AIOStreams/commit/8f91f9c645cc5c2965545bc33f556ea1b5eb311b))
-* **usenet:** run the census at an idle priority so it never delays probes or playback ([c425c5c](https://github.com/Viren070/AIOStreams/commit/c425c5c80f8b95e9008c3f01a00550fbb9465c81))
-* **usenet:** size archive volumes from a probed sibling instead of their last segment ([db31877](https://github.com/Viren070/AIOStreams/commit/db31877fdd24cac8e5443cc85e46c6a50a876804))
-* **usenet:** warm the playback target's first article after import ([8affadd](https://github.com/Viren070/AIOStreams/commit/8affadd9322e22ecd78b1de7506f8c36b0e84914))
-* **usenet:** warm the selected file's first article when a stream url is minted ([58000e8](https://github.com/Viren070/AIOStreams/commit/58000e86c959a3ab31c687c903fa09873ea7d808))
-
-
-## v2.34.0 (2026-09-05)
-
-- Random fixes (#40)
-
-## v2.34.0
 
 ## [2.34.0](https://github.com/Viren070/AIOStreams/compare/v2.33.2...v2.34.0) (2026-09-04)
 
@@ -723,11 +666,6 @@
 * **usenet:** start an archive range stream narrow ([e23e363](https://github.com/Viren070/AIOStreams/commit/e23e3636420646e70c2b72e06b989870f9979d21))
 
 
-## v2.33.2 (2026-08-12)
-
-- No pull requests found for this version bump.
-## v2.33.2
-
 ## [2.33.2](https://github.com/Viren070/AIOStreams/compare/v2.33.1...v2.33.2) (2026-08-10)
 
 
@@ -736,25 +674,6 @@
 * **usenet:** type archive inner files by magic bytes ([9a1b6d7](https://github.com/Viren070/AIOStreams/commit/9a1b6d7f4954dc38113153893c070580ecd1faef))
 * **variants:** support path param based selector and make default ([9778afc](https://github.com/Viren070/AIOStreams/commit/9778afcf07f2b994b226d69031caa454d5127aec))
 
-
-## v2.33.1 (2026-08-11)
-
-- Add logging verbosity toggle to NPM (#35)
-
-## vseanime-extensions-v0.10.1 (2026-08-11)
-
-- No pull requests found for this version bump.
-## vseanime-extensions-v0.10.1
-
-## [0.10.1](https://github.com/Viren070/AIOStreams/compare/seanime-extensions-v0.10.0...seanime-extensions-v0.10.1) (2026-08-10)
-
-
-### Bug Fixes
-
-* **seanime-extensions:** support parsing path based variant selectors ([5e64202](https://github.com/Viren070/AIOStreams/commit/5e642023d32502be032a2d5602b62dcd2022ae75))
-
-
-## v2.33.1
 
 ## [2.33.1](https://github.com/Viren070/AIOStreams/compare/v2.33.0...v2.33.1) (2026-08-09)
 
@@ -1125,12 +1044,6 @@
 * **usenet:** zero-alloc serve path with a pinned segment arena ([d9f6b9c](https://github.com/Viren070/AIOStreams/commit/d9f6b9ca4b8d2b4e7eb1b0611f94cb1f0a078956))
 
 
-## v2.30.6-R3 (2026-07-14)
-
-- No pull requests found for this version bump.
-## v2.30.6-R2 (2026-07-14)
-
-- No pull requests found for this version bump.
 ## v2.30.6-R2 (2026-07-14)
 
 ### Changed
