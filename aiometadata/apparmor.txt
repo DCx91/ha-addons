@@ -1,0 +1,57 @@
+#include <tunables/global>
+
+profile app flags=(attach_disconnected,mediate_deleted,complain) {
+  #include <abstractions/base>
+
+  # Capabilities
+  file,
+  signal (send) set=(kill,term,int,hup,cont),
+  capability kill,
+
+  # S6-Overlay
+  /init ix,
+  /bin/** ix,
+  /usr/bin/** ix,
+  /run/{s6,s6-rc*,service}/** ix,
+  /package/** ix,
+  /command/** ix,
+  /etc/services.d/** rwix,
+  /etc/cont-init.d/** rwix,
+  /etc/cont-finish.d/** rwix,
+  /run/{,**} rwk,
+  /dev/tty rw,
+
+  # Bashio
+  /usr/lib/bashio/** ix,
+  /tmp/** rwk,
+
+  # Access to options.json and other files within your addon
+  /data/** rw,
+
+  # Start new profile for service
+  /usr/bin/node cx -> aiometadata,
+
+  profile aiometadata flags=(attach_disconnected,mediate_deleted,complain) {
+    #include <abstractions/base>
+    #include <abstractions/nameservice>
+    #include <abstractions/ssl_certs>
+
+    signal (receive) peer=*_aiometadata*,
+
+    /usr/bin/node mr,
+    /usr/share/icu/** r,
+    /etc/ssl/openssl.cnf r,
+    /proc/*/cgroup r,
+    /sys/fs/cgroup/memory.* r,
+    /usr/bin/ldd r,
+
+    /data/** rwk,
+    /config/** rw,
+    /share/** rw,
+    /app/** rwix,
+    /bin/bash rix,
+    /bin/echo ix,
+    /etc/passwd r,
+    /dev/tty rw,
+  }
+}

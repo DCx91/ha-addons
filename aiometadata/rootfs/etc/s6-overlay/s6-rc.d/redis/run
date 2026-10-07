@@ -1,0 +1,13 @@
+#!/command/execlineb -P
+foreground { mkdir -p /data/redis }
+pipeline -w { awk "!/Memory overcommit must be enabled|does not require authentication/ { print; fflush() }" }
+redis-server
+    --daemonize no
+    --bind 127.0.0.1
+    --port 6379
+    --dir /data/redis
+    --loglevel warning
+    --appendonly yes
+    --save 3600 1
+    --maxmemory 128mb
+    --maxmemory-policy allkeys-lru

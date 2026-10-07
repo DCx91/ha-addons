@@ -1,0 +1,91 @@
+#!/command/with-contenv bashio
+set -e
+
+mkdir -p /data/addon /data/redis
+
+# Load required config
+export DATABASE_URI=sqlite:///data/addon/addon.db
+export DOTENV_CONFIG_QUIET=true
+export JIKAN_API_BASE=https://api.tenrai.org/v1
+export HOST_NAME=$(bashio::config 'host_name')
+export LOG_LEVEL=$(bashio::config 'verbosity')
+export PORT=$(bashio::app.port '3232/tcp')
+export REDIS_URL=redis://127.0.0.1:6379
+export TMDB_API_KEY=$(bashio::config 'tmdb_api_key')
+export TZ=$(bashio::info.timezone)
+
+# Load optional config 
+bashio::config.has_value 'fanart_api_key' && export FANART_API_KEY=$(bashio::config 'fanart_api_key')
+bashio::config.has_value 'rpdb_api_key' && export RPDB_API_KEY=$(bashio::config 'rpdb_api_key')
+bashio::config.has_value 'tvdb_api_key' && export TVDB_API_KEY=$(bashio::config 'tvdb_api_key')
+
+# Warm up for specific UUIDs
+if bashio::config.has_value 'warming_uuids'; then
+    mapfile -t uuids < <(bashio::config 'warming_uuids')
+
+    if (( ${#uuids[@]} > 3 )); then
+        bashio::log.warning "Only up to 3 UUIDs are supported for cache warming; ignoring $(( ${#uuids[@]} - 3 )) extra"
+    fi
+
+    CACHE_WARMUP_UUIDS=$(IFS=,; echo "${uuids[*]:0:3}")
+    export CACHE_WARMUP_UUIDS
+fi
+
+# Single user optimisations
+if bashio::config.true 'single_user'; then
+	export CACHE_WARMUP_ON_STARTUP=false
+	export CATALOG_LIST_ITEMS_SIZE=10
+	export FANART_CLIENT_CACHE_MAX=100
+	export LOG_BUFFER_SIZE=1000
+	export MAX_CONCURRENT_REQUESTS=5
+	export TMDB_SCRAPED_IMDB_CACHE_MAX=500
+	export USER_ALIASES_ENABLED=true
+fi
+
+# Poster caching
+if bashio::config.true 'poster_cache'; then
+	export ENABLE_BUILTIN_POSTER_CACHE=true
+    export META_COLD_STORE_ENABLED=true
+    export META_COLD_STORE_MAX_BYTES=512m
+    export META_COLD_STORE_PATH=/data/addon/metacache.sqlite
+	export POSTER_CACHE_BACKGROUNDS=true
+	export POSTER_CACHE_DIR=/data/addon/poster_cache
+	export POSTER_CACHE_LANDSCAPE_POSTERS=true
+	export POSTER_CACHE_LOGOS=true
+	export POSTER_CACHE_MAX_SIZE=1g
+	export POSTER_CACHE_MEMORY_SIZE=0
+	export PREFER_SMALLER_LOGOS_TMDB=true
+	export PREFER_SMALLER_LANDSCAPE_TMDB=true
+fi
+
+# Generate secret key and persist it to /data/admin_key.
+ADMIN_KEY_FILE="/data/admin_key"
+
+if bashio::config.has_value 'admin_key'; then
+    ADMIN_KEY=$(bashio::config 'admin_key')
+elif [[ -s "${ADMIN_KEY_FILE}" ]]; then
+    ADMIN_KEY=$(cat "${ADMIN_KEY_FILE}")
+else
+    bashio::log.info "Generating new admin key..."
+    ADMIN_KEY=$(openssl rand -hex 32)
+    ( umask 077; echo "${ADMIN_KEY}" > "${ADMIN_KEY_FILE}" )
+fi
+
+# Input the key in the UI config tab if unset
+bashio::config.has_value 'admin_key' || bashio::app.option 'admin_key' "${ADMIN_KEY}"
+
+export ADMIN_KEY
+
+bashio::log.info "[AIOMetadata] Waiting for Redis..."
+i=0
+until redis-cli -h 127.0.0.1 -p 6379 ping >/dev/null 2>&1; do
+    i=$((i + 1))
+    if [ "$i" -ge 30 ]; then
+        bashio::log.error "[AIOMetadata] Redis did not come up in time" >&2
+        exit 1
+    fi
+    sleep 1
+done
+
+cd /app
+exec node dist/server/server.js
