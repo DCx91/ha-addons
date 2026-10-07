@@ -25,7 +25,7 @@ permissions:
 jobs:
   fix-permissions:
     name: Fix execute permissions
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     permissions:
       contents: write
 
@@ -52,7 +52,7 @@ jobs:
   init:
     name: Initialize builds
     needs: fix-permissions
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     outputs:
       addons: ${{ steps.changed_addons.outputs.addons }}
 
@@ -118,7 +118,7 @@ jobs:
     name: Build ${{ matrix.addon }} ${{ matrix.arch }}
     needs: init
     if: needs.init.outputs.addons != '[]'
-    runs-on: ${{ matrix.arch == 'aarch64' && 'ubuntu-26.04-arm' || 'ubuntu-latest' }}
+    runs-on: ${{ matrix.arch == 'aarch64' && 'ubuntu-26.04-arm' || 'ubuntu-26.04' }}
 
     permissions:
       contents: read
@@ -197,7 +197,7 @@ jobs:
       - init
       - build
     if: needs.init.outputs.addons != '[]'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
 
     permissions:
       id-token: write
