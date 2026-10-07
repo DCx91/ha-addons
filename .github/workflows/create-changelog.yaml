@@ -39,12 +39,12 @@ jobs:
             NEW_BASE="${NEW_VERSION%%-R*}"
             OLD_BASE="${OLD_VERSION%%-R*}"
 
-            if [ "$NEW_BASE" = "$OLD_BASE" ]; then
-              echo "Only revision suffix changed in ${ADDON} (${OLD_VERSION} → ${NEW_VERSION}); no upstream version change, skipping changelog fetch."
+            if [ "$NEW_BASE" != "$OLD_BASE" ]; then
+              echo "Upstream version changed in ${ADDON} (${OLD_BASE} → ${NEW_BASE}); upstream changelog is handled by the auto-update action, skipping."
               continue
             fi
 
-            echo "Upstream version changed in ${ADDON}: ${OLD_BASE} → ${NEW_BASE} (full: ${OLD_VERSION} → ${NEW_VERSION})"
+            echo "Revision-only change in ${ADDON}: ${OLD_VERSION} → ${NEW_VERSION}; generating PR-based entry."
             PREV_VERSION_COMMIT=$(git log --format="%H" -- "${ADDON}/config.yaml" | sed -n '2p')
             if [ -n "${PREV_VERSION_COMMIT}" ]; then
               RANGE="${PREV_VERSION_COMMIT}..HEAD"
