@@ -19,12 +19,13 @@ RUN apk add --no-cache \
     gnupg \
     python3
 
+WORKDIR /app
 COPY --from=ask-cli-builder /usr/local/lib/node_modules/ask-cli /usr/local/lib/node_modules/ask-cli
 COPY --from=alexa-skill /app /app
-WORKDIR /app
+COPY patch.py /tmp/patch.py
 RUN ln -s /usr/local/lib/node_modules/ask-cli/dist/bin/ask.js /usr/local/bin/ask \
+    && python3 /tmp/patch.py && rm /tmp/patch.py \
     && python3 -m venv venv \
     && venv/bin/pip install --upgrade pip \
     && venv/bin/pip install --no-cache-dir -r requirements.txt
-#RUN venv/bin/python scripts/patch_verifier.py
 COPY rootfs /
