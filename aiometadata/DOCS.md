@@ -35,21 +35,19 @@ Use a higher verbosity level when troubleshooting problems. For normal operation
 
 ### TMDb API Key
 
-An API key for [The Movie Database (TMDb)](https://www.themoviedb.org/).
+[Required] An API key for [The Movie Database (TMDb)](https://www.themoviedb.org/).
 
 AIOMetadata uses TMDb to retrieve movie and TV metadata.
 
-A TMDb API key is recommended for normal operation.
-
 ### TVDb API Key
 
-A TheTVDB API v4 key.
+[Optional] A TheTVDB API v4 key.
 
 This can be used by AIOMetadata to retrieve additional movie and TV metadata.
 
 ### FanArt API Key
 
-An API key for [Fanart.tv](https://fanart.tv/).
+[Optional] An API key for [Fanart.tv](https://fanart.tv/).
 
 Fanart.tv provides high-quality artwork such as:
 
@@ -59,15 +57,11 @@ Fanart.tv provides high-quality artwork such as:
 - Character artwork
 - Additional promotional artwork
 
-The key is optional, but is recommended if you want access to Fanart.tv artwork.
-
 ### RPDb API Key
 
-An API key for the Rating Poster Database (RPDb).
+[Optional] An API key for the Rating Poster Database (RPDb).
 
 RPDb provides posters and other artwork containing ratings and additional information.
-
-The key is optional.
 
 ### Single User
 
@@ -89,21 +83,20 @@ This is recommended for most installations.
 
 ### Cache Warming
 
-A list of user UUIDs to use when performing cache-warming operations.
+A list of user UUIDs to use when performing cache-warming operations using that user's config for providers, language, etc.
+By default, it uses the system cache warmer.
 
-Up to three UUIDs can be specified.
+Up to three UUIDs can be specified. 
 
 Cache warming allows commonly requested artwork and metadata to be populated in advance, reducing the delay experienced when content is requested for the first time.
-
-If disabled, cache warming still occurs, but less specifically.
 
 ## API Keys
 
 AIOMetadata can use several external metadata providers. API keys are generally optional, but enabling additional providers can increase the amount and variety of metadata and artwork available.
 
-You do not need to configure every provider.
-
-At minimum, configure the providers required by the clients and features you intend to use.
+You do not need to configure every provider. 
+They can also be configured within the UI.
+Only TMDb is required for AIOMetadata to run.
 
 ## Accessing AIOMetadata
 
