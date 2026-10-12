@@ -4,7 +4,8 @@ slug: aiometadata
 description: >-
   Aggregates and enriches movie, series, and anime metadata from multiple sources,
   giving you full control over catalog sources, artwork, and search.
-url: https://github.com/DCx91/ha-addons/aiostreams
+url: https://github.com/DCx91/ha-addons/aiometadata
+image: ghcr.io/dcx91/aiometadata
 arch:
   - amd64
   - aarch64
