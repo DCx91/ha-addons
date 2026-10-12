@@ -45,9 +45,9 @@ fi
 # Poster caching
 if bashio::config.true 'poster_cache'; then
 	export ENABLE_BUILTIN_POSTER_CACHE=true
-    export META_COLD_STORE_ENABLED=true
-    export META_COLD_STORE_MAX_BYTES=512m
-    export META_COLD_STORE_PATH=/data/addon/metacache.sqlite
+	export META_COLD_STORE_ENABLED=true
+	export META_COLD_STORE_MAX_BYTES=512m
+	export META_COLD_STORE_PATH=/data/addon/metacache.sqlite
 	export POSTER_CACHE_BACKGROUNDS=true
 	export POSTER_CACHE_DIR=/data/addon/poster_cache
 	export POSTER_CACHE_LANDSCAPE_POSTERS=true
@@ -64,11 +64,11 @@ ADMIN_KEY_FILE="/data/admin_key"
 if bashio::config.has_value 'admin_key'; then
     ADMIN_KEY=$(bashio::config 'admin_key')
 elif [[ -s "${ADMIN_KEY_FILE}" ]]; then
-    ADMIN_KEY=$(cat "${ADMIN_KEY_FILE}")
+    ADMIN_KEY="$(<"${ADMIN_KEY_FILE}")"
 else
     bashio::log.info "Generating new admin key..."
     ADMIN_KEY=$(openssl rand -hex 32)
-    ( umask 077; echo "${ADMIN_KEY}" > "${ADMIN_KEY_FILE}" )
+    ( umask 077; printf '%s\n' "${ADMIN_KEY}" > "${ADMIN_KEY_FILE}" )
 fi
 
 # Input the key in the UI config tab if unset
