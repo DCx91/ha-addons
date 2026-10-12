@@ -1,0 +1,42 @@
+configuration:
+  host_name:
+    name: Hostname
+    description: >-
+      Public URL used to access this addon, e.g. https://[domain].duckdns.org.
+  admin_key:
+    name: Admin Key
+    description: >-
+      Password used to gain access to /dashboard as admin.
+      If left blank, a key will be generated on first run and can be viewed here.
+  verbosity:
+    name: Verbosity
+    description: >-
+      Controls the amount of detail included in the addon logs.
+  tmdb_api_key:
+    name: TMDb API Key
+    description: >-
+      API key for The Movie Database (TMDb), used to retrieve movie and TV metadata.
+  tvdb_api_key:
+    name: TVDb API Key
+    description: >-
+      TheTVDB API v4 key, used to retrieve movie and TV metadata.
+  fanart_api_key:
+    name: FanArt API Key
+    description: >-
+      Fanart.tv API key, used to retrieve high-quality artwork.
+  rpdb_api_key:
+    name: RPDb API Key
+    description: >-
+      Rating Poster Database (RPDb) API key, used to retrieve posters with ratings and other artwork overlays.
+  single_user:
+    name: Single User
+    description: >-
+      Optimises the app for personal use by disabling features and overhead intended for public instances.
+  poster_cache:
+    name: Cache Posters
+    description: >-
+      Caches posters, artwork and icons locally to improve performance and reduce repeated downloads.
+  warming_uuids:
+    name: Cache Warming
+    description: >-
+      User UUIDs to use for cache warming operations (max: 3 UUIDs).

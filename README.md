@@ -8,7 +8,8 @@ Community app repository for Home Assistant.
 | App | Description |
 |--------|-------------|
 | [**Unbound DNS**](unbound/README.md) | Validating, recursive, caching DNS resolver with DNSSEC |
-| [**AIOStreams**](aiostreams/README.md) | Self-hosted AIOStreams addon for Stremio |
+| [**AIOStreams**](aiostreams/README.md) | Self-hosted AIOStreams app for Stremio/Nuvio |
+| [**AIOMetadata**](aiometadata/README.md) | Self-hosted AIOMetadata app for Stremio/Nuvio |
 | [**Music Assistant - Alexa**](music_assistant_alexa_beta/README.md) | Add Alexa devices to Music Assistant |
 | [**Nginx Proxy Manager**](nginxproxymanager/DOCS.md) | Reverse proxy for Home Assistant |
 
@@ -35,7 +36,8 @@ Then find your desired app in the store and click **Install**.
 
 ## Credits
 
-- Unbound is developed by [NLnet Labs](https://nlnetlabs.nl/projects/unbound/about/).
-- AIOStreams adapted from [Viren070/AIOStreams](https://github.com/Viren070/aiostreams).
+- Unbound is developed by [NLnet Labs](https://nlnetlabs.nl/projects/unbound/about)
+- AIOStreams adapted from [Viren070/AIOStreams](https://github.com/Viren070/aiostreams)
+- AIOMetadata adapted from [cedya77/AIOMetadata](https://github.com/cedya77/aiometadata)
 - Music Assistant - Alexa adapted from [alams154/music-assistant-alexa-skill-prototype](https://github.com/alams154/music-assistant-alexa-skill-prototype/tree/master)
-- Nginx Proxy Manager was forked and adapted from the [original](https://github.com/hassio-addons/addon-nginx-proxy-manager) by [Franck Nijhof](https://github.com/frenck).
+- Nginx Proxy Manager was forked and adapted from the [original](https://github.com/hassio-addons/addon-nginx-proxy-manager) by [Franck Nijhof](https://github.com/frenck)
