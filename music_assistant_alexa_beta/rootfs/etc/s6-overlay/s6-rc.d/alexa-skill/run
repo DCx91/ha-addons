@@ -5,7 +5,7 @@ export PORT=$(bashio::app.port '5000/tcp')
 export LOCALE=$(bashio::config 'locale')
 export SKILL_HOSTNAME=$(bashio::config 'skill_hostname')
 bashio::config.true 'skip_url_validation' && export SKIP_URL_VALIDATION=true
-bashio::config.true 'debug' && export FLASK_DEBUG=1 || export FLASK_DEBUG=0
+bashio::config.true 'debug' && export FLASK_DEBUG=1
 
 # Set SKILL_ID
 if [[ -z "$SKILL_ID" ]]; then
