@@ -1,27 +1,48 @@
 configuration:
   skill_hostname:
-    name: Skill Hostname
+    name: Skill hostname
     description: >-
       The public hostname of this addon, e.g. alexa.example.com
       Used in the Alexa skill manifest and endpoint validation.
   ma_hostname:
-    name: Music Assistant Hostname
+    name: Music Assistant hostname
     description: >-
-      Music Assistant server hostname. e.g. ma.example.com
+      Music Assistant stream server hostname. e.g. ma.example.com
       Required if your device does not support APL or if you want album art.
   app_username:
-    name: Music Assistant Username
+    name: Music Assistant username
     description: >-
       Username for the Music Assistant web UI and API basic authentication.
   app_password:
-    name: Music Assistant Password
+    name: Music Assistant password
     description: >-
       Password for the Music Assistant web UI and API basic authentication.
   locale:
-    name: Skill Locale
+    name: Skill locale
     description: >-
       Skill locale used by setup and interaction model operations.
   aws_default_region:
-    name: AWS Default Region
+    name: AWS default region
     description: >-
       AWS region used by ASK CLI operations when needed.
+  ma_api_url:
+    name: Music Assistant web server URL
+    description: >-
+      Music Assistant web server hostname. e.g. ma.example.com.
+      Required for voice-controlled Next/Previous.
+  ma_api_token:
+    name: Music Assistant long-lived access token
+    description: >-
+       A long-lived token created via MA's own auth flow.
+       Required alongside MA_API_URL.
+  skip_url_validation:
+    name: Skip URL Validation
+    description: >-
+      Skip server-side HEAD/GET validation of the rewritten stream URL before sending it to the Echo.
+  enable_apl:
+    name: Enable APL
+    description: >-
+      Enable rich APL rendering (cover art, title, on-screen playback controls) 
+      on Echo Show and other APL-capable devices, instead of the plain AudioPlayer-only flow
+  debug:
+    name: Debug
