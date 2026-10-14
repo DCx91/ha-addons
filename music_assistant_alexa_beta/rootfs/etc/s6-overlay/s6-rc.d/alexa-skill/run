@@ -4,6 +4,12 @@ export TZ=$(bashio::info.timezone)
 export AWS_DEFAULT_REGION=$(bashio::config 'aws_default_region')
 export PORT=$(bashio::app.port '5000/tcp')
 
-bashio::log.info "Starting Alexa skill application on port ${PORT}..."
-
-exec /app/venv/bin/python /app/app/app.py
+if bashio::config.true 'debug'; then
+  export DEBUG_PORT=$(bashio::app.port '5678/tcp')
+  export FLASK_DEBUG=1
+  bashio::log.info "Starting Alexa skill application on port ${PORT} with debugging enabled on port ${DEBUG_PORT}..."
+  exec /app/venv/bin/python -Xfrozen_modules=off -m debugpy --listen 0.0.0.0:${DEBUG_PORT} /app/app/app.py
+else
+  bashio::log.info "Starting Alexa skill application on port ${PORT}..."
+  exec /app/venv/bin/python /app/app/app.py
+fi
