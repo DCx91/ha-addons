@@ -19,7 +19,11 @@ Before installing this app you will need:
 
 - [Music Assistant](https://music-assistant.io) running in your Home Assistant instance
 - An [Amazon Developer account](https://developer.amazon.com/en-US/docs/alexa/ask-overviews/create-developer-account.html) with Skill Access Management enabled
-- A publicly reachable HTTPS endpoint pointing at this app's port (e.g. via NGINX Proxy Manager or Cloudflare)
+- A publicly reachable HTTPS endpoint pointing at your Home Assistant IP, port 5000 (default).
+- [Optional] A second publicly reachable HTTPS endpoint pointing at your Music Assistant IP, port 8097 (default).
+- A static IPv4 address.
+
+```IPv6-only will fail from Amazon's servers. If behind CGNAT, use Cloudflared or Tailscale Funnel (or similar).```
 
 ## Installation
 
@@ -33,7 +37,7 @@ Before installing this app you will need:
 | Option | Required | Default | Description |
 |---|---|---|---|
 | `SKILL_HOSTNAME` | Yes | — | Public HTTPS hostname Alexa will use to reach this app (e.g. `alexa.example.com`). Must be reachable by Amazon. |
-| `MA_HOSTNAME` | No | — | Public HTTPS hostname of your Music Assistant stream. Required if your Alexa devices don't support APL, or if you want album art. |
+| `MA_HOSTNAME` | No | — | Public HTTPS hostname of your Music Assistant stream (e.g. `ma.example.com`). Required for album art and non-touch Alexa devices. |
 | `APP_USERNAME` | Yes | — | Username for the web UI and API basic authentication. |
 | `APP_PASSWORD` | No | — | Password for the web UI and API basic authentication. |
 | `LOCALE` | Yes | `en-GB` | Skill locale (e.g. `en-US`, `de-DE`). |
@@ -43,7 +47,7 @@ Before installing this app you will need:
 
 Once the app is running and your reverse proxy is configured:
 
-1. Open the app web UI at `http://homeassistant:5000/setup` (or via the **Open Web UI** button)
+1. Open the app web UI at `http://homeassistant.local:5000/setup` (or via the **Open Web UI** button)
 2. Click **Start Setup** — the app will create the Alexa skill automatically
 3. Monitor progress in the setup logs shown on the page
 4. Once complete, open the status page at `/status` to verify everything is green
@@ -61,7 +65,7 @@ Example NGINX Proxy Manager:
 | Field | Value |
 |---|---|
 | Scheme | `http` |
-| Forward Hostname | `homeassistant` |
+| Forward Hostname | `homeassistant.local` |
 | Forward Port | `5000` |
 
 If you also want album art and non-APL (no touch screen) device support, your `MA_HOSTNAME` must similarly proxy to Music Assistant's stream port (`8097` by default).
