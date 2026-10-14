@@ -1,10 +1,5 @@
 #!/usr/bin/with-contenv bashio
-
-HOSTNAME_RAW="$(bashio::config 'skill_hostname')"
-
-# Strip leading http:// or https:// from skill_hostname
-SKILL_HOSTNAME="${HOSTNAME_RAW#http://}"
-SKILL_HOSTNAME="${SKILL_HOSTNAME#https://}"
+bashio::log.info "Setting up persistent ASK CLI credential store..."
 
 mkdir -p /data/.ask
 
