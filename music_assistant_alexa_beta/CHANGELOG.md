@@ -3,6 +3,7 @@
 ## v0.0.39-beta4 (2026-10-14)
 
 - Added fix for album art on non-touch devices with a screen (i.e. Echo Spot)
+- Added debug toggle
 - Cleaned up logs and simplified instructions
 - Update ghcr.io/hassio-addons/base Docker tag to v21.0.8
 
