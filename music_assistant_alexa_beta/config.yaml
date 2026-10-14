@@ -9,10 +9,8 @@ arch:
 init: false
 ports:
   5000/tcp: 5000
-  5678/tcp: 5678
 ports_description:
   5000/tcp: "Flask web UI and Alexa skill endpoint"
-  5678/tcp: "Debug port"
 map:
   - data:rw
 webui: http://[HOST]:[PORT:5000]/setup
@@ -28,7 +26,12 @@ schema:
   skill_hostname: str
   ma_hostname: str
   app_username: str
+  enable_apl: bool
   app_password: password
   locale: str
   aws_default_region: str
-  debug: bool
+  ma_api_url: url?
+  ma_api_token: str?
+  skip_url_validation: bool?
+  enable_apl: bool?
+  debug: bool?
