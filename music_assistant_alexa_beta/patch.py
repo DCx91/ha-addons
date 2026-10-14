@@ -1,5 +1,6 @@
 import py_compile
 import re
+import pathlib
 from pathlib import Path
 
 # Adjust these after checking the real layout (see the find command below).
@@ -63,3 +64,26 @@ def _build_metadata(hostname):
 '''
 UTIL.write_text(s)
 py_compile.compile(str(UTIL), doraise=True)  # fail the build on a syntax error
+
+# --- 3. Tidy logs ---
+
+s = APP.read_text()
+
+pattern = re.compile(
+    r"^([ \t]*)app\.logger\.info\('Functional ASK credentials found; suppressing auth UI'\)[ \t]*$",
+    re.M,
+)
+
+def repl(m):
+    i = m.group(1)
+    return (
+        f"{i}if not getattr(app, '_ask_creds_logged', False):\n"
+        f"{i}    app._ask_creds_logged = True\n"
+        f"{i}    app.logger.info('Functional ASK credentials found; suppressing auth UI')"
+    )
+
+s, n = pattern.subn(repl, s)
+assert n == 1, f"expected 1 match for ASK creds log line, got {n}"
+APP.write_text(s)
+
+py_compile.compile(str(APP), doraise=True)
