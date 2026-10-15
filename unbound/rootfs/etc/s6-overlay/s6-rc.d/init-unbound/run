@@ -5,11 +5,11 @@ bashio::log.info "Starting Unbound DNS add-on..."
 # Read options
 LISTEN_PORT=$(bashio::app.port '5335/udp')
 UNBOUND_VERBOSITY=$(bashio::config 'unbound_verbosity')
-DO_IPV6=$(bashio::config 'do_ipv6')
-NUM_THREADS=$(bashio::config 'num_threads')
-CACHE_MIN_TTL=$(bashio::config 'cache_min_ttl')
-CACHE_MAX_TTL=$(bashio::config 'cache_max_ttl')
-NO_PERSIST_CACHE=$(bashio::config 'no_persist_cache')
+DO_IPV6=$(bashio::config 'do_ipv6' 'false')
+NUM_THREADS=$(bashio::config 'num_threads' '1')
+CACHE_MIN_TTL=$(bashio::config 'cache_min_ttl' '0')
+CACHE_MAX_TTL=$(bashio::config 'cache_max_ttl' '86400')
+NO_PERSIST_CACHE=$(bashio::config 'no_persist_cache' 'true')
 
 # Cap threads to CPU core count
 if bashio::config.has_value 'num_threads'; then
@@ -27,9 +27,9 @@ log_output() {
 log_output "Port" "${LISTEN_PORT}"
 log_output "Verbosity" "${UNBOUND_VERBOSITY}"
 log_output "IPv6" "${DO_IPV6}"
-log_output "Threads" "$(bashio::config.has_value 'num_threads' && echo "${NUM_THREADS}" || echo '1')"
-log_output "Min TTL" "$(bashio::config.has_value 'cache_min_ttl' && echo "${CACHE_MIN_TTL}s" || echo '0s')"
-log_output "Max TTL" "$(bashio::config.has_value 'cache_max_ttl' && echo "${CACHE_MAX_TTL}s" || echo '86400s')"
+log_output "Threads" "${NUM_THREADS}"
+log_output "Min TTL" "${CACHE_MIN_TTL}"
+log_output "Max TTL" "${CACHE_MAX_TTL}"
 log_output "Cache persistence" "$([ "${NO_PERSIST_CACHE}" = "true" ] && echo 'disabled' || echo 'enabled')"
 
 # Persistent config directory
@@ -52,15 +52,17 @@ if [ ! -f "${HINTS_FILE}" ] || \
 fi
 
 # Detect the current global IPv6 prefix on the LAN interface
-GUA_PREFIX=""
-NETWORK_INFO=$(curl -s -H "Authorization: Bearer ${SUPERVISOR_TOKEN}" "http://supervisor/network/info" 2>/dev/null || true)
-GUA_ADDR=$(echo "${NETWORK_INFO}" | jq -r '.data.interfaces[].ipv6.address[]?' 2>/dev/null | grep -E '^[23][0-9a-f]{3}:' | head -n1 || true)
+if [ "${DO_IPV6}" = "true" ]; then
+	GUA_PREFIX=""
+	NETWORK_INFO=$(curl -s -H "Authorization: Bearer ${SUPERVISOR_TOKEN}" "http://supervisor/network/info" 2>/dev/null || true)
+	GUA_ADDR=$(echo "${NETWORK_INFO}" | jq -r '.data.interfaces[].ipv6.address[]?' 2>/dev/null | grep -E '^[23][0-9a-f]{3}:' | head -n1 || true)
 
-if [ -n "${GUA_ADDR}" ]; then
-    GUA_PREFIX="${GUA_ADDR%%::*}::/64"
-    bashio::log.info "Detected global IPv6 prefix: ${GUA_PREFIX}"
-else
-    bashio::log.warning "Could not detect a global IPv6 prefix via Supervisor API; IPv6 LAN clients may be refused."
+	if [ -n "${GUA_ADDR}" ]; then
+	    GUA_PREFIX="${GUA_ADDR%%::*}::/64"
+    	bashio::log.info "Detected global IPv6 prefix: ${GUA_PREFIX}"
+	else
+    	bashio::log.warning "Could not detect a global IPv6 prefix via Supervisor API; IPv6 LAN clients may be refused."
+	fi
 fi
 
 OPTIONS_CONF="${CONF_D_DIR}/00-ha-options.conf"
@@ -69,15 +71,13 @@ cat > "${OPTIONS_CONF}" << EOF
 server:
     verbosity: ${UNBOUND_VERBOSITY}
 	port: ${LISTEN_PORT}
+    num-threads: ${NUM_THREADS}
+    cache-min-ttl: ${CACHE_MIN_TTL}
+    cache-max-ttl: ${CACHE_MAX_TTL}
 $([ "${UNBOUND_VERBOSITY}" -ge 3 ] && printf '    log-queries: yes\n    log-replies: yes')
-$([ "${DO_IPV6}" = "false" ] && echo "    do-ip6: no")
-$(bashio::config.has_value 'num_threads' && echo "    num-threads: ${NUM_THREADS}")
-$(bashio::config.has_value 'cache_min_ttl' && echo "    cache-min-ttl: ${CACHE_MIN_TTL}")
-$(bashio::config.has_value 'cache_max_ttl' && echo "    cache-max-ttl: ${CACHE_MAX_TTL}")
-$([ "${DO_IPV6}" = "true" ] && echo "    interface: ::0")
-$([ "${DO_IPV6}" = "true" ] && printf '    access-control: ::1/128 allow\n    access-control: fe80::/10 allow\n    access-control: fd00::/8 allow\n    access-control: %s allow\n' "${GUA_PREFIX}")
+$([ "${DO_IPV6}" = "false" ] && printf "    do-ip6: no")
+$([ "${DO_IPV6}" = "true" ] && printf "    interface: ::0\n    access-control: ::1/128 allow\n    access-control: fe80::/10 allow\n    access-control: fd00::/8 allow\n    access-control: %s allow\n' "${GUA_PREFIX}")
 EOF
-
 
 # Check for existing unbound.conf and use it if found.
 if [ -f "${UNBOUND_CONF}" ]; then
