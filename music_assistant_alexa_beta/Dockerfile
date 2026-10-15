@@ -3,7 +3,7 @@ ARG BUILD_FROM=ghcr.io/hassio-addons/base:21.0.8
 # ASK-CLI builder
 FROM ${BUILD_FROM} AS ask-cli-builder
 RUN apk add --no-cache nodejs npm
-RUN npm install -g ask-cli
+RUN npm install --loglevel=error -g ask-cli 
 
 # Alexa skill assets
 FROM ghcr.io/alams154/music-assistant-skill:0.0.39-beta AS alexa-skill
