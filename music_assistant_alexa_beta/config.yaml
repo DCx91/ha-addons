@@ -32,7 +32,7 @@ schema:
   aws_default_region: str
   skill_id: str?
   ma_api_url: url?
-  ma_api_token: str?
+  ma_api_token: password?
   skip_url_validation: bool?
   enable_apl: bool?
   debug: bool?
