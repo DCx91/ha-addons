@@ -1,8 +1,48 @@
 #!/usr/bin/with-contenv bashio
 export TZ=$(bashio::info.timezone)
-export AWS_DEFAULT_REGION=$(bashio::config 'AWS_DEFAULT_REGION')
+export AWS_DEFAULT_REGION=$(bashio::config 'aws_default_region')
 export PORT=$(bashio::app.port '5000/tcp')
+export LOCALE=$(bashio::config 'locale')
+export SKILL_HOSTNAME=$(bashio::config 'skill_hostname')
+bashio::config.true 'skip_url_validation' && export SKIP_URL_VALIDATION=true
+bashio::config.true 'debug' && export FLASK_DEBUG=1
 
-bashio::log.info "Starting Alexa Skill application using port ${PORT}..."
+# Set SKILL_ID
+if bashio::config.has_value 'skill_id'; then
+    export SKILL_ID="$(bashio::config 'skill_id')"
+elif [[ -s /data/skill_id ]]; then
+    export SKILL_ID="$(< /data/skill_id)"
+    bashio::app.option 'skill_id' "${SKILL_ID}"
+else
+    bashio::log.warning "Skill ID unset. Skill requests may fail verification until the skill is created and the app is restarted."
+fi
 
+# Strip a leading http:// or https:// from ma_hostname. Added in later, so protects against malformed links.
+HOSTNAME_RAW="$(bashio::config 'ma_hostname')"
+MA_HOSTNAME="${HOSTNAME_RAW#http://}"
+MA_HOSTNAME="${MA_HOSTNAME#https://}"
+export MA_HOSTNAME
+
+# APL config. Might be unnecessary, but added it anyway.
+if bashio::config.true 'enable_apl'; then
+    if bashio::config.has_value 'ma_hostname'; then
+        bashio::log.warning "APL may cause issues with playback, disable if necessary."
+        export ENABLE_APL=true
+    else
+        bashio::log.warning "APL requires Music Assistant hostname to be set. Falling back to disabled."
+        export ENABLE_APL=false
+    fi
+else
+    export ENABLE_APL=false
+fi
+
+# API & token to enable voice controlled next/previous song
+if bashio::config.has_value 'ma_api_url' && bashio::config.has_value 'ma_api_token'; then
+    export MA_API_URL="$(bashio::config 'ma_api_url')"
+    export MA_API_TOKEN="$(bashio::config 'ma_api_token')"
+elif bashio::config.has_value 'ma_api_url' || bashio::config.has_value 'ma_api_token'; then
+    bashio::log.warning "Both 'ma_api_url' and 'ma_api_token' are required. Skipping."
+fi
+
+bashio::log.info "Starting Alexa skill app on port ${PORT}..."
 exec /app/venv/bin/python /app/app/app.py
