@@ -2,8 +2,8 @@
 
 ## v0.0.39-beta4 (2026-10-14)
 
-- Added fix for album art on non-touch devices with a screen (i.e. Echo Spot)
-- Added debug toggle
+- Added fix for album art
+- Added new config options for latest upstream changes
 - Cleaned up logs and simplified instructions
 - Update ghcr.io/hassio-addons/base Docker tag to v21.0.8
 
@@ -11,7 +11,6 @@
 
 - Installed ask-cli in builder image and copied over to remove NPM dependency from final image.
 - Update ghcr.io/hassio-addons/base Docker tag to v21.0.3 (#37)
-- Update ghcr.io/hassio-addons/base Docker tag to v21.0.1 (#32)
 
 ## v0.0.39-beta2.1 (2026-07-06)
 
