@@ -2,13 +2,14 @@ configuration:
   do_ipv6:
     name: Enable IPv6
     description: >-
-      Allow Unbound to listen and resolve over IPv6. 
-      Disable if your network has no IPv6.
+      Enable DNS queries to upstream DNS servers over IPv6.
+      IPv6 addresses can still be resolved when disabled.
+      Disable if your network does not support IPv6 connectivity.
   unbound_verbosity:
     name: Verbosity
     description: >-
-      Logging verbosity. https://unbound.docs.nlnetlabs.nl/en/latest/manpages/unbound.conf.html#unbound-conf-verbosity
-      Levels 3+ may significantly affect performance.
+      Logging verbosity.Levels 3+ may significantly affect performance.
+      See: https://unbound.docs.nlnetlabs.nl/en/latest/manpages/unbound.conf.html#unbound-conf-verbosity
   cache_min_ttl:
     name: Cache Minimum TTL (seconds)
     description: >-
