@@ -1,45 +1,32 @@
 import py_compile
 import re
-import pathlib
 from pathlib import Path
 
 APP = Path("app/app.py")
 UTIL = Path("app/skill/util.py")
 
-# --- 1. Restrict the login-URL regexes in app.py ---
-s = APP.read_text()
-old = r'''(https?://[^\s'\"]+)'''
-new = r'''(https://www\.amazon\.com/ap/oa[^\s'\"]+)'''
-assert s.count(old) == 2, f"app.py: expected 2 matches, found {s.count(old)}"
-APP.write_text(s.replace(old, new))
+def read(p: Path) -> str:
+    return p.read_text(encoding="utf-8")
 
-# --- 2. Send AudioItemMetadata for non-APL devices ---
-s = UTIL.read_text()
+def write(p: Path, s: str) -> None:
+    p.write_text(s, encoding="utf-8")
 
-for name in ("AudioItemMetadata", "replace_ip_in_url", "import logging"):
-    assert name in s, f"util.py: expected to find {name!r}"
+def replace_exact(s, old, new, expected, label):
+    n = s.count(old)
+    assert n == expected, f"{label}: expected {expected} match(es), found {n}"
+    return s.replace(old, new)
 
-pattern = re.compile(
-    r"^(?P<outer>[ \t]*)audio_item=AudioItem\(\n(?P<inner>[ \t]*)stream=Stream\(",
-    re.M,
-)
+def sub_exact(s, pattern, repl, label, expected=1, flags=0):
+    s, n = re.subn(pattern, repl, s, flags=flags)
+    assert n == expected, f"{label}: expected {expected} match(es), found {n}"
+    return s
 
-head, sep, tail = s.partition("\ndef play_later(")
-assert sep, "util.py: def play_later( not found"
-assert len(pattern.findall(head)) == 1, (
-    f"util.py: expected 1 AudioItem anchor in play(), found {len(pattern.findall(head))}"
-)
-head = pattern.sub(
-    lambda m: (
-        f"{m['outer']}audio_item=AudioItem(\n"
-        f"{m['inner']}metadata=_build_metadata(hostname),\n"
-        f"{m['inner']}stream=Stream("
-    ),
-    head,
-)
-s = head + sep + tail
+def find_one(root, name):
+    matches = list(Path(root).rglob(name))
+    assert len(matches) == 1, f"Expected 1 {name}, found {len(matches)}: {matches}"
+    return matches[0]
 
-s += '''
+METADATA_HELPER = '''
 
 def _build_metadata(hostname):
     info = data.info
@@ -61,76 +48,88 @@ def _build_metadata(hostname):
         logging.exception("Failed to build audio metadata")
         return None
 '''
-UTIL.write_text(s)
-py_compile.compile(str(UTIL), doraise=True)  # fail the build on a syntax error
 
-# --- 3. Tidy logs ---
-
-s = APP.read_text()
-
-pattern = re.compile(
+ASK_CREDS_LOG = re.compile(
     r"^([ \t]*)app\.logger\.info\('Functional ASK credentials found; suppressing auth UI'\)[ \t]*$",
     re.M,
 )
 
-def repl(m):
-    i = m.group(1)
-    return (
-        f"{i}if not getattr(app, '_ask_creds_logged', False):\n"
-        f"{i}    app._ask_creds_logged = True\n"
-        f"{i}    app.logger.info('Functional ASK credentials found; suppressing auth UI')"
-    )
-
-s, n = pattern.subn(repl, s)
-assert n == 1, f"expected 1 match for ASK creds log line, got {n}"
-APP.write_text(s)
-
-py_compile.compile(str(APP), doraise=True)
-
-# --- 4. Fix cryptography deprecation warning ---
-
-matches = list(Path("/app").rglob("ask_sdk_webservice_support/verifier.py"))
-assert len(matches) == 1, f"Expected 1 verifier.py, found {len(matches)}: {matches}"
-
-VERIFIER = matches[0]
-s = VERIFIER.read_text()
-
-s, n = re.subn(r"x509_cert\.not_valid_(before|after)\b", r"x509_cert.not_valid_\1_utc", s)
-assert n >= 2, f"Expected at least 2 deprecated references, found {n}"
-
-head, sep, tail = s.partition("def _validate_end_certificate")
-assert sep, "_validate_end_certificate not found"
-body, sep2, rest = tail.partition("\n    def ")
-
-NOW_OLD = "datetime.utcnow()"
-assert body.count(NOW_OLD) == 1, f"Expected 1 utcnow() in that function, found {body.count(NOW_OLD)}"
-body = body.replace(NOW_OLD, "datetime.now(__import__('datetime').timezone.utc)")
-
-VERIFIER.write_text(head + sep + body + sep2 + rest)
-py_compile.compile(str(VERIFIER), doraise=True)
-
-# --- 5. Persist the skill ID to /data/skill_id ---
-
-matches = list(Path("/app").rglob("ask_create_skill.sh"))
-assert len(matches) == 1, (
-    f"Expected 1 ask_create_skill.sh, found {len(matches)}: {matches}"
-)
-
-ASK_SCRIPT = matches[0]
-s = ASK_SCRIPT.read_text()
-
-if "/data/skill_id" not in s:
-    SNIPPET = '''
-# Persist the skill ID so the add-on can load it on later starts
+SKILL_ID_SNIPPET = '''
 case "$SKILL_ID" in
   amzn1.ask.skill.*) printf '%s' "$SKILL_ID" > /data/skill_id || echo "WARNING: could not write /data/skill_id" >&2 ;;
 esac
 '''
-    pattern = re.compile(
-        r'(echo "Rebuilt existing skill: \$SKILL_ID"[ \t]*\n[ \t]*fi[ \t]*(?:\n|$))'
+
+# --- app.py: Restrict login-URL regexes, only log the ASK-creds line once ---
+app = read(APP)
+app = replace_exact(
+    app,
+    r'''(https?://[^\s'\"]+)''',
+    r'''(https://www\.amazon\.com/ap/oa[^\s'\"]+)''',
+    expected=2, label="app.py login-URL regex",
+)
+app = sub_exact(
+    app, ASK_CREDS_LOG,
+    lambda m: (
+        f"{m[1]}if not getattr(app, '_ask_creds_logged', False):\n"
+        f"{m[1]}    app._ask_creds_logged = True\n"
+        f"{m[1]}    app.logger.info('Functional ASK credentials found; suppressing auth UI')"
+    ),
+    label="ASK creds log line",
+)
+write(APP, app)
+py_compile.compile(str(APP), doraise=True)
+
+# --- util.py: Send AudioItemMetadata ---
+util = read(UTIL)
+for name in ("AudioItemMetadata", "replace_ip_in_url", "import logging", "data", "hostname"):
+    assert name in util, f"util.py: expected to find {name!r}"
+
+head, sep, tail = util.partition("\ndef play_later(")
+assert sep, "util.py: def play_later( not found"
+head = sub_exact(
+    head,
+    r"^(?P<outer>[ \t]*)audio_item=AudioItem\(\n(?P<inner>[ \t]*)stream=Stream\(",
+    lambda m: (
+        f"{m['outer']}audio_item=AudioItem(\n"
+        f"{m['inner']}metadata=_build_metadata(hostname),\n"
+        f"{m['inner']}stream=Stream("
+    ),
+    label="AudioItem anchor in play()", flags=re.M,
+)
+write(UTIL, head + sep + tail + METADATA_HELPER)
+py_compile.compile(str(UTIL), doraise=True)
+
+# --- Cryptography deprecation fixes in the ASK SDK verifier ---
+VERIFIER = find_one("/app", "ask_sdk_webservice_support/verifier.py")
+v = read(VERIFIER)
+v = sub_exact(
+    v, r"x509_cert\.not_valid_(before|after)\b", r"x509_cert.not_valid_\1_utc",
+    label="deprecated not_valid_*", expected=2,
+) if len(re.findall(r"x509_cert\.not_valid_(?:before|after)\b", v)) == 2 else \
+    sub_exact(v, r"x509_cert\.not_valid_(before|after)\b",
+              r"x509_cert.not_valid_\1_utc", label="deprecated not_valid_*",
+              expected=len(re.findall(r"x509_cert\.not_valid_(?:before|after)\b", v)))
+
+head, sep, tail = v.partition("def _validate_end_certificate")
+assert sep, "_validate_end_certificate not found"
+body, sep2, rest = tail.partition("\n    def ")
+body = replace_exact(
+    body, "datetime.utcnow()",
+    "datetime.now(__import__('datetime').timezone.utc)",
+    expected=1, label="utcnow() in _validate_end_certificate",
+)
+write(VERIFIER, head + sep + body + sep2 + rest)
+py_compile.compile(str(VERIFIER), doraise=True)
+
+# --- Persist skill ID to /data/skill_id ---
+ASK_SCRIPT = find_one("/app", "ask_create_skill.sh")
+sh = read(ASK_SCRIPT)
+if "/data/skill_id" not in sh:
+    sh = sub_exact(
+        sh,
+        r'(echo "Rebuilt existing skill: \$SKILL_ID"[ \t]*\n[ \t]*fi[ \t]*(?:\n|$))',
+        lambda m: m.group(1) + SKILL_ID_SNIPPET,
+        label="ask_create_skill.sh anchor",
     )
-    assert len(pattern.findall(s)) == 1, (
-        f"ask_create_skill.sh: expected 1 anchor, found {len(pattern.findall(s))}"
-    )
-    s = pattern.sub(lambda m: m.group(1) + SNIPPET, s, count=1)
-    ASK_SCRIPT.write_text(s)
+    write(ASK_SCRIPT, sh)
