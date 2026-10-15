@@ -8,22 +8,19 @@ bashio::config.true 'skip_url_validation' && export SKIP_URL_VALIDATION=true
 bashio::config.true 'debug' && export FLASK_DEBUG=1
 
 # Set SKILL_ID
-if [[ -z "$SKILL_ID" ]]; then
-    SKILL_FILE=(/app/tmp/enable_testing_amzn1.ask.skill.*.txt)
-
-    if [[ -f "${SKILL_FILE[0]}" ]]; then
-        SKILL_ID="${SKILL_FILE[0]##*/}"
-        SKILL_ID="${SKILL_ID#enable_testing_}"
-        SKILL_ID="${SKILL_ID%.txt}"
-        export SKILL_ID
-    fi
+if bashio::config.has_value 'skill_id'; then
+    export SKILL_ID="$(bashio::config 'skill_id')"
+elif [[ -s /data/skill_id ]]; then
+    export SKILL_ID="$(< /data/skill_id)"
+    bashio::app.option 'skill_id' "${SKILL_ID}"
+else
+    bashio::log.warning "Skill ID unset. Skill requests may fail verification until the skill is created and the app is restarted."
 fi
 
 # Strip a leading http:// or https:// from ma_hostname. Added in later, so protects against malformed links.
 HOSTNAME_RAW="$(bashio::config 'ma_hostname')"
 MA_HOSTNAME="${HOSTNAME_RAW#http://}"
 MA_HOSTNAME="${MA_HOSTNAME#https://}"
-
 export MA_HOSTNAME
 
 # APL config. Might be unnecessary, but added it anyway.
@@ -47,5 +44,5 @@ elif bashio::config.has_value 'ma_api_url' || bashio::config.has_value 'ma_api_t
     bashio::log.warning "Both 'ma_api_url' and 'ma_api_token' are required. Skipping."
 fi
 
-bashio::log.info "Starting Alexa skill application on port ${PORT}..."
+bashio::log.info "Starting Alexa skill app on port ${PORT}..."
 exec /app/venv/bin/python /app/app/app.py
