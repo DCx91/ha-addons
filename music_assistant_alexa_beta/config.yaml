@@ -30,6 +30,7 @@ schema:
   app_password: password
   locale: str
   aws_default_region: str
+  skill_id: str?
   ma_api_url: url?
   ma_api_token: str?
   skip_url_validation: bool?
