@@ -4,20 +4,17 @@ bashio::log.info "Starting Unbound DNS add-on..."
 
 # Read options
 LISTEN_PORT=$(bashio::app.port '5335/udp')
-UNBOUND_VERBOSITY=$(bashio::config 'unbound_verbosity')
+UNBOUND_VERBOSITY=$(bashio::config 'unbound_verbosity' '1')
 DO_IPV6=$(bashio::config 'do_ipv6' 'false')
 NUM_THREADS=$(bashio::config 'num_threads' '1')
 CACHE_MIN_TTL=$(bashio::config 'cache_min_ttl' '0')
 CACHE_MAX_TTL=$(bashio::config 'cache_max_ttl' '86400')
-NO_PERSIST_CACHE=$(bashio::config 'no_persist_cache' 'true')
 
 # Cap threads to CPU core count
-if bashio::config.has_value 'num_threads'; then
-	MAX_THREADS=$(nproc)
-	if [ "${NUM_THREADS}" -gt "${MAX_THREADS}" ]; then
-		bashio::log.warning "num_threads (${NUM_THREADS}) exceeds available CPU cores (${MAX_THREADS}), capping to ${MAX_THREADS}."
-		NUM_THREADS=${MAX_THREADS}
-	fi
+MAX_THREADS=$(nproc)
+if [ "${NUM_THREADS}" -gt "${MAX_THREADS}" ]; then
+	bashio::log.warning "num_threads (${NUM_THREADS}) exceeds available CPU cores (${MAX_THREADS}), capping to ${MAX_THREADS}."
+	NUM_THREADS=${MAX_THREADS}
 fi
 
 log_output() {
@@ -30,64 +27,70 @@ log_output "IPv6" "${DO_IPV6}"
 log_output "Threads" "${NUM_THREADS}"
 log_output "Min TTL" "${CACHE_MIN_TTL}"
 log_output "Max TTL" "${CACHE_MAX_TTL}"
-log_output "Cache persistence" "$([ "${NO_PERSIST_CACHE}" = "true" ] && echo 'disabled' || echo 'enabled')"
+log_output "Cache persistence" "$(bashio::config.true 'no_persist_cache' && echo 'disabled' || echo 'enabled')"
 
 # Persistent config directory
 CONFIG_DIR="/config"
-UNBOUND_CONF="${CONFIG_DIR}/unbound.conf"
 CONF_D_DIR="${CONFIG_DIR}/conf.d"
 ZONES_DIR="${CONFIG_DIR}/zones"
-ROOT_KEY="/etc/unbound/root.key"
 HINTS_FILE="/etc/unbound/root.hints"
+OPTIONS_CONF="${CONF_D_DIR}/00-ha-options.conf"
+ROOT_KEY="/etc/unbound/root.key"
+UNBOUND_CONF="${CONFIG_DIR}/unbound.conf"
 
 mkdir -p "${CONF_D_DIR}" "${ZONES_DIR}"
 
 # Refresh root hints if older than 7 days
-if [ ! -f "${HINTS_FILE}" ] || \
-	[ "$(find "${HINTS_FILE}" -mtime +7 | wc -l)" -gt 0 ]; then
+if ! bashio::fs.file_exists "${HINTS_FILE}" || [ -n "$(find "${HINTS_FILE}" -mtime +7)" ]; then
+	if bashio::network.supervisor_internet || bashio::network.host_internet; then
 		bashio::log.info "Refreshing root hints..."
-		curl -sSL "https://www.internic.net/domain/named.root" \
-		-o "${HINTS_FILE}" \
+		curl -fsSL "https://www.internic.net/domain/named.root" -o "${HINTS_FILE}" \
 		|| bashio::log.warning "Could not refresh root hints; using cached copy."
+	fi
 fi
 
 # Detect the current global IPv6 prefix on the LAN interface
 if [ "${DO_IPV6}" = "true" ]; then
-	GUA_PREFIX=""
-	NETWORK_INFO=$(curl -s -H "Authorization: Bearer ${SUPERVISOR_TOKEN}" "http://supervisor/network/info" 2>/dev/null || true)
-	GUA_ADDR=$(echo "${NETWORK_INFO}" | jq -r '.data.interfaces[].ipv6.address[]?' 2>/dev/null | grep -E '^[23][0-9a-f]{3}:' | head -n1 || true)
-
-	if [ -n "${GUA_ADDR}" ]; then
-	    GUA_PREFIX="${GUA_ADDR%%::*}::/64"
-    	bashio::log.info "Detected global IPv6 prefix: ${GUA_PREFIX}"
-	else
-    	bashio::log.warning "Could not detect a global IPv6 prefix via Supervisor API; IPv6 LAN clients may be refused."
-	fi
+    GUA_ADDR=$(bashio::network.ipv6_address 2>/dev/null | grep -E '^[23][0-9a-f]{3}:' | head -n1 || true)
+    if [ -n "${GUA_ADDR}" ]; then
+        bashio::log.info "Detected global IPv6 address: ${GUA_ADDR}"
+    else
+        bashio::log.warning "Could not detect a global IPv6 address via Supervisor API; IPv6 LAN clients may be refused."
+    fi
 fi
 
-OPTIONS_CONF="${CONF_D_DIR}/00-ha-options.conf"
-cat > "${OPTIONS_CONF}" << EOF
-# Home Assistant GUI config options
+# Config changed in UI
+EXTRA=""
+if bashio::config.true 'do_ipv6'; then
+    EXTRA+=$'    interface: ::0\n'
+    EXTRA+=$'    access-control: ::1/128 allow\n'
+    EXTRA+=$'    access-control: fe80::/10 allow\n'
+    EXTRA+=$'    access-control: fd00::/8 allow\n'
+    [[ -n "${GUA_ADDR:-}" ]] && EXTRA+="    access-control: ${GUA_ADDR} allow"$'\n'
+else
+    EXTRA+=$'    do-ip6: no\n'
+fi
+(( UNBOUND_VERBOSITY >= 3 )) && EXTRA+=$'    log-queries: yes\n    log-replies: yes\n'
+
+cat > "${OPTIONS_CONF}" <<EOF
 server:
     verbosity: ${UNBOUND_VERBOSITY}
-	port: ${LISTEN_PORT}
+    port: ${LISTEN_PORT}
     num-threads: ${NUM_THREADS}
     cache-min-ttl: ${CACHE_MIN_TTL}
     cache-max-ttl: ${CACHE_MAX_TTL}
-$([ "${UNBOUND_VERBOSITY}" -ge 3 ] && printf '    log-queries: yes\n    log-replies: yes')
-$([ "${DO_IPV6}" = "false" ] && printf "    do-ip6: no")
-$([ "${DO_IPV6}" = "true" ] && printf "    interface: ::0\n    access-control: ::1/128 allow\n    access-control: fe80::/10 allow\n    access-control: fd00::/8 allow\n    access-control: %s allow\n' "${GUA_PREFIX}")
+${EXTRA}
 EOF
 
 # Check for existing unbound.conf and use it if found.
-if [ -f "${UNBOUND_CONF}" ]; then
+if bashio::fs.file_exists "${UNBOUND_CONF}"; then
 	bashio::log.info "Existing unbound.conf found, validating..."
 	if CHECKCONF_OUTPUT=$(unbound-checkconf "${UNBOUND_CONF}" 2>&1); then
 		bashio::log.info "Existing configuration validated. Will use that."
 		exit 0
 	else
 		bashio::log.warning "Existing unbound.conf is invalid, regenerating..."
-		echo "${CHECKCONF_OUTPUT}"
+		bashio::log.warning "${CHECKCONF_OUTPUT}"
 	fi
 fi
 
@@ -175,9 +178,8 @@ bashio::log.info "Validating configuration..."
 if CHECKCONF_OUTPUT=$(unbound-checkconf "${UNBOUND_CONF}" 2>&1); then
     bashio::log.info "Configuration validated."
 else
-    bashio::log.fatal "Unbound configuration is invalid."
-    echo "${CHECKCONF_OUTPUT}"
-    exit 1
+    bashio::log.error "${CHECKCONF_OUTPUT}"
+    bashio::exit.nok "Unbound configuration is invalid."
 fi
 
-exit 0
+bashio::exit.ok
