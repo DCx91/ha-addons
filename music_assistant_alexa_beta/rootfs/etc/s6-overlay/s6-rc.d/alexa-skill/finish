@@ -1,20 +1,34 @@
 #!/usr/bin/with-contenv bashio
 
-EXIT_CODE="${1}"
-SIGNAL="${2}"
+EXIT_CODE="${1:-0}"
+SIGNAL="${2:-0}"
+RESULT_FILE="/run/s6-linux-init-container-results/exitcode"
 
-if [ "${EXIT_CODE}" -eq 137 ]; then
-    bashio::log.info "alexa-skill: stopped by container shutdown (code 137)"
-    echo "0" > /run/s6-linux-init-container-results/exitcode
+set_container_exit() {
+    echo "$1" > "${RESULT_FILE}"
+}
 
-elif [ "${EXIT_CODE}" -eq 256 ]; then
-    bashio::log.error "alexa-skill: killed by signal ${SIGNAL}"
-    echo "$((128 + SIGNAL))" > /run/s6-linux-init-container-results/exitcode
-
-elif [ "${EXIT_CODE}" -ne 0 ]; then
-    bashio::log.error "alexa-skill: exited with non-zero code ${EXIT_CODE}"
-    echo "${EXIT_CODE}" > /run/s6-linux-init-container-results/exitcode
-
-else
-    bashio::log.info "alexa-skill: exited cleanly (code 0)"
-fi
+case "${EXIT_CODE}" in
+    0)
+        bashio::log.info "Alexa skill: exited cleanly (code 0)"
+        ;;
+    137)
+        bashio::log.info "Alexa skill: stopped by container shutdown (code 137)"
+        set_container_exit 0
+        ;;
+    256)
+        SIGNAME=$(kill -l "${SIGNAL}" 2>/dev/null || echo "?")
+        if [ "${SIGNAL}" -eq 15 ]; then
+            # SIGTERM is how s6 asks a service to stop, so it is not a failure
+            bashio::log.info "Alexa skill: stopped by SIGTERM"
+            set_container_exit 0
+        else
+            bashio::log.error "Alexa skill: killed by signal ${SIGNAL} (${SIGNAME})"
+            set_container_exit "$((128 + SIGNAL))"
+        fi
+        ;;
+    *)
+        bashio::log.error "Alexa skill: exited with non-zero code ${EXIT_CODE}"
+        set_container_exit "${EXIT_CODE}"
+        ;;
+esac
