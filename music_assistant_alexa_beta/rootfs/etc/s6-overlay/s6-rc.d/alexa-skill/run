@@ -10,7 +10,7 @@ bashio::config.true 'debug' && export FLASK_DEBUG=1
 # Set SKILL_ID
 if bashio::config.has_value 'skill_id'; then
     export SKILL_ID="$(bashio::config 'skill_id')"
-elif [[ -s /data/skill_id ]]; then
+elif bashio::fs.file_non_empty '/data/skill_id'; then
     export SKILL_ID="$(< /data/skill_id)"
     bashio::app.option 'skill_id' "${SKILL_ID}"
 else
