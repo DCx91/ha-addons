@@ -5,7 +5,7 @@
 
 [![Home Assistant](https://img.shields.io/badge/Home%20Assistant-App-41BDF5?logo=home-assistant&logoColor=white)](https://www.home-assistant.io/)
 [![Alpine Linux](https://img.shields.io/badge/Alpine%20Linux-3.24-0D597F?logo=alpine-linux&logoColor=white)](https://alpinelinux.org/)
-[![Unbound](https://img.shields.io/badge/Unbound-1.25.1-00897B)](https://nlnetlabs.nl/projects/unbound/about/)
+[![Unbound](https://img.shields.io/badge/Unbound-1.25.2-00897B)](https://nlnetlabs.nl/projects/unbound/about/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 ---
