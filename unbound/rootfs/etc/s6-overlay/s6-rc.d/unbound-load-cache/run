@@ -1,16 +1,37 @@
 #!/usr/bin/with-contenv bashio
 
-if bashio::config.false 'no_persist_cache'; then
-    if [ -f "/config/unbound_cache.dump" ]; then
-        bashio::log.info "Waiting for Unbound control socket..."
-        until [ -S /config/unbound.control.sock ]; do sleep 0.5; done
-        bashio::log.info "Loading cache..."
-        unbound-control -c /config/unbound.conf load_cache < /config/unbound_cache.dump \
-            && bashio::log.info "Cache loaded successfully." \
-            || bashio::log.warning "Cache import failed - unbound-control returned an error."
-    else
-        bashio::log.warning "Cache import skipped - no cache file found at /config/unbound_cache.dump."
-    fi
+CACHE_DUMP="/config/unbound_cache.dump"
+UNBOUND_CONF="/config/unbound.conf"
+READY_TIMEOUT=60   # seconds
+
+# Only act when cache persistence is explicitly enabled
+bashio::config.false 'no_persist_cache' || bashio::exit.ok
+
+if ! bashio::fs.file_non_empty "${CACHE_DUMP}"; then
+    bashio::log.warning "Cache import skipped - no cache file found at ${CACHE_DUMP}."
+    bashio::exit.ok
 fi
-exit 0
-    
+
+bashio::log.info "Waiting for Unbound to accept control commands..."
+ready=false
+for ((i = 0; i < READY_TIMEOUT * 2; i++)); do
+    if unbound-control -c "${UNBOUND_CONF}" status > /dev/null 2>&1; then
+        ready=true
+        break
+    fi
+    sleep 0.5
+done
+
+if [ "${ready}" != "true" ]; then
+    bashio::log.warning "Cache import skipped - Unbound not ready after ${READY_TIMEOUT}s."
+    bashio::exit.ok
+fi
+
+bashio::log.info "Loading cache..."
+if unbound-control -c "${UNBOUND_CONF}" load_cache < "${CACHE_DUMP}" > /dev/null; then
+    bashio::log.info "Cache loaded successfully."
+else
+    bashio::log.warning "Cache import failed - unbound-control returned an error."
+fi
+
+bashio::exit.ok
