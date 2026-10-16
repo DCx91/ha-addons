@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.25.2-R2 (2026-10-16S)
+
+- Simplified run script
+- Fix global IPv6 address retrieval
+- Update ghcr.io/hassio-addons/base Docker tag to v21.0.8
+
 ## v1.25.2-R1 (2026-08-10)
 
 - Update ghcr.io/hassio-addons/base Docker tag to v21.0.1 (#32)
