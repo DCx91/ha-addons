@@ -5,7 +5,7 @@ mkdir -p /data/.ask
 
 if [ -L /root/.ask ]; then
     bashio::log.debug "/root/.ask symlink already present, skipping."
-elif [ -d /root/.ask ]; then
+elif bashio::fs.directory_exists "/root/.ask"; then
     bashio::log.info "Migrating existing /root/.ask into /data/.ask..."
     cp -a /root/.ask/. /data/.ask/ 2>/dev/null || true
     rm -rf /root/.ask
@@ -15,3 +15,4 @@ else
 fi
 
 bashio::log.info "Successfully linked /root/.ask -> /data/.ask. Credentials will persist across restarts."
+bashio::exit.ok
