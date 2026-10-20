@@ -2,11 +2,13 @@
 
 UNBOUND_CONF="/config/unbound.conf"
 CACHE_DUMP="/config/unbound_cache.dump"
-INTERVAL=600       # seconds between dumps
-DUMP_TIMEOUT=30    # seconds before an individual dump is abandoned
+INTERVAL=600
+DUMP_TIMEOUT=30
 
 if ! bashio::config.true 'persist_cache'; then
-    while true; do sleep 3600; done
+    bashio::log.info "Cache persistence disabled; not running."
+    s6-svc -O .
+    bashio::exit.ok
 fi
 
 dump_cache() {
