@@ -1,6 +1,5 @@
 #!/usr/bin/with-contenv bashio
-set -e
-bashio::log.info "Starting Unbound DNS add-on..."
+bashio::log.info "Starting Unbound DNS..."
 
 # Read options
 LISTEN_PORT=$(bashio::app.port '5335/udp')
@@ -53,7 +52,7 @@ fi
 if [ "${DO_IPV6}" = "true" ]; then
     GUA_ADDR=$(bashio::network.ipv6_address 2>/dev/null | grep -E '^[23][0-9a-f]{3}:' | head -n1 || true)
     if [ -n "${GUA_ADDR}" ]; then
-        bashio::log.info "Detected global IPv6 address: ${GUA_ADDR}"
+		log_output "IPv6 address" "${GUA_ADDR}"
     else
         bashio::log.warning "Could not detect a global IPv6 address via Supervisor API; IPv6 LAN clients may be refused."
     fi
@@ -61,7 +60,7 @@ fi
 
 # Config changed in UI
 EXTRA=""
-if bashio::config.true 'do_ipv6'; then
+if [ "${DO_IPV6}" = "true" ]; then
     EXTRA+=$'    interface: ::0\n'
     EXTRA+=$'    access-control: ::1/128 allow\n'
     EXTRA+=$'    access-control: fe80::/10 allow\n'
