@@ -1,37 +1,39 @@
 #!/usr/bin/with-contenv bashio
 
-CACHE_DUMP="/config/unbound_cache.dump"
 UNBOUND_CONF="/config/unbound.conf"
-READY_TIMEOUT=60   # seconds
+CACHE_DUMP="/config/unbound_cache.dump"
+INTERVAL=600
+DUMP_TIMEOUT=30
 
-# Only act when cache persistence is explicitly enabled
-bashio::config.false 'no_persist_cache' || bashio::exit.ok
-
-if ! bashio::fs.file_non_empty "${CACHE_DUMP}"; then
-    bashio::log.warning "Cache import skipped - no cache file found at ${CACHE_DUMP}."
+if ! bashio::config.true 'persist_cache'; then
+    bashio::log.info "Cache persistence disabled; not running."
+    s6-svc -O .
     bashio::exit.ok
 fi
 
-bashio::log.info "Waiting for Unbound to accept control commands..."
-ready=false
-for ((i = 0; i < READY_TIMEOUT * 2; i++)); do
-    if unbound-control -c "${UNBOUND_CONF}" status > /dev/null 2>&1; then
-        ready=true
-        break
+dump_cache() {
+    local tmp="${CACHE_DUMP}.tmp"
+
+    # Skip if Unbound isn't responding
+    if ! unbound-control -c "${UNBOUND_CONF}" status > /dev/null 2>&1; then
+        bashio::log.debug "Cache dump skipped - Unbound not responding."
+        return 0
     fi
-    sleep 0.5
+
+    # Write to a temp file and move it on success
+    if timeout "${DUMP_TIMEOUT}" unbound-control -c "${UNBOUND_CONF}" dump_cache > "${tmp}" \
+        && bashio::fs.file_non_empty "${tmp}"; then
+        mv "${tmp}" "${CACHE_DUMP}"
+        bashio::log.debug "Cache saved to ${CACHE_DUMP}."
+    else
+        rm -f "${tmp}"
+        bashio::log.warning "Cache dump failed or timed out; keeping previous dump."
+    fi
+}
+
+bashio::log.info "Saving the cache every ${INTERVAL} seconds."
+
+while true; do
+    sleep "${INTERVAL}"
+    dump_cache
 done
-
-if [ "${ready}" != "true" ]; then
-    bashio::log.warning "Cache import skipped - Unbound not ready after ${READY_TIMEOUT}s."
-    bashio::exit.ok
-fi
-
-bashio::log.info "Loading cache..."
-if unbound-control -c "${UNBOUND_CONF}" load_cache < "${CACHE_DUMP}" > /dev/null; then
-    bashio::log.info "Cache loaded successfully."
-else
-    bashio::log.warning "Cache import failed - unbound-control returned an error."
-fi
-
-bashio::exit.ok

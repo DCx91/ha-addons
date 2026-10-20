@@ -24,9 +24,8 @@ configuration:
     description: >-
       Maximum time a DNS record stays cached, even if its own TTL is longer.
       Default: 86400 (24 hours).
-  no_persist_cache:
-    name: Disable cache persistence
+  persist_cache:
+    name: Enable cache persistence
     description: >-
-      When enabled (the default), the cache starts empty after every restart.
-      Disable this option to save the cache when the app stops and reload it
-      when the app starts, so lookups stay fast after a restart.
+      When disabled (the default), the cache starts empty after every restart.
+      Enable this option to save the cache to disk, then load it back on startup.
