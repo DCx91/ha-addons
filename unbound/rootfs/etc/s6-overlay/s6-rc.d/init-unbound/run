@@ -27,7 +27,7 @@ log_output "IPv6" "${DO_IPV6}"
 log_output "Threads" "${NUM_THREADS}"
 log_output "Min TTL" "${CACHE_MIN_TTL}"
 log_output "Max TTL" "${CACHE_MAX_TTL}"
-log_output "Cache persistence" "$(bashio::config.true 'no_persist_cache' && echo 'disabled' || echo 'enabled')"
+log_output "Cache persistence" "$(bashio::config.true 'persist_cache' && echo 'enabled' || echo 'disabled')"
 
 # Persistent config directory
 CONFIG_DIR="/config"
