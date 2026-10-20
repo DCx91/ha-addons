@@ -2,7 +2,6 @@
 bashio::log.info "Starting Unbound DNS..."
 
 # Read options
-LISTEN_PORT=$(bashio::app.port '5335/udp')
 UNBOUND_VERBOSITY=$(bashio::config 'unbound_verbosity' '1')
 DO_IPV6=$(bashio::config 'do_ipv6' 'false')
 NUM_THREADS=$(bashio::config 'num_threads' '1')
@@ -20,7 +19,6 @@ log_output() {
     bashio::log.info "$(printf '%-20s: %s' "$1" "$2")"
 }
 
-log_output "Port" "${LISTEN_PORT}"
 log_output "Verbosity" "${UNBOUND_VERBOSITY}"
 log_output "IPv6" "${DO_IPV6}"
 log_output "Threads" "${NUM_THREADS}"
@@ -74,7 +72,7 @@ fi
 cat > "${OPTIONS_CONF}" <<EOF
 server:
     verbosity: ${UNBOUND_VERBOSITY}
-    port: ${LISTEN_PORT}
+    port: 5335
     num-threads: ${NUM_THREADS}
     cache-min-ttl: ${CACHE_MIN_TTL}
     cache-max-ttl: ${CACHE_MAX_TTL}
@@ -85,7 +83,7 @@ EOF
 if bashio::fs.file_exists "${UNBOUND_CONF}"; then
 	bashio::log.info "Existing unbound.conf found, validating..."
 	if CHECKCONF_OUTPUT=$(unbound-checkconf "${UNBOUND_CONF}" 2>&1); then
-		bashio::log.info "Existing configuration validated. Will use that."
+		bashio::log.info "Existing configuration validated."
 		exit 0
 	else
 		bashio::log.warning "Existing unbound.conf is invalid, regenerating..."
@@ -180,5 +178,7 @@ else
     bashio::log.error "${CHECKCONF_OUTPUT}"
     bashio::exit.nok "Unbound configuration is invalid."
 fi
+
+bashio::log.info "Unbound listening on port 5335.
 
 bashio::exit.ok
