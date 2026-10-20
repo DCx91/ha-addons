@@ -46,17 +46,15 @@ Then find **Unbound DNS** in the store and click **Install**.
 
 ## Using with AdGuard Home
 
-AdGuard Home → Settings → DNS settings → Upstream DNS servers:
+AdGuard Home → Settings → DNS settings
 
-```
-61709215-unbound:5335
-```
+  → Upstream DNS servers:
 
-AdGuard Home → Settings → DNS settings → Bootstrap DNS servers:
+    61709215-unbound:5335
 
-```
-172.30.32.3
-```
+  → Bootstrap DNS servers:
+
+    172.30.32.3
 
 This routes all queries through Unbound for fully private, recursive resolution — AdGuard handles blocking, Unbound handles resolution.
 
