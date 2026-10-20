@@ -5,7 +5,7 @@ CACHE_DUMP="/config/unbound_cache.dump"
 INTERVAL=600       # seconds between dumps
 DUMP_TIMEOUT=30    # seconds before an individual dump is abandoned
 
-if ! bashio::config.false 'no_persist_cache'; then
+if ! bashio::config.true 'persist_cache'; then
     while true; do sleep 3600; done
 fi
 
