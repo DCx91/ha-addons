@@ -44,15 +44,21 @@ Then find **Unbound DNS** in the store and click **Install**.
 
 ---
 
-## Using with AdGuard Home / Pi-hole
+## Using with AdGuard Home
 
-Set your upstream DNS server to:
+AdGuard Home → Settings → DNS settings → Upstream DNS servers:
 
 ```
-127.0.0.1:5335
+61709215-unbound:5335
 ```
 
-This routes all queries through Unbound for fully private, recursive resolution — AdGuard/Pi-hole handles blocking, Unbound handles resolution.
+AdGuard Home → Settings → DNS settings → Bootstrap DNS servers:
+
+```
+172.30.32.3
+```
+
+This routes all queries through Unbound for fully private, recursive resolution — AdGuard handles blocking, Unbound handles resolution.
 
 ---
 
