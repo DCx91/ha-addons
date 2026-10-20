@@ -1,6 +1,11 @@
 # Changelog
 
-## v1.25.2-R2 (2026-10-16S)
+## v1.25.2-R3 (2026-10-20)
+
+- Fixed app being killed by Docker (exit code 137)
+- Reworked cache persistence
+
+## v1.25.2-R2 (2026-10-16)
 
 - Simplified run script
 - Fix global IPv6 address retrieval
