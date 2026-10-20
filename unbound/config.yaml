@@ -22,6 +22,6 @@ schema:
   unbound_verbosity: list(0|1|2|3|4|5)
   do_ipv6: bool?
   num_threads: int(1,32)?
-  no_persist_cache: bool?
+  persist_cache: bool?
   cache_min_ttl: int(0,3600)?
   cache_max_ttl: int(60,604800)?
