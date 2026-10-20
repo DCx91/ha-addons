@@ -13,8 +13,8 @@ hassio_api: true
 init: false
 image: ghcr.io/dcx91/unbound
 ports:
-  5335/udp: 5335
-  5335/tcp: 5335
+  5335/udp:
+  5335/tcp:
 map:
   - app_config:rw
 options:
