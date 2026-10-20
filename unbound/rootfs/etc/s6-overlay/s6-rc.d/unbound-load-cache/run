@@ -14,7 +14,7 @@ fi
 dump_cache() {
     local tmp="${CACHE_DUMP}.tmp"
 
-    # Skip quietly if Unbound isn't answering (starting up or stopping).
+    # Skip if Unbound isn't responding
     if ! unbound-control -c "${UNBOUND_CONF}" status > /dev/null 2>&1; then
         bashio::log.debug "Cache dump skipped - Unbound not responding."
         return 0
