@@ -1,19 +1,4 @@
 #!/usr/bin/with-contenv bashio
-NO_PERSIST_CACHE=$(bashio::config 'no_persist_cache')
-
-dump_cache() {
-    bashio::log.info "Dumping cache to unbound_cache.dump..."
-    unbound-control -c /config/unbound.conf dump_cache > /config/unbound_cache.dump \
-        && bashio::log.info "Cache saved successfully." \
-        || bashio::log.warning "Cache dump failed - unbound-control returned an error."
-}
 
 bashio::log.info "Starting Unbound..."
-
-if [ "${NO_PERSIST_CACHE}" == "true" ]; then
-    exec unbound -d -c /config/unbound.conf
-else
-    trap 'dump_cache; exit 0' SIGTERM SIGINT
-    unbound -d -c /config/unbound.conf &
-    wait
-fi
+exec unbound -d -c /config/unbound.conf

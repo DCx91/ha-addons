@@ -1,0 +1,251 @@
+name: Build and Push Apps
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      addon:
+        description: "Force-build"
+        required: true
+        type: choice
+        options:
+          - unbound
+          - aiostreams
+          - music_assistant_alexa_beta
+          - nginxproxymanager
+          - aiometadata
+
+env:
+  ARCHITECTURES: '["amd64", "aarch64"]'
+  MONITORED_FILES: "apparmor.txt build.yaml config.yaml Dockerfile data rootfs"
+
+permissions:
+  contents: read
+
+jobs:
+  fix-permissions:
+    name: Fix execute permissions
+    runs-on: ubuntu-26.04
+    permissions:
+      contents: write
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Fix execute permissions
+        run: |
+          find . -path "*/s6-overlay/s6-rc.d*" \( -name "run" -o -name "finish" -o -name "up" \) \
+            | xargs -r git update-index --chmod=+x
+
+      - name: Commit if changed
+        run: |
+          if ! git diff --cached --quiet; then
+            git config user.name "github-actions"
+            git config user.email "actions@github.com"
+            git commit -m "Fix s6 script execute permissions"
+            git push
+          else
+            echo "No permission changes needed."
+          fi
+
+  init:
+    name: Initialize builds
+    needs: fix-permissions
+    runs-on: ubuntu-26.04
+    outputs:
+      addons: ${{ steps.changed_addons.outputs.addons }}
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Get changed files
+        id: changed_files
+        if: github.event_name == 'push'
+        uses: masesgroup/retrieve-changed-files@v4
+
+      - name: Get apps
+        id: addons
+        run: |
+          declare -a addons
+
+          for addon in $(find ./ -name config.yaml | cut -d "/" -f2 | sort -u); do
+            addons+=("$addon")
+          done
+
+          echo "addons=${addons[*]}" >> "$GITHUB_OUTPUT"
+
+      - name: Get changed apps
+        id: changed_addons
+        env:
+          ADDONS: ${{ steps.addons.outputs.addons }}
+          CHANGED_FILES: ${{ steps.changed_files.outputs.all }}
+        run: |
+          declare -a changed_addons
+
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            echo 'addons=["${{ inputs.addon }}"]' >> "$GITHUB_OUTPUT"
+            echo "Manual build requested for: ${{ inputs.addon }}"
+            exit 0
+          fi
+
+          for addon in ${ADDONS}; do
+            for file in ${{ env.MONITORED_FILES }}; do
+              if [[ "${CHANGED_FILES}" =~ ${addon}/${file} ]]; then
+                if [[ ! " ${changed_addons[*]} " =~ " ${addon} " ]]; then
+                  changed_addons+=("$addon")
+                fi
+                break
+              fi
+            done
+          done
+
+          if [[ ${#changed_addons[@]} -eq 0 ]]; then
+            echo 'addons=[]' >> "$GITHUB_OUTPUT"
+            echo "No apps require building."
+            exit 0
+          fi
+
+          addons_json=$(printf '%s\n' "${changed_addons[@]}" | jq -R . | jq -s -c .)
+
+          echo "Changed apps: ${addons_json}"
+          echo "addons=${addons_json}" >> "$GITHUB_OUTPUT"
+
+  build:
+    name: Build ${{ matrix.addon }} ${{ matrix.arch }}
+    needs: init
+    if: needs.init.outputs.addons != '[]'
+    runs-on: ${{ matrix.arch == 'aarch64' && 'ubuntu-26.04-arm' || 'ubuntu-26.04' }}
+
+    permissions:
+      contents: read
+      id-token: write
+      packages: write
+
+    strategy:
+      fail-fast: false
+      matrix:
+        addon: ${{ fromJSON(needs.init.outputs.addons) }}
+        arch:
+          - amd64
+          - aarch64
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Get app information
+        id: info
+        uses: home-assistant/actions/helpers/info@master
+        with:
+          path: "./${{ matrix.addon }}"
+
+      - name: Check architecture
+        id: architecture
+        env:
+          ARCHITECTURES: ${{ steps.info.outputs.architectures }}
+          ARCH: ${{ matrix.arch }}
+        run: |
+          if jq -e --arg arch "${ARCH}" 'index($arch) != null' <<< "${ARCHITECTURES}" > /dev/null; then
+            echo "supported=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "supported=false" >> "$GITHUB_OUTPUT"
+            echo "${ARCH} is not supported by ${{ matrix.addon }}, skipping."
+          fi
+
+      - name: Prepare image information
+        if: steps.architecture.outputs.supported == 'true'
+        id: image
+        env:
+          IMAGE: ${{ steps.info.outputs.image }}
+          VERSION: ${{ steps.info.outputs.version }}
+        run: |
+          IMAGE="${IMAGE%\"}"
+          IMAGE="${IMAGE#\"}"
+          VERSION="${VERSION%\"}"
+          VERSION="${VERSION#\"}"
+
+          registry="${IMAGE%%/*}"
+          image_path="${IMAGE#*/}"
+          owner="${image_path%%/*}"
+          image_name="${image_path#*/}"
+
+          echo "registry-prefix=${registry}/${owner}" >> "$GITHUB_OUTPUT"
+          echo "image-name=${image_name}" >> "$GITHUB_OUTPUT"
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+
+      - name: Build image
+        if: steps.architecture.outputs.supported == 'true'
+        uses: home-assistant/builder/actions/build-image@master
+        with:
+          arch: ${{ matrix.arch }}
+          context: ${{ matrix.addon }}
+          container-registry-password: ${{ secrets.GITHUB_TOKEN }}
+          image: ${{ steps.image.outputs.registry-prefix }}/${{ matrix.arch }}-${{ steps.image.outputs.image-name }}
+          image-tags: |
+            ${{ steps.image.outputs.version }}
+            latest
+          push: "true"
+          version: ${{ steps.image.outputs.version }}
+
+  manifest:
+    name: Publish ${{ matrix.addon }} multi-arch manifest
+    needs:
+      - init
+      - build
+    if: needs.init.outputs.addons != '[]'
+    runs-on: ubuntu-26.04
+
+    permissions:
+      id-token: write
+      packages: write
+
+    strategy:
+      fail-fast: false
+      matrix:
+        addon: ${{ fromJSON(needs.init.outputs.addons) }}
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Get app information
+        id: info
+        uses: home-assistant/actions/helpers/info@master
+        with:
+          path: "./${{ matrix.addon }}"
+
+      - name: Prepare image information
+        id: image
+        env:
+          IMAGE: ${{ steps.info.outputs.image }}
+          VERSION: ${{ steps.info.outputs.version }}
+        run: |
+          IMAGE="${IMAGE%\"}"
+          IMAGE="${IMAGE#\"}"
+          VERSION="${VERSION%\"}"
+          VERSION="${VERSION#\"}"
+
+          registry="${IMAGE%%/*}"
+          image_path="${IMAGE#*/}"
+          owner="${image_path%%/*}"
+          image_name="${image_path#*/}"
+
+          echo "registry-prefix=${registry}/${owner}" >> "$GITHUB_OUTPUT"
+          echo "image-name=${image_name}" >> "$GITHUB_OUTPUT"
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+
+      - name: Publish multi-arch manifest
+        uses: home-assistant/builder/actions/publish-multi-arch-manifest@master
+        with:
+          architectures: ${{ env.ARCHITECTURES }}
+          container-registry-password: ${{ secrets.GITHUB_TOKEN }}
+          image-name: ${{ steps.image.outputs.image-name }}
+          image-tags: |
+            ${{ steps.image.outputs.version }}
+            latest
+          registry-prefix: ${{ steps.image.outputs.registry-prefix }}

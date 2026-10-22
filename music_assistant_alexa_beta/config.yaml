@@ -1,8 +1,8 @@
 name: "Music Assistant Alexa Skill"
-version: "0.0.39-beta2.1"
+version: "0.0.39-beta4"
 slug: "music_assistant_alexa_skill"
 description: "Alexa skill backend for Music Assistant"
-url: "https://github.com/alams154/music-assistant-alexa-skill-prototype"
+url: "https://github.com/dcx91/music_assistant_alexa_beta"
 arch:
   - aarch64
   - amd64
@@ -13,19 +13,26 @@ ports_description:
   5000/tcp: "Flask web UI and Alexa skill endpoint"
 map:
   - data:rw
-webui: http://[HOST]:[PORT:5000]/status
+webui: http://[HOST]:[PORT:5000]/setup
 image: ghcr.io/dcx91/music_assistant_alexa_beta
 options:
-  SKILL_HOSTNAME: ""
-  MA_HOSTNAME: ""
-  APP_USERNAME: ""
-  APP_PASSWORD: ""
-  LOCALE: en-GB
-  AWS_DEFAULT_REGION: eu-west-2
+  skill_hostname: ""
+  ma_hostname: ""
+  app_username: ""
+  app_password: ""
+  locale: en-GB
+  aws_default_region: eu-west-2
 schema:
-  SKILL_HOSTNAME: str
-  MA_HOSTNAME: str
-  APP_USERNAME: str
-  APP_PASSWORD: password
-  LOCALE: str
-  AWS_DEFAULT_REGION: str
+  skill_hostname: str
+  ma_hostname: str
+  app_username: str
+  enable_apl: bool
+  app_password: password
+  locale: str
+  aws_default_region: str
+  skill_id: str?
+  ma_api_url: url?
+  ma_api_token: password?
+  skip_url_validation: bool?
+  enable_apl: bool?
+  debug: bool?

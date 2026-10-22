@@ -5,7 +5,7 @@
 
 [![Home Assistant](https://img.shields.io/badge/Home%20Assistant-App-41BDF5?logo=home-assistant&logoColor=white)](https://www.home-assistant.io/)
 [![Alpine Linux](https://img.shields.io/badge/Alpine%20Linux-3.24-0D597F?logo=alpine-linux&logoColor=white)](https://alpinelinux.org/)
-[![Unbound](https://img.shields.io/badge/Unbound-1.25.1-00897B)](https://nlnetlabs.nl/projects/unbound/about/)
+[![Unbound](https://img.shields.io/badge/Unbound-1.25.2-00897B)](https://nlnetlabs.nl/projects/unbound/about/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 ---
@@ -44,15 +44,19 @@ Then find **Unbound DNS** in the store and click **Install**.
 
 ---
 
-## Using with AdGuard Home / Pi-hole
+## Using with AdGuard Home
 
-Set your upstream DNS server to:
+AdGuard Home → Settings → DNS settings
 
-```
-127.0.0.1:5335
-```
+  → Upstream DNS servers:
 
-This routes all queries through Unbound for fully private, recursive resolution — AdGuard/Pi-hole handles blocking, Unbound handles resolution.
+    61709215-unbound:5335
+
+  → Bootstrap DNS servers:
+
+    172.30.32.3
+
+This routes all queries through Unbound for fully private, recursive resolution — AdGuard handles blocking, Unbound handles resolution.
 
 ---
 

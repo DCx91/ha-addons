@@ -5,7 +5,7 @@ configuration:
       The public URL of this addon, e.g. https://[domain].duckdns.org.
       HTTPS is required for built-in addons, install links, and stream URL generation
       to work correctly. 
-  log_level:
+  verbosity:
     name: Log Level
     description: >-
       Verbosity of addon logs. 'info', 'warning', or 'error' is recommended for normal use. Use

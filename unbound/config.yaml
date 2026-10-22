@@ -1,5 +1,6 @@
 name: Unbound DNS
-version: "1.25.1-R7"
+version: "1.25.2-4"
+breaking_versions: "1.25.2-3"
 slug: unbound
 description: >-
   A validating, recursive, and caching DNS resolver
@@ -12,17 +13,16 @@ hassio_api: true
 init: false
 image: ghcr.io/dcx91/unbound
 ports:
-  5335/udp: 5335
-  5335/tcp: 5335
+  5335/udp:
+  5335/tcp:
 map:
-  - addon_config:rw
+  - app_config:rw
 options:
-  do_ipv6: false
   unbound_verbosity: 1
 schema:
-  do_ipv6: bool
   unbound_verbosity: list(0|1|2|3|4|5)
+  do_ipv6: bool?
   num_threads: int(1,32)?
-  no_persist_cache: bool?
+  persist_cache: bool?
   cache_min_ttl: int(0,3600)?
   cache_max_ttl: int(60,604800)?

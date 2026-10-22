@@ -67,5 +67,6 @@ profile npm flags=(attach_disconnected,mediate_deleted) {
     /proc/1/fd/2 rw,
     /run/nginx/** rwk,
     /var/lib/nginx/** rwk,
+    /var/www/html/index.html r,
   }
 }

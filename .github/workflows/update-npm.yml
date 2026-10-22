@@ -14,8 +14,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v5
-
+      - uses: actions/checkout@v7
+        with:
+          token: ${{ secrets.PAT_BUMP_TOKEN }}
       - name: Get latest upstream version
         id: upstream
         env:
@@ -32,14 +33,10 @@ jobs:
           fi
 
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-
-      - name: Get current app version
+      - name: Get current base version from config.yaml
         id: current
         run: |
-          VERSION=$(grep '^version:' nginxproxymanager/config.yaml \
-            | awk '{print $2}' \
-            | tr -d '"')
-
+          VERSION=$(yq -r '.version | sub("-R[0-9]+$"; "")' nginxproxymanager/config.yaml)
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Update app

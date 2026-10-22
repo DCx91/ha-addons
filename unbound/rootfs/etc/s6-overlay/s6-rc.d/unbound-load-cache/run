@@ -1,17 +1,43 @@
 #!/usr/bin/with-contenv bashio
 
-NO_PERSIST_CACHE=$(bashio::config 'no_persist_cache')
-if [ "${NO_PERSIST_CACHE}" != "true" ]; then
-    if [ -f "/config/unbound_cache.dump" ]; then
-        bashio::log.info "Waiting for Unbound control socket..."
-        until [ -S /config/unbound.control.sock ]; do sleep 0.5; done
-        bashio::log.info "Loading cache..."
-        unbound-control -c /config/unbound.conf load_cache < /config/unbound_cache.dump \
-            && bashio::log.info "Cache loaded successfully." \
-            || bashio::log.warning "Cache import failed - unbound-control returned an error."
-    else
-        bashio::log.warning "Cache import skipped - no cache file found at /config/unbound_cache.dump."
-    fi
+UNBOUND_CONF="/config/unbound.conf"
+CACHE_DUMP="/config/unbound_cache.dump"
+INTERVAL=600
+DUMP_TIMEOUT=30
+
+if ! bashio::config.true 'persist_cache'; then
+    bashio::log.info "Cache persistence disabled; not running."
+    s6-svc -O .
+    bashio::exit.ok
 fi
-exit 0
-    
+
+dump_cache() {
+    local tmp="${CACHE_DUMP}.tmp"
+
+    # Skip if Unbound isn't responding
+    if ! unbound-control -c "${UNBOUND_CONF}" status > /dev/null 2>&1; then
+        bashio::log.debug "Cache dump skipped - Unbound not responding."
+        return 0
+    fi
+
+    # Write to a temp file and move it on success
+    if timeout "${DUMP_TIMEOUT}" unbound-control -c "${UNBOUND_CONF}" dump_cache > "${tmp}" \
+        && bashio::fs.file_non_empty "${tmp}"; then
+        mv "${tmp}" "${CACHE_DUMP}"
+        bashio::log.debug "Cache saved to ${CACHE_DUMP}."
+    else
+        rm -f "${tmp}"
+        bashio::log.warning "Cache dump failed or timed out; keeping previous dump."
+    fi
+}
+
+bashio::log.info "Saving the cache every ${INTERVAL} seconds."
+
+final_dump() { dump_cache; exit 0; }
+trap final_dump TERM
+
+while true; do
+    sleep "${INTERVAL}" &
+    wait $!
+    dump_cache
+done

@@ -1,15 +1,20 @@
 #!/usr/bin/with-contenv bashio
+
 EXIT_CODE="${1}"
 SIGNAL="${2}"
 
-if [ "${EXIT_CODE}" -eq 256 ]; then
+if [ "${EXIT_CODE}" -eq 137 ]; then
+    bashio::log.info "alexa-skill: stopped by container shutdown (code 137)"
+    echo "0" > /run/s6-linux-init-container-results/exitcode
+
+elif [ "${EXIT_CODE}" -eq 256 ]; then
     bashio::log.error "alexa-skill: killed by signal ${SIGNAL}"
     echo "$((128 + SIGNAL))" > /run/s6-linux-init-container-results/exitcode
+
+elif [ "${EXIT_CODE}" -ne 0 ]; then
+    bashio::log.error "alexa-skill: exited with non-zero code ${EXIT_CODE}"
+    echo "${EXIT_CODE}" > /run/s6-linux-init-container-results/exitcode
+
 else
-    if [ "${EXIT_CODE}" -ne 0 ]; then
-        bashio::log.error "alexa-skill: exited with non-zero code ${EXIT_CODE}"
-        echo "${EXIT_CODE}" > /run/s6-linux-init-container-results/exitcode
-    else
-        bashio::log.info "alexa-skill: exited cleanly (code 0)"
-    fi
+    bashio::log.info "alexa-skill: exited cleanly (code 0)"
 fi
