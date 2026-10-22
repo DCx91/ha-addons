@@ -28,6 +28,25 @@ mkdir -p \
     /tmp/nginx/proxy \
     /var/lib/nginx/
 
+
+
+# Home Assistant ingress auto-login: per-start random secret
+INGRESS_SECRET="$(openssl rand -hex 32)" \
+    || bashio::exit.nok "Could not generate ingress secret"
+[ -n "${INGRESS_SECRET}" ] \
+    || bashio::exit.nok "Ingress secret is empty"
+bashio::log.info "Ingress secret generated (${#INGRESS_SECRET} chars)"
+
+(umask 077; printf '%s' "${INGRESS_SECRET}" > /run/ingress-secret)
+
+cat > /etc/nginx/conf.d/ingress-secret.conf <<EOF
+map \$remote_addr \$ingress_secret {
+    default "";
+    172.30.32.2 "${INGRESS_SECRET}";
+}
+EOF
+chmod 600 /etc/nginx/conf.d/ingress-secret.conf
+
 # Enable/disable logging of successful requests
 if bashio::config.true 'verbose'; then
     cat > "$HTTP_TOP" <<'EOF'
@@ -45,7 +64,7 @@ EOF
 fi
 
 # Remove any existing GeoIP2 load_module lines.
-if bashio::fs.file_exists "$ROOT_TOP"; then
+if [ -f "$ROOT_TOP" ]; then
     sed -i \
         -e '\|load_module /usr/lib/nginx/modules/ngx_http_geoip2_module.so;|d' \
         -e '\|load_module /usr/lib/nginx/modules/ngx_stream_geoip2_module.so;|d' \
@@ -58,7 +77,7 @@ if bashio::config.true 'geoip2'; then
         echo "load_module /usr/lib/nginx/modules/ngx_stream_geoip2_module.so;"
     } >> "$ROOT_TOP"
 
-    if ! bashio::fs.file_exists "$GEOIP2_CONF"; then
+    if [ ! -f "$GEOIP2_CONF" ]; then
         bashio::log.info "Creating default GeoIP2 config at $GEOIP2_CONF"
         cat > "$GEOIP2_CONF" <<'EOF'
 # GeoIP2 lookup and allowlist.
@@ -78,16 +97,11 @@ geoip2 /config/geoip2/GeoLite2-Country.mmdb {
 map $geoip2_data_country_code $allowed_country {
     default yes;
     
-}
-
-# Lastly, add the following to the advanced config of hosts you want geo-blocked and uncomment it:
-# if ($allowed_country = no) {
-#    return 444;
-# }
+    }
 EOF
     fi
 
-    if bashio::fs.file_exists /config/geoip2/GeoLite2-Country.mmdb; then
+    if [ -f /config/geoip2/GeoLite2-Country.mmdb ]; then
         echo "include $GEOIP2_CONF;" >> "$HTTP_TOP"
     else
         bashio::log.warning "GeoIP2 enabled but GeoLite2-Country.mmdb wasn't found in /config/geoip2 - skipping"
