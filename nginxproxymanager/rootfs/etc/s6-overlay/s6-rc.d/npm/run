@@ -9,17 +9,6 @@ options+=("--max_old_space_size=$(bashio::config 'npm_max_old_space' '250')")
 
 export NODE_ENV=production
 
-# Initial admin account creation
-if bashio::config.has_value 'email'; then
-  bashio::config.require.password 'password'
-  export INITIAL_ADMIN_EMAIL=$(bashio::config 'email')
-fi
-
-if bashio::config.has_value 'password'; then
-  bashio::config.require.username 'email'
-  export INITIAL_ADMIN_PASSWORD=$(bashio::config 'password')
-fi
-
 if bashio::debug; then
   export DEBUG=1
 fi
