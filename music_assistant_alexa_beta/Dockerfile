@@ -1,4 +1,4 @@
-ARG BUILD_FROM=ghcr.io/hassio-addons/base:21.0.8
+ARG BUILD_FROM=ghcr.io/hassio-addons/base:21.0.9
 
 # ASK-CLI builder
 FROM ${BUILD_FROM} AS ask-cli-builder
@@ -24,8 +24,8 @@ COPY --from=ask-cli-builder /usr/local/lib/node_modules/ask-cli /usr/local/lib/n
 COPY --from=alexa-skill /app /app
 COPY patch.py /tmp/patch.py
 RUN ln -s /usr/local/lib/node_modules/ask-cli/dist/bin/ask.js /usr/local/bin/ask \
-    && python3 /tmp/patch.py && rm /tmp/patch.py \
     && python3 -m venv venv \
     && venv/bin/pip install --upgrade pip \
-    && venv/bin/pip install --no-cache-dir -r requirements.txt
+    && venv/bin/pip install --no-cache-dir -r requirements.txt \    
+    && python3 /tmp/patch.py && rm /tmp/patch.py
 COPY rootfs /
