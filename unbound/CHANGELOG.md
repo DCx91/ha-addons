@@ -1,5 +1,12 @@
 # Changelog
 
+## v1.25.2-R4 (2026-10-22)
+
+- #### Breaking change: Removed default port assignment.
+  Set your upstream DNS in AdGuard to `61709215-unbound:5335` and boostrap DNS to `172.30.32.3` (HA's Docker DNS IP).
+  
+  Or add `5335` to the ports in the Configuration tab (required if your LAN uses Unbound as DNS directly).
+
 ## v1.25.2-R3 (2026-10-20)
 
 - Fixed app being killed by Docker (exit code 137)

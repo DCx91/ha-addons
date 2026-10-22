@@ -1,5 +1,6 @@
 name: Unbound DNS
-version: "1.25.2-3"
+version: "1.25.2-4"
+breaking_versions: "1.25.2-3"
 slug: unbound
 description: >-
   A validating, recursive, and caching DNS resolver
@@ -8,13 +9,12 @@ arch:
   - aarch64
   - amd64
 startup: system
-timeout: 30
 hassio_api: true
 init: false
 image: ghcr.io/dcx91/unbound
 ports:
-  5335/udp: 5335
-  5335/tcp: 5335
+  5335/udp:
+  5335/tcp:
 map:
   - app_config:rw
 options:

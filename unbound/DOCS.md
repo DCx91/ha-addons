@@ -45,7 +45,7 @@ are rejected with `SERVFAIL` rather than passed on to your devices.
 | `unbound_verbosity` | `1` | Logging detail, 0–5 (see below) |
 | `do_ipv6` | `false` | Allow Unbound to use IPv6 when talking to upstream name servers (see [IPv6](#ipv6)) |
 | `num_threads` | `1` | Worker threads. Capped automatically to the number of CPU cores |
-| `no_persist_cache` | `true` | When `true`, the cache starts empty after every restart. Set to `false` to save the cache on stop and reload it on start |
+| `persist_cache` | `false` | Set to `true` to save the cache every 10 minutes, then reload it on start |
 | `cache_min_ttl` | `0` | Minimum time (seconds) a record stays cached, even if its TTL is shorter |
 | `cache_max_ttl` | `86400` | Maximum time (seconds) a record stays cached, even if its TTL is longer |
 
@@ -69,35 +69,34 @@ Use them for troubleshooting, not as a permanent setting.
 
 ---
 
-## Using with Pi-hole or AdGuard Home
+## Using with AdGuard Home
 
-Point your filtering DNS at Unbound as its only upstream server.
-
-**AdGuard Home** (Settings → DNS settings → Upstream DNS servers):
+AdGuard Home → Settings → DNS settings → Upstream DNS servers:
 
 ```
-127.0.0.1:5335
+61709215-unbound:5335
 ```
 
-**Pi-hole** (Settings → DNS → Custom upstream DNS servers) uses `#` for the
-port:
+AdGuard Home → Settings → DNS settings → Bootstrap DNS servers:
 
 ```
-127.0.0.1#5335
+172.30.32.3
 ```
 
-`127.0.0.1` works when Pi-hole or AdGuard Home runs on the Home Assistant host
-(host network) and this app publishes its port, as it does by default. If
-the other app runs in its own container network instead, use this app's
-internal hostname, shown on its Info page, in place of `127.0.0.1`.
+Note: Remove other IPs from the Upstream DNS server list. You can add them as backup under `Fallback DNS servers`.
 
-Disable any other upstream servers, otherwise some queries will bypass
-Unbound.
+## Using with other devices on your network
+
+Set the TCP + UDP ports in the app's configuration page to `5335`.
+
+This will allow you to connect other devices on the network directly to `<ha-ip>:5335`.
+In this configuration, AdGuard only needs the Upstream DNS server set to `127.0.0.1:5335`.
 
 ---
 
 ## Testing
 
+First, enable TCP/UDP ports 5335 as mentioned above.
 From any machine that is allowed to query Unbound (replace `<ha-ip>`):
 
 ```
@@ -168,8 +167,7 @@ When to leave it off:
   lookups.
 
 The benefit is modest. Unbound picks servers by measured response time, not
-by address family, so IPv6 is rarely noticeably faster. The main gain is
-resilience when an IPv4 path to some server is broken.
+by address family. The main gain is resilience when an IPv4 path to some server is broken.
 
 To check whether Unbound is actually using IPv6, run this in the app's
 container after it has been running for a while:
@@ -226,7 +224,7 @@ forward-zone:
 
 ## Cache persistence
 
-Set `no_persist_cache` to `false` to keep the cache across restarts. On stop
+Set `persist_cache` to `true` to keep the cache across restarts. On stop
 the cache is saved to `/addon_configs/61709215_unbound/unbound_cache.dump`,
 and on the next start it is loaded once Unbound is ready. If the file is
 missing or can't be loaded, the app logs a warning and starts with an empty
@@ -258,8 +256,8 @@ tab.
   days. The root zone is also fetched locally so root lookups don't have to
   leave the network each time.
 - **Memory:** the defaults allow up to 256 MB for the record cache and
-  128 MB for the message cache, plus overhead. On a small device, lower these
-  in a `conf.d` file (`rrset-cache-size` and `msg-cache-size`).
+  128 MB for the message cache, plus overhead. On a small device, you can
+  lower these in a `conf.d` file (`rrset-cache-size` and `msg-cache-size`).
 
 ---
 
