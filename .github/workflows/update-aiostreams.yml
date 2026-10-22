@@ -40,7 +40,7 @@ jobs:
           CHANGELOG_FILE="aiostreams/CHANGELOG.md"
           [ ! -f "$CHANGELOG_FILE" ] && printf "# Changelog\n\n" > "$CHANGELOG_FILE"
           TEMP=$(mktemp)
-          printf "# Changelog\n\n## v${{ steps.upstream.outputs.version }}\n\n%s\n\n" "$RELEASE_NOTES" > "$TEMP"
+          printf "# Changelog\n\n%s\n\n" "$RELEASE_NOTES" > "$TEMP"
           tail -n +2 "$CHANGELOG_FILE" >> "$TEMP"
           mv "$TEMP" "$CHANGELOG_FILE"
           git add -A
