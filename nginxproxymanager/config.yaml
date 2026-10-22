@@ -2,7 +2,7 @@ name: Nginx Proxy Manager
 version: "2.16.0.2"
 slug: nginxproxymanager
 description: Manage Nginx proxy hosts with a simple, powerful interface
-url: https://github.com/DCx91/ha-addons/nginxproxymanager
+url: https://github.com/DCx91/ha-addons/nginxproxymanager/DOCS.md
 image: ghcr.io/dcx91/nginxproxymanager
 startup: services
 init: false
@@ -14,7 +14,7 @@ ingress: true
 ingress_port: 81
 panel_icon: mdi:ip-outline
 ports:
-  80/tcp: 80
+  80/tcp:
   443/tcp:
 ports_description:
   80/tcp: HTTP web traffic
