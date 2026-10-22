@@ -5,7 +5,6 @@
 - Added patch to bypass NPM login screen using HA Ingress token.
 > [!WARNING]
   > Any admin on your Home Assistant instance can control NPM.
-- Added options to configure initial admin account (can also be done as normal in the NPM UI).
 - Patched image paths so they're visible in ingress view.
 - Fixed `unknown group 'npm'` error, replaced with root to match the container user/group.
 
