@@ -18,14 +18,19 @@ ports:
   443/tcp:
 ports_description:
   80/tcp: HTTP web traffic
-  443/tcp: HTTPS (SSL/TLS) web traffic
+  443/tcp: HTTPS web traffic
 map:
   - app_config:rw
 backup_exclude:
   - "*/logs"
 options:
+  email: ""
+  password: ""
   geoip2: false
+  verbose: false
 schema:
+  email: email?
+  password: password?
   geoip2: bool?
   verbose: bool?
   max_old_space: int?
