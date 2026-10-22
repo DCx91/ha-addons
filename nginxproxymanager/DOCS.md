@@ -31,6 +31,18 @@ With this app you can:
 
 6. Add hosts!
 
+> [!NOTE]
+>
+> By default, no ports are exposed so nothing outside HA can access NPM.
+> 
+> Simply set port 80 and port 443 in the Configuration page to allow it.
+
+> [!NOTE]
+>
+> [Cloudflared](https://github.com/homeassistant-apps/app-cloudflared) users can set the "Catch-all Service" to `http://61709215-nginxproxymanager:80`
+> without exposing any ports.
+
+
 ## GeoIP2 support
 
 This app can load the optional GeoIP2 NGINX modules, allowing you to use
@@ -73,7 +85,6 @@ To allow external access, forward the following ports from your router to your H
 | ---- | -------------------------------------------------------------------------------------------- |
 | 80   | HTTP (for Let's Encrypt HTTP-01 certificate validation)                                      |
 | 443  | HTTPS                                                                                        |
-| 81   | Nginx Proxy Manager administration interface |
 
 If you are using IPv6 instead of IPv4, create the appropriate firewall rules on your router and allow access to your Home Assistant system's global IPv6 address.
 
