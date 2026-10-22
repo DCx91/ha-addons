@@ -1,6 +1,11 @@
 # Changelog
 
-## v2.16.0 (2026-09-24)
+## v2.16.0.2 (2026-10-22)
+
+- Patched image paths so they're visible in ingress view.
+- Fixed `unknown group 'npm'` error, replaced with root to match the container user/group.
+
+## v2.16.0.1 (2026-09-24)
 
 - GeoIP2 Fix (#42)
 
