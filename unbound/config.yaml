@@ -1,5 +1,5 @@
 name: Unbound DNS
-version: "1.25.2-4"
+version: "1.25.2.4"
 breaking_versions: "1.25.2-3"
 slug: unbound
 description: >-
