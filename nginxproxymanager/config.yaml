@@ -24,13 +24,9 @@ map:
 backup_exclude:
   - "*/logs"
 options:
-  email: ""
-  password: ""
   geoip2: false
   verbose: false
 schema:
-  email: email?
-  password: password?
   geoip2: bool?
   verbose: bool?
   max_old_space: int?
