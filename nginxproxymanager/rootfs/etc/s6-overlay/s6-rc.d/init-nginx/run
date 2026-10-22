@@ -2,6 +2,11 @@
 # shellcheck shell=bash
 declare dns_host
 
+secret="$(head -c 32 /dev/urandom | base64 | tr -d '/+=\n')"
+printf '%s' "$secret" > /run/s6/container_environment/INGRESS_SECRET
+umask 077
+printf 'proxy_set_header X-Ingress-Secret "%s";\n' "$secret" > /etc/nginx/conf.d/include/ingress-secret.conf
+
 dns_host=$(bashio::dns.host)
 sed -i "s/%%dns_host%%/${dns_host}/g" \
     /etc/nginx/conf.d/include/resolvers.conf

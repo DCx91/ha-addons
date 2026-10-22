@@ -28,6 +28,25 @@ mkdir -p \
     /tmp/nginx/proxy \
     /var/lib/nginx/
 
+
+
+# Home Assistant ingress auto-login: per-start random secret
+INGRESS_SECRET="$(openssl rand -hex 32)" \
+    || bashio::exit.nok "Could not generate ingress secret"
+[ -n "${INGRESS_SECRET}" ] \
+    || bashio::exit.nok "Ingress secret is empty"
+bashio::log.info "Ingress secret generated (${#INGRESS_SECRET} chars)"
+
+(umask 077; printf '%s' "${INGRESS_SECRET}" > /run/ingress-secret)
+
+cat > /etc/nginx/conf.d/ingress-secret.conf <<EOF
+map \$remote_addr \$ingress_secret {
+    default "";
+    172.30.32.2 "${INGRESS_SECRET}";
+}
+EOF
+chmod 600 /etc/nginx/conf.d/ingress-secret.conf
+
 # Enable/disable logging of successful requests
 if bashio::config.true 'verbose'; then
     cat > "$HTTP_TOP" <<'EOF'
@@ -78,12 +97,7 @@ geoip2 /config/geoip2/GeoLite2-Country.mmdb {
 map $geoip2_data_country_code $allowed_country {
     default yes;
     
-}
-
-# Lastly, add the following to the advanced config of hosts you want geo-blocked and uncomment it:
-# if ($allowed_country = no) {
-#    return 444;
-# }
+    }
 EOF
     fi
 
@@ -97,7 +111,6 @@ fi
 ln -s /tmp/nginx /var/tmp/nginx
 ln -s /tmp/nginx /var/lib/nginx/tmp
 ln -s /config /opt/nginx-proxy-manager/config
-
 ln -sf /config/letsencrypt /etc/letsencrypt
 
 # Nginx needs this file to be able to start.

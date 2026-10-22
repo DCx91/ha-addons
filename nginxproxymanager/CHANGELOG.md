@@ -1,6 +1,14 @@
 # Changelog
 
-## v2.16.0 (2026-09-24)
+## v2.16.0.2 (2026-10-22)
+
+- Added patch to bypass NPM login screen using HA Ingress token.
+> [!WARNING]
+  > Any admin on your Home Assistant instance can control NPM.
+- Patched image paths so they're visible in ingress view.
+- Fixed `unknown group 'npm'` error, replaced with root to match the container user/group.
+
+## v2.16.0.1 (2026-09-24)
 
 - GeoIP2 Fix (#42)
 

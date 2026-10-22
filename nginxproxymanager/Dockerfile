@@ -1,4 +1,4 @@
-ARG BUILD_FROM=ghcr.io/hassio-addons/base:21.0.4
+ARG BUILD_FROM=ghcr.io/hassio-addons/base:21.0.9
 
 # Fetch + patch source
 FROM ${BUILD_FROM} AS source
@@ -15,6 +15,10 @@ RUN apk add --no-cache tar patch \
        done \
     && sed -i "s/\"version\": \"2.0.0\"/\"version\": \"${NGINX_PROXY_MANAGER_VERSION#v}\"/" \
         /app/backend/package.json \
+    && sed -i '/backend\.log/,/}/ s/su npm npm/su root root/' \
+        /app/docker/rootfs/etc/logrotate.d/nginx-proxy-manager \
+    && grep -A1 'backend\.log' /app/docker/rootfs/etc/logrotate.d/nginx-proxy-manager \
+        | grep -q 'su root root' \
     && chmod 644 /app/docker/rootfs/etc/logrotate.d/nginx-proxy-manager
 
 # Build

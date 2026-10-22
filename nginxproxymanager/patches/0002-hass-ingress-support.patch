@@ -52,3 +52,124 @@
  	const apiUrl = queryString.stringifyUrl({
  		url: baseUrl,
  		query: decamelizeParams(params),
+--- a/frontend/src/components/Loading.tsx	2026-10-22 11:18:03.076784960 +0000
++++ b/frontend/src/components/Loading.tsx	2026-10-22 11:18:03.147726828 +0000
+@@ -1,5 +1,6 @@
+ import type { ReactNode } from "react";
+ import { T } from "src/locale";
++import { asset } from "src/ingress";
+ import styles from "./Loading.module.css";
+ 
+ interface Props {
+@@ -11,7 +12,7 @@
+ 		<div className="empty text-center">
+ 			{noLogo ? null : (
+ 				<div className="mb-3">
+-					<img className={styles.logo} src="/images/logo-no-text.svg" alt="" />
++					<img className={styles.logo} src={asset("images/logo-no-text.svg")} alt="" />
+ 				</div>
+ 			)}
+ 			<div className="text-secondary mb-3">{label || <T id="loading" />}</div>
+--- a/frontend/src/components/SiteHeader.tsx	2026-10-22 11:18:03.076958300 +0000
++++ b/frontend/src/components/SiteHeader.tsx	2026-10-22 11:18:17.056351724 +0000
+@@ -2,6 +2,7 @@
+ import { LocalePicker, NavLink, ThemeSwitcher } from "src/components";
+ import { useAuthState } from "src/context";
+ import { useUser } from "src/hooks";
++import { asset } from "src/ingress";
+ import { T } from "src/locale";
+ import { showChangePasswordModal, showTwoFactorModal, showUserModal } from "src/modals";
+ import styles from "./SiteHeader.module.css";
+@@ -29,7 +30,7 @@
+ 					<NavLink to="/">
+ 						<div className={styles.logo}>
+ 							<img
+-								src="/images/logo-no-text.svg"
++								src={asset("images/logo-no-text.svg")}
+ 								width={40}
+ 								height={40}
+ 								className="navbar-brand-image"
+@@ -59,7 +60,7 @@
+ 								<span
+ 									className="avatar avatar-sm"
+ 									style={{
+-										backgroundImage: `url(${currentUser?.avatar || "/images/default-avatar.jpg"})`,
++										backgroundImage: `url(${currentUser?.avatar || asset("images/default-avatar.jpg")})`,
+ 									}}
+ 								/>
+ 								<div className="d-none d-xl-block ps-2">
+--- a/frontend/src/components/Table/Formatter/GravatarFormatter.tsx	2026-10-22 11:18:03.077205990 +0000
++++ b/frontend/src/components/Table/Formatter/GravatarFormatter.tsx	2026-10-22 11:18:17.056612899 +0000
+@@ -1,4 +1,5 @@
+-const defaultImg = "/images/default-avatar.jpg";
++import { asset } from "src/ingress";
++const defaultImg = asset("images/default-avatar.jpg");
+ 
+ interface Props {
+ 	url?: string;
+--- a/frontend/src/components/Unhealthy.tsx	2026-10-22 11:18:03.077428387 +0000
++++ b/frontend/src/components/Unhealthy.tsx	2026-10-22 11:18:17.056032583 +0000
+@@ -1,4 +1,5 @@
+ import { Page } from "src/components";
++import { asset } from "src/ingress";
+ 
+ export function Unhealthy() {
+ 	return (
+@@ -6,7 +7,7 @@
+ 			<div className="container-tight py-4">
+ 				<div className="empty">
+ 					<div className="empty-img">
+-						<img src="/images/unhealthy.svg" alt="" />
++						<img src={asset("images/unhealthy.svg")} alt="" />
+ 					</div>
+ 					<p className="empty-title">The API is not healthy.</p>
+ 					<p className="empty-subtitle text-secondary">We'll keep checking and hope to be back soon!</p>
+--- a/frontend/src/ingress.ts	1970-01-01 00:00:00.000000000 +0000
++++ b/frontend/src/ingress.ts	2026-10-22 11:18:03.087407269 +0000
+@@ -0,0 +1,8 @@
++// Home Assistant ingress serves the UI under /api/hassio_ingress/<token>/.
++// Absolute URLs like "/images/foo.svg" escape that prefix and hit HA core (404),
++// so static assets from public/ must be resolved against the ingress prefix at runtime.
++const match = window.location.pathname.match(/^(\/api\/hassio_ingress\/[^/]+)/);
++
++export const BASE_PATH: string = match ? `${match[1]}/` : "/";
++
++export const asset = (path: string): string => `${BASE_PATH}${path.replace(/^\/+/, "")}`;
+--- a/frontend/src/pages/Login/index.tsx	2026-10-22 11:18:03.083717227 +0000
++++ b/frontend/src/pages/Login/index.tsx	2026-10-22 11:18:17.056866696 +0000
+@@ -4,6 +4,7 @@
+ import { Button, LocalePicker, Page, ThemeSwitcher } from "src/components";
+ import { useAuthState } from "src/context";
+ import { useHealth } from "src/hooks";
++import { asset } from "src/ingress";
+ import { intl, T } from "src/locale";
+ import { validateEmail, validateString } from "src/modules/Validations";
+ import styles from "./index.module.css";
+@@ -184,7 +185,7 @@
+ 				<div className="d-flex justify-content-between align-items-center mb-4 ps-4 pe-3">
+ 					<img
+ 						className={styles.logo}
+-						src="/images/logo-text-horizontal-grey.png"
++						src={asset("images/logo-text-horizontal-grey.png")}
+ 						alt="Nginx Proxy Manager"
+ 					/>
+ 					<div className="d-flex align-items-center gap-1">
+--- a/frontend/src/pages/Setup/index.tsx	2026-10-22 11:18:03.084212091 +0000
++++ b/frontend/src/pages/Setup/index.tsx	2026-10-22 11:18:17.057079151 +0000
+@@ -6,6 +6,7 @@
+ import { createUser } from "src/api/backend";
+ import { Button, LocalePicker, Page, ThemeSwitcher } from "src/components";
+ import { useAuthState } from "src/context";
++import { asset } from "src/ingress";
+ import { intl, T } from "src/locale";
+ import { validateEmail, validateString } from "src/modules/Validations";
+ import styles from "./index.module.css";
+@@ -68,7 +69,7 @@
+ 				<div className="text-center mb-4">
+ 					<img
+ 						className={styles.logo}
+-						src="/images/logo-text-horizontal-grey.png"
++						src={asset("images/logo-text-horizontal-grey.png")}
+ 						alt="Nginx Proxy Manager"
+ 					/>
+ 				</div>

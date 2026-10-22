@@ -13,8 +13,6 @@ if bashio::debug; then
   export DEBUG=1
 fi
 
-
-cd /opt/nginx-proxy-manager \
-    || bashio::exit.nok "Could not change directory to app"
+cd /opt/nginx-proxy-manager || bashio::exit.nok "Could not change directory to app"
 
 exec node "${options[@]}" /opt/nginx-proxy-manager/index.js
