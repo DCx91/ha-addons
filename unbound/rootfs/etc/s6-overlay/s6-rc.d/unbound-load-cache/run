@@ -33,7 +33,11 @@ dump_cache() {
 
 bashio::log.info "Saving the cache every ${INTERVAL} seconds."
 
+final_dump() { dump_cache; exit 0; }
+trap final_dump TERM
+
 while true; do
-    sleep "${INTERVAL}"
+    sleep "${INTERVAL}" &
+    wait $!
     dump_cache
 done
