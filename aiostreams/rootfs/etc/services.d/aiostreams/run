@@ -7,7 +7,7 @@ export DATABASE_URI="sqlite:///data/db.sqlite"
 # Auto-generate secret key and persist it to /data/secret_key.
 bashio::log.info "Checking secret key..."
 SECRET_KEY_FILE="/data/secret_key"
-if [[ -f "${SECRET_KEY_FILE}" ]]; then
+if bashio::fs.file_exists ${SECRET_KEY_FILE}; then
 	SECRET_KEY=$(cat "${SECRET_KEY_FILE}")
 	bashio::log.info "Using existing auto-generated secret key from ${SECRET_KEY_FILE}."
 else
@@ -21,18 +21,20 @@ export SECRET_KEY="${SECRET_KEY}"
 # Map app options to AIOStreams environment variables
 bashio::log.info "Reading configuration..."
 
-export AIOSTREAMS_AUTH_REQUIRED=true
-export DEFAULT_MAX_CACHE_SIZE=5000
-export DISK_CACHE_DIR=/tmp/cache
-export LOG_BUFFER_MAX_BYTES=8388608
-export LOG_BUFFER_MAX_ENTRIES=20000
-export LOG_FORMAT=text
-export LOG_LEVEL=$(bashio::config 'verbosity')
-export LOG_SENSITIVE_INFO="$(bashio::config 'sensitive_info' false)"
-export LOG_TIMEZONE=$(bashio::info.timezone)
-export NODE_OPTIONS="--max-old-space-size=500"
-export PORT=$(bashio::app.port "3000/tcp")
-export SETTINGS_REFRESH_INTERVAL=0
+set -a
+AIOSTREAMS_AUTH_REQUIRED=true
+DEFAULT_MAX_CACHE_SIZE=5000
+DISK_CACHE_DIR=/tmp/cache
+LOG_BUFFER_MAX_BYTES=8388608
+LOG_BUFFER_MAX_ENTRIES=20000
+LOG_FORMAT=text
+LOG_LEVEL=$(bashio::config 'verbosity')
+LOG_SENSITIVE_INFO=$(bashio::config 'sensitive_info' false)
+LOG_TIMEZONE=$(bashio::info.timezone)
+NODE_OPTIONS="--max-old-space-size=500"
+PORT=$(bashio::app.port "3000/tcp")
+SETTINGS_REFRESH_INTERVAL=0
+set +a
 
 # Base URL
 if bashio::config.has_value 'base_url'; then
