@@ -5,6 +5,7 @@ RUN apk add --no-cache openssl nodejs
 COPY --from=aiostreams /app /app
 COPY prune-deps.sh /tmp/prune-deps.sh
 
+ENV S6_VERBOSITY=0
 ARG SQLITE_VER="12.11.2"
 ARG BUILD_ARCH
 RUN set -eux; \
