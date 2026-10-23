@@ -1,7 +1,7 @@
-ARG BUILD_FROM=ghcr.io/hassio-addons/base:21.0.6
 FROM ghcr.io/viren070/aiostreams:latest AS aiostreams
-FROM ${BUILD_FROM}
-RUN apk add --no-cache --upgrade libcrypto3 libssl3 openssl nodejs
+FROM ghcr.io/hassio-addons/base:21.0.9
+
+RUN apk add --no-cache openssl nodejs
 COPY --from=aiostreams /app /app
 COPY prune-deps.sh /tmp/prune-deps.sh
 
