@@ -1,18 +1,14 @@
 name: Update NPM version
-
 on:
   schedule:
     - cron: '0 6 * * *'
   workflow_dispatch:
-
 permissions:
   contents: write
   pull-requests: write
-
 jobs:
   update:
-    runs-on: ubuntu-latest
-
+    runs-on: ubuntu-26.04
     steps:
       - uses: actions/checkout@v7
         with:
@@ -31,22 +27,39 @@ jobs:
             echo "Failed to determine upstream version"
             exit 1
           fi
-
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
       - name: Get current base version from config.yaml
         id: current
         run: |
-          VERSION=$(yq -r '.version | sub("-R[0-9]+$"; "")' nginxproxymanager/config.yaml)
-          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-
+          RAW=$(yq -r '.version' nginxproxymanager/config.yaml)
+          # Leading numeric version only, whatever suffix follows
+          BASE=$(echo "$RAW" | grep -oE '^[0-9]+(\.[0-9]+)*')
+          if [ -z "$BASE" ]; then
+            echo "Could not parse base version from '$RAW'"
+            exit 1
+          fi
+          echo "raw=$RAW base=$BASE"
+          echo "version=$BASE" >> "$GITHUB_OUTPUT"
+      - name: Check upstream is newer
+        id: check
+        env:
+          UP: ${{ steps.upstream.outputs.version }}
+          CUR: ${{ steps.current.outputs.version }}
+        run: |
+          NEWEST=$(printf '%s\n%s\n' "$UP" "$CUR" | sort -V | tail -n1)
+          echo "upstream=$UP current_base=$CUR newest=$NEWEST"
+          if [ "$UP" != "$CUR" ] && [ "$NEWEST" = "$UP" ]; then
+            echo "update=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "update=false" >> "$GITHUB_OUTPUT"
+          fi
       - name: Update app
-        if: steps.upstream.outputs.version != steps.current.outputs.version
+        if: steps.check.outputs.update == 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           VERSION: ${{ steps.upstream.outputs.version }}
         run: |
           set -e
-
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
