@@ -1,4 +1,4 @@
-ARG BUILD_FROM=ghcr.io/hassio-addons/base:21.0.8
+ARG BUILD_FROM=ghcr.io/hassio-addons/base:21.0.9
 FROM ghcr.io/cedya77/aiometadata:3.7.0 AS aiometadata
 FROM ${BUILD_FROM}
 
