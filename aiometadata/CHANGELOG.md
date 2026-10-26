@@ -1,5 +1,13 @@
 # Changelog
 
+## [3.8.1](https://github.com/cedya77/aiometadata/compare/v3.8.0...v3.8.1) (2026-10-26)
+
+
+### Bug Fixes
+
+* **recommendations:** read each Jellyfin profile's own Simkl history ([945bb6f](https://github.com/cedya77/aiometadata/commit/945bb6f2b5a4ad075faba423cc8136833721384c))
+
+
 ## [3.7.0](https://github.com/cedya77/aiometadata/compare/v3.6.1...v3.7.0) (2026-10-21)
 
 
