@@ -1,4 +1,4 @@
-ARG BUILD_FROM=ghcr.io/hassio-addons/base:21.0.9
+ARG BUILD_FROM=ghcr.io/hassio-addons/base:21.0.10
 
 # ASK-CLI builder
 FROM ${BUILD_FROM} AS ask-cli-builder
