@@ -1,4 +1,4 @@
-ARG BUILD_FROM=ghcr.io/hassio-addons/base:21.0.9
+ARG BUILD_FROM=ghcr.io/hassio-addons/base:21.0.10
 FROM ghcr.io/viren070/aiostreams:latest AS aiostreams
 FROM ${BUILD_FROM}
 RUN apk add --no-cache openssl nodejs
