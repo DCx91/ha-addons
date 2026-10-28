@@ -13,7 +13,6 @@ rm -rf \
     @hookform+resolvers@* \
     csstype@* \
     immer@* \
-    zod@3.22.0 \
     @radix-ui+* \
     @floating-ui+* \
     d3-* \
