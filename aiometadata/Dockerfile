@@ -1,11 +1,10 @@
 ARG BUILD_FROM=ghcr.io/hassio-addons/base:21.0.10
 FROM ghcr.io/cedya77/aiometadata:3.8.1 AS aiometadata
+ENV S6_VERBOSITY=1
 FROM ${BUILD_FROM}
 
-RUN apk add --no-cache --upgrade openssl nodejs redis
+RUN apk add --no-cache openssl nodejs redis
 
 COPY --from=aiometadata /app /app
 
 COPY rootfs /
-RUN chmod +x /etc/s6-overlay/s6-rc.d/redis/run \
-             /etc/s6-overlay/s6-rc.d/aiometadata/run
