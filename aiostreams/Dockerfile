@@ -1,7 +1,6 @@
 FROM ghcr.io/viren070/aiostreams:latest AS aiostreams
-COPY prune-deps.sh /tmp/prune-deps.sh
-RUN chmod +x /tmp/prune-deps.sh \
-    && /tmp/prune-deps.sh
+COPY --chmod=755 prune-deps.sh /tmp/prune-deps.sh
+RUN /tmp/prune-deps.sh
 
 FROM ghcr.io/hassio-addons/base:21.0.10
 ENV S6_VERBOSITY=0
