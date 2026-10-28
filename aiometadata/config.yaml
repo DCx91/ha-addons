@@ -1,5 +1,5 @@
 name: AIOMetadata
-version: "3.8.1"
+version: "3.8.3"
 slug: aiometadata
 description: >-
   Aggregates and enriches movie, series, and anime metadata from multiple sources,
