@@ -1,4 +1,5 @@
 ARG BUILD_FROM=ghcr.io/hassio-addons/base:21.0.10
+ENV S6_VERBOSITY=0
 
 # Fetch + patch source
 FROM ${BUILD_FROM} AS source
