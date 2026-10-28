@@ -1,5 +1,4 @@
 ARG BUILD_FROM=ghcr.io/hassio-addons/base:21.0.10
-ENV S6_VERBOSITY=0
 
 # Fetch + patch source
 FROM ${BUILD_FROM} AS source
@@ -65,6 +64,7 @@ RUN mkdir -p /opt/nginx-proxy-manager \
 # Final image
 # hadolint ignore=DL3006
 FROM ${BUILD_FROM}
+ENV S6_VERBOSITY=0
 
 RUN apk add --no-cache \
         apache2-utils \
