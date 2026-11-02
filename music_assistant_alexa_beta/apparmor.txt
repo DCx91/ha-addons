@@ -1,6 +1,7 @@
 #include <tunables/global>
 
-profile music_assistant_alexa_skill_beta flags=(attach_disconnected,mediate_deleted) {
+profile music_assistant_alexa_skill
+flags=(attach_disconnected,mediate_deleted) {
   #include <abstractions/base>
 
   # Capabilities
@@ -35,7 +36,7 @@ profile music_assistant_alexa_skill_beta flags=(attach_disconnected,mediate_dele
     #include <abstractions/base>
 
     # Receive signals from S6-Overlay
-    signal (receive) peer=*_music_assistant_alexa_skill_beta,
+    signal (receive) peer=*_music_assistant_alexa_skill,
 
     # Access to options.json and other files within your addon
     /data/** rw,
