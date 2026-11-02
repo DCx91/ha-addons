@@ -1,5 +1,5 @@
 name: "Music Assistant Alexa Skill"
-version: "0.0.39-beta4"
+version: "0.0.39-beta5"
 slug: "music_assistant_alexa_skill"
 description: "Alexa skill backend for Music Assistant"
 url: "https://github.com/dcx91/music_assistant_alexa_beta"
@@ -10,7 +10,7 @@ init: false
 ports:
   5000/tcp: 5000
 ports_description:
-  5000/tcp: "Flask web UI and Alexa skill endpoint"
+  5000/tcp: "Web UI and Alexa skill endpoint"
 map:
   - data:rw
 webui: http://[HOST]:[PORT:5000]/setup
