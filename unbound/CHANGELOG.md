@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.26.2 (2026-11-02)
+
+- Updated Unbound to 1.26.2
+
 ## v1.25.2-R4 (2026-10-22)
 
 - #### Breaking change: Removed default port assignment.
