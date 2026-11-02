@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.0.39-beta5 (2026-11-02)
+
+- Update to ghcr.io/hassio-addons/base:21.0.10
+- Upstream fixes
+
 ## v0.0.39-beta4 (2026-10-14)
 
 - Added fix for album art
