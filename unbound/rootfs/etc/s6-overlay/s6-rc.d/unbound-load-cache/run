@@ -2,7 +2,7 @@
 
 UNBOUND_CONF="/config/unbound.conf"
 CACHE_DUMP="/config/unbound_cache.dump"
-INTERVAL=600
+INTERVAL=$(bashio::config 'cache_interval' '600')
 DUMP_TIMEOUT=30
 
 if ! bashio::config.true 'persist_cache'; then
