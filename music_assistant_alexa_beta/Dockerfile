@@ -13,12 +13,12 @@ RUN rm -rf  /app/assets \
 
 # Final image
 FROM ${BUILD_FROM}
+ENV S6_VERBOSITY=0
 RUN apk add --no-cache \
     nodejs \
     openssl \
     gnupg \
     python3
-
 WORKDIR /app
 COPY --from=ask-cli-builder /usr/local/lib/node_modules/ask-cli /usr/local/lib/node_modules/ask-cli
 COPY --from=alexa-skill /app /app
