@@ -26,4 +26,5 @@ elif [[ "${exit_code_service}" -ne 0 ]]; then
 else
   if [[ "$(s6-svstat -o wantedup /run/service/unbound)" == "true" ]]; then
     bashio::log.warning "Unbound stopped unexpectedly."
+  fi
 fi
