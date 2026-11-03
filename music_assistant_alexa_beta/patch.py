@@ -133,3 +133,21 @@ if "/data/skill_id" not in sh:
         label="ask_create_skill.sh anchor",
     )
     write(ASK_SCRIPT, sh)
+
+# --- signal_helpers.py: exit 0 on SIGTERM instead of re-raising it ---
+SIGNAL_HELPERS = Path("app/signal_helpers.py")
+sh_text = read(SIGNAL_HELPERS)
+if "os._exit(0)" not in sh_text:
+    sh_text = sub_exact(
+        sh_text,
+        r"^([ \t]*)signal\.signal\(signum, signal\.SIG_DFL\)\n[ \t]*os\.kill\(os\.getpid\(\), signum\)",
+        lambda m: (
+            f"{m[1]}if signum == signal.SIGTERM:\n"
+            f"{m[1]}    os._exit(0)\n"
+            f"{m[1]}signal.signal(signum, signal.SIG_DFL)\n"
+            f"{m[1]}os.kill(os.getpid(), signum)"
+        ),
+        label="signal_helpers SIGTERM exit", flags=re.M,
+    )
+    write(SIGNAL_HELPERS, sh_text)
+    py_compile.compile(str(SIGNAL_HELPERS), doraise=True)
