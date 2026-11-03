@@ -29,3 +29,8 @@ configuration:
     description: >-
       When disabled (the default), the cache starts empty after every restart.
       Enable this option to save the cache to disk, then load it back on startup.
+  cache_interval:
+    name: Cache Interval
+    description: >-
+      The time (in seconds) between cache dumps. Only applies if persist_cache is enabled.
+      Default: 600 (10 minutes).
