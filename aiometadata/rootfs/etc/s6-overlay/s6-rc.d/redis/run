@@ -8,7 +8,8 @@ redis-server
     --dir /data/redis
     --loglevel warning
     --appendonly no
-    --save 3600 1
+    --save ""
     --stop-writes-on-bgsave-error no
     --maxmemory 64mb
     --maxmemory-policy allkeys-lru
+    --save ""

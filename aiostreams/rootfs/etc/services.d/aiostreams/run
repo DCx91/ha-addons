@@ -23,6 +23,7 @@ bashio::log.info "Reading configuration..."
 
 export AIOSTREAMS_AUTH_REQUIRED=true
 export DEFAULT_MAX_CACHE_SIZE=5000
+export SQL_CACHE_MAX_SIZE=5000
 export DISK_CACHE_DIR=/tmp/cache
 export LOG_BUFFER_MAX_BYTES=8388608
 export LOG_BUFFER_MAX_ENTRIES=20000
@@ -30,7 +31,7 @@ export LOG_FORMAT=text
 export LOG_LEVEL=$(bashio::config 'verbosity')
 export LOG_SENSITIVE_INFO="$(bashio::config 'sensitive_info' false)"
 export LOG_TIMEZONE=$(bashio::info.timezone)
-export NODE_OPTIONS="--max-old-space-size=500"
+export NODE_OPTIONS="--max-old-space-size=384"
 export PORT=$(bashio::app.port "3000/tcp")
 export SETTINGS_REFRESH_INTERVAL=0
 

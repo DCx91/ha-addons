@@ -13,6 +13,7 @@ export PORT=$(bashio::app.port '3232/tcp')
 export REDIS_URL=redis://127.0.0.1:6379
 export TMDB_API_KEY=$(bashio::config 'tmdb_api_key')
 export TZ=$(bashio::info.timezone)
+export META_CONCURRENCY=20
 
 # Load optional config 
 bashio::config.has_value 'fanart_api_key' && export FANART_API_KEY=$(bashio::config 'fanart_api_key')
@@ -29,17 +30,20 @@ if bashio::config.has_value 'warming_uuids'; then
 
     CACHE_WARMUP_UUIDS=$(IFS=,; echo "${uuids[*]:0:3}")
     export CACHE_WARMUP_UUIDS
+		export TMDB_POPULAR_WARMING_ENABLED=false
 fi
 
 # Single user optimisations
 if bashio::config.true 'single_user'; then
+	export NODE_OPTIONS=--max-old-space-size=384
 	export CACHE_WARMUP_ON_STARTUP=false
 	export CATALOG_LIST_ITEMS_SIZE=10
 	export FANART_CLIENT_CACHE_MAX=100
-	export LOG_BUFFER_SIZE=1000
+	export LOG_BUFFER_SIZE=500
 	export MAX_CONCURRENT_REQUESTS=5
 	export TMDB_SCRAPED_IMDB_CACHE_MAX=500
 	export USER_ALIASES_ENABLED=true
+	export MAL_WARMUP_ENABLED=false
 fi
 
 # Poster caching
