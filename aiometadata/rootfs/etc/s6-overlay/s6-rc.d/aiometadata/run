@@ -9,6 +9,7 @@ export DOTENV_CONFIG_QUIET=true
 export JIKAN_API_BASE=https://api.tenrai.org/v1
 export HOST_NAME=$(bashio::config 'host_name')
 export LOG_LEVEL=$(bashio::config 'verbosity')
+export MAL_WARMUP_INTERVAL_HOURS=24
 export MAL_WARMUP_WINDOW=04:00-06:00
 export META_CONCURRENCY=20
 export NODE_ENV=production
