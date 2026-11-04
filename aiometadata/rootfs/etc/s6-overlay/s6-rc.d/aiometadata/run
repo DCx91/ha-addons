@@ -9,11 +9,13 @@ export DOTENV_CONFIG_QUIET=true
 export JIKAN_API_BASE=https://api.tenrai.org/v1
 export HOST_NAME=$(bashio::config 'host_name')
 export LOG_LEVEL=$(bashio::config 'verbosity')
+export MAL_WARMUP_WINDOW=04:00-06:00
+export META_CONCURRENCY=20
+export NODE_ENV=production
 export PORT=$(bashio::app.port '3232/tcp')
 export REDIS_URL=redis://127.0.0.1:6379
 export TMDB_API_KEY=$(bashio::config 'tmdb_api_key')
 export TZ=$(bashio::info.timezone)
-export META_CONCURRENCY=20
 
 # Load optional config 
 bashio::config.has_value 'fanart_api_key' && export FANART_API_KEY=$(bashio::config 'fanart_api_key')
@@ -42,8 +44,8 @@ if bashio::config.true 'single_user'; then
 	export LOG_BUFFER_SIZE=500
 	export MAX_CONCURRENT_REQUESTS=5
 	export TMDB_SCRAPED_IMDB_CACHE_MAX=500
+	export TRAKT_MIN_TIME=100
 	export USER_ALIASES_ENABLED=true
-	export MAL_WARMUP_ENABLED=false
 fi
 
 # Poster caching
@@ -54,6 +56,7 @@ if bashio::config.true 'poster_cache'; then
 	export META_COLD_STORE_PATH=/data/addon/metacache.sqlite
 	export POSTER_CACHE_BACKGROUNDS=true
 	export POSTER_CACHE_DIR=/data/addon/poster_cache
+	export POSTER_CACHE_FETCH_CONCURRENCY=32
 	export POSTER_CACHE_LANDSCAPE_POSTERS=true
 	export POSTER_CACHE_LOGOS=true
 	export POSTER_CACHE_MAX_SIZE=1g
