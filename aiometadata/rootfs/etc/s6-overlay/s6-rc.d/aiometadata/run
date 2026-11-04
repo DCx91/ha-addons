@@ -43,6 +43,7 @@ if bashio::config.true 'single_user'; then
 	export MAX_CONCURRENT_REQUESTS=5
 	export TMDB_SCRAPED_IMDB_CACHE_MAX=500
 	export USER_ALIASES_ENABLED=true
+	export MAL_WARMUP_ENABLED=false
 fi
 
 # Poster caching
