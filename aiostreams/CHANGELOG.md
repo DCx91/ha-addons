@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.37.0.1 (2026-11-05)
+
+* Improved readability of the log
+* Cleaned up run script
+
 ## [2.37.0](https://github.com/Viren070/AIOStreams/compare/v2.36.0...v2.37.0) (2026-10-23)
 
 
