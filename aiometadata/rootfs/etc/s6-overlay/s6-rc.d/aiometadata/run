@@ -4,19 +4,22 @@ set -e
 mkdir -p /data/addon /data/redis
 
 # Load required config
-export DATABASE_URI=sqlite:///data/addon/addon.db
-export DOTENV_CONFIG_QUIET=true
-export JIKAN_API_BASE=https://api.tenrai.org/v1
-export HOST_NAME=$(bashio::config 'host_name')
-export LOG_LEVEL=$(bashio::config 'verbosity')
-export MAL_WARMUP_INTERVAL_HOURS=24
-export MAL_WARMUP_WINDOW=04:00-06:00
-export META_CONCURRENCY=20
-export NODE_ENV=production
-export PORT=$(bashio::app.port '3232/tcp')
-export REDIS_URL=redis://127.0.0.1:6379
-export TMDB_API_KEY=$(bashio::config 'tmdb_api_key')
-export TZ=$(bashio::info.timezone)
+set -a
+DATABASE_URI=sqlite:///data/addon/addon.db
+DOTENV_CONFIG_QUIET=true
+JIKAN_API_BASE=https://api.tenrai.org/v1
+HOST_NAME=$(bashio::config 'host_name')
+LOG_LEVEL=$(bashio::config 'verbosity')
+MAL_WARMUP_LOG_LEVEL=silent
+MAL_WARMUP_INTERVAL_HOURS=24
+MAL_WARMUP_WINDOW=02:00-06:00
+META_CONCURRENCY=20
+NODE_ENV=production
+PORT=$(bashio::app.port '3232/tcp')
+REDIS_URL=redis://127.0.0.1:6379
+TMDB_API_KEY=$(bashio::config 'tmdb_api_key')
+TZ=$(bashio::info.timezone)
+set +a
 
 # Load optional config 
 bashio::config.has_value 'fanart_api_key' && export FANART_API_KEY=$(bashio::config 'fanart_api_key')
@@ -33,37 +36,42 @@ if bashio::config.has_value 'warming_uuids'; then
 
     CACHE_WARMUP_UUIDS=$(IFS=,; echo "${uuids[*]:0:3}")
     export CACHE_WARMUP_UUIDS
-		export TMDB_POPULAR_WARMING_ENABLED=false
+	export TMDB_POPULAR_WARMING_ENABLED=false
 fi
 
 # Single user optimisations
 if bashio::config.true 'single_user'; then
-	export NODE_OPTIONS=--max-old-space-size=384
-	export CACHE_WARMUP_ON_STARTUP=false
-	export CATALOG_LIST_ITEMS_SIZE=10
-	export FANART_CLIENT_CACHE_MAX=100
-	export LOG_BUFFER_SIZE=500
-	export MAX_CONCURRENT_REQUESTS=5
-	export TMDB_SCRAPED_IMDB_CACHE_MAX=500
-	export TRAKT_MIN_TIME=100
-	export USER_ALIASES_ENABLED=true
+	set -a
+	NODE_OPTIONS=--max-old-space-size=384
+	CACHE_WARMUP_ON_STARTUP=false
+	CATALOG_LIST_ITEMS_SIZE=10
+	FANART_CLIENT_CACHE_MAX=100
+	LOG_BUFFER_SIZE=500
+	MAL_WARMUP_PRIORITY_PAGES=1
+	MAX_CONCURRENT_REQUESTS=5
+	TMDB_SCRAPED_IMDB_CACHE_MAX=500
+	TRAKT_MIN_TIME=100
+	USER_ALIASES_ENABLED=true
+	set +a
 fi
 
 # Poster caching
 if bashio::config.true 'poster_cache'; then
-	export ENABLE_BUILTIN_POSTER_CACHE=true
-	export META_COLD_STORE_ENABLED=true
-	export META_COLD_STORE_MAX_BYTES=512m
-	export META_COLD_STORE_PATH=/data/addon/metacache.sqlite
-	export POSTER_CACHE_BACKGROUNDS=true
-	export POSTER_CACHE_DIR=/data/addon/poster_cache
-	export POSTER_CACHE_FETCH_CONCURRENCY=32
-	export POSTER_CACHE_LANDSCAPE_POSTERS=true
-	export POSTER_CACHE_LOGOS=true
-	export POSTER_CACHE_MAX_SIZE=1g
-	export POSTER_CACHE_MEMORY_SIZE=0
-	export PREFER_SMALLER_LOGOS_TMDB=true
-	export PREFER_SMALLER_LANDSCAPE_TMDB=true
+	set -a
+	ENABLE_BUILTIN_POSTER_CACHE=true
+	META_COLD_STORE_ENABLED=true
+	META_COLD_STORE_MAX_BYTES=512m
+	META_COLD_STORE_PATH=/data/addon/metacache.sqlite
+	POSTER_CACHE_BACKGROUNDS=true
+	POSTER_CACHE_DIR=/data/addon/poster_cache
+	POSTER_CACHE_FETCH_CONCURRENCY=32
+	POSTER_CACHE_LANDSCAPE_POSTERS=true
+	POSTER_CACHE_LOGOS=true
+	POSTER_CACHE_MAX_SIZE=1g
+	POSTER_CACHE_MEMORY_SIZE=0
+	PREFER_SMALLER_LOGOS_TMDB=true
+	PREFER_SMALLER_LANDSCAPE_TMDB=true
+	set +a
 fi
 
 # Generate secret key and persist it to /data/admin_key.
