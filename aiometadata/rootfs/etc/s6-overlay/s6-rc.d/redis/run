@@ -9,7 +9,6 @@ redis-server
     --loglevel warning
     --appendonly no
     --save ""
-    --stop-writes-on-bgsave-error no
-    --maxmemory 64mb
-    --maxmemory-policy allkeys-lru
-    --save ""
+    --maxmemory 32mb
+    --maxmemory-policy allkeys-lfu
+    --lazyfree-lazy-eviction yes
