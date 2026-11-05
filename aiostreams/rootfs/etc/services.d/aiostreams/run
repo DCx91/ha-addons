@@ -36,19 +36,21 @@ LOG_BUFFER_MAX_ENTRIES=500
 LOG_FORMAT=text
 LOG_LEVEL=$(bashio::config 'verbosity')
 NODE_OPTIONS="--max-old-space-size=384"
-PORT=$(bashio::app.port "3000/tcp")
 SECRET_KEY=${SECRET_KEY}
 SETTINGS_REFRESH_INTERVAL=0
-set +a
 
-# Trakt Client ID
-bashio::config.has_value 'trakt_id' && export TRAKT_CLIENT_ID="$(bashio::config 'trakt_id')" || export FETCH_TRAKT_ALIASES=false
+# Trakt Client ID & aliases
+if bashio::config.has_value 'trakt_id'; then
+    TRAKT_CLIENT_ID="$(bashio::config 'trakt_id')"
+    FETCH_TRAKT_ALIASES=true
+fi
 
 # Anime API
-bashio::config.false 'anime_api' && export ANIME_DB_LEVEL_OF_DETAIL=none
+bashio::config.false 'anime_api' && ANIME_DB_LEVEL_OF_DETAIL=none
 
 # Trusted UUID
-bashio::config.has_value 'trusted_uuid' && export TRUSTED_UUIDS="$(bashio::config 'trusted_uuid')"
+bashio::config.has_value 'trusted_uuid' && TRUSTED_UUIDS="$(bashio::config 'trusted_uuid')"
+set +a
 
 # Log basic info
 log_output() {
@@ -58,10 +60,8 @@ log_output() {
 if [[ "${LOG_LEVEL}" = "error" || "${LOG_LEVEL}" = "warning" ]]; then
 	bashio::log.info "Starting AIOStreams..."
 	log_output "Base URL" "${BASE_URL}"
-	log_output "Port" "${PORT}"
 	log_output "Database" "${DATABASE_URI}"
 	log_output "Log Level" "${LOG_LEVEL}"
-	log_output "Timezone" "${LOG_TIMEZONE}"
 	log_output "Anime DB" "$(bashio::config 'anime_api')"
 	log_output "Trakt" "$(bashio::config.has_value 'trakt_id' && echo 'configured' || echo 'unconfigured')"
 	log_output "Trusted UUID" "$(bashio::config.has_value 'trusted_uuid' && echo 'configured' || echo 'unconfigured')"
