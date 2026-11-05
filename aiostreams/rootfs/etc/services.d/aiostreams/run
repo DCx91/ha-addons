@@ -2,7 +2,6 @@
 
 # Persistent storage
 mkdir -p /data
-export DATABASE_URI="sqlite:///data/db.sqlite"
 
 # Auto-generate secret key and persist it to /data/secret_key.
 bashio::log.info "Checking secret key..."
@@ -16,36 +15,33 @@ else
 	(umask 077; echo "${SECRET_KEY}" > "${SECRET_KEY_FILE}" )
 	bashio::log.info "Generated new secret key and saved to ${SECRET_KEY_FILE}."
 fi
-export SECRET_KEY="${SECRET_KEY}"
-
-# Map app options to AIOStreams environment variables
-bashio::log.info "Reading configuration..."
-
-export AIOSTREAMS_AUTH_REQUIRED=true
-export DEFAULT_MAX_CACHE_SIZE=5000
-export SQL_CACHE_MAX_SIZE=5000
-export DISK_CACHE_DIR=/tmp/cache
-export LOG_BUFFER_MAX_BYTES=8388608
-export LOG_BUFFER_MAX_ENTRIES=20000
-export LOG_FORMAT=text
-export LOG_LEVEL=$(bashio::config 'verbosity')
-export LOG_SENSITIVE_INFO="$(bashio::config 'sensitive_info' false)"
-export LOG_TIMEZONE=$(bashio::info.timezone)
-export NODE_OPTIONS="--max-old-space-size=384"
-export PORT=$(bashio::app.port "3000/tcp")
-export SETTINGS_REFRESH_INTERVAL=0
-
-# Base URL
-if bashio::config.has_value 'base_url'; then
-	export BASE_URL="$(bashio::config 'base_url')"
-else
-	export BASE_URL="http://homeassistant.local:${PORT}"
-fi
 
 # AIOStreams Auth
 ADDON_USERNAME=$(bashio::config 'addon_username')
 ADDON_PASSWORD=$(bashio::config 'addon_password')
-export AIOSTREAMS_AUTH="${ADDON_USERNAME}:${ADDON_PASSWORD}"
+
+# Map app options to AIOStreams environment variables
+bashio::log.info "Reading configuration..."
+
+set -a
+AIOSTREAMS_AUTH="${ADDON_USERNAME}:${ADDON_PASSWORD}"
+AIOSTREAMS_AUTH_REQUIRED=true
+BASE_URL=$(bashio::config 'base_url')
+DATABASE_URI="sqlite:///data/db.sqlite"
+DEFAULT_MAX_CACHE_SIZE=2000
+SQL_CACHE_MAX_SIZE=2000
+DISK_CACHE_DIR=/tmp/cache
+LOG_BUFFER_MAX_BYTES=16777216
+LOG_BUFFER_MAX_ENTRIES=500
+LOG_FORMAT=text
+LOG_LEVEL=$(bashio::config 'verbosity')
+LOG_SENSITIVE_INFO=$(bashio::config 'sensitive_info' false)
+LOG_TIMEZONE=$(bashio::info.timezone)
+NODE_OPTIONS="--max-old-space-size=384"
+PORT=$(bashio::app.port "3000/tcp")
+SECRET_KEY=${SECRET_KEY}
+SETTINGS_REFRESH_INTERVAL=0
+set +a
 
 # Trakt Client ID
 bashio::config.has_value 'trakt_id' && export TRAKT_CLIENT_ID="$(bashio::config 'trakt_id')" || export FETCH_TRAKT_ALIASES=false
