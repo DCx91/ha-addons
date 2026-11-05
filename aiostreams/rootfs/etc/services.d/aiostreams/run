@@ -35,8 +35,6 @@ LOG_BUFFER_MAX_BYTES=16777216
 LOG_BUFFER_MAX_ENTRIES=500
 LOG_FORMAT=text
 LOG_LEVEL=$(bashio::config 'verbosity')
-LOG_SENSITIVE_INFO=$(bashio::config 'sensitive_info' false)
-LOG_TIMEZONE=$(bashio::info.timezone)
 NODE_OPTIONS="--max-old-space-size=384"
 PORT=$(bashio::app.port "3000/tcp")
 SECRET_KEY=${SECRET_KEY}
@@ -65,7 +63,6 @@ if [[ "${LOG_LEVEL}" = "error" || "${LOG_LEVEL}" = "warning" ]]; then
 	log_output "Log Level" "${LOG_LEVEL}"
 	log_output "Timezone" "${LOG_TIMEZONE}"
 	log_output "Anime DB" "$(bashio::config 'anime_api')"
-	log_output "Sensitive Info" "${LOG_SENSITIVE_INFO}"
 	log_output "Trakt" "$(bashio::config.has_value 'trakt_id' && echo 'configured' || echo 'unconfigured')"
 	log_output "Trusted UUID" "$(bashio::config.has_value 'trusted_uuid' && echo 'configured' || echo 'unconfigured')"
 fi
