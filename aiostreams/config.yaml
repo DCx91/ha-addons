@@ -13,23 +13,21 @@ image: ghcr.io/dcx91/aiostreams
 ports:
   3000/tcp: 3000
 ports_description:
-  3000/tcp: AIOStreams Web UI & Stremio Addon endpoint
-webui: http://[HOST]:[PORT:3000]/
+  3000/tcp: AIOStreams endpoint
 map:
   - data:rw
 options:
+  base_url: ""
   addon_username: ""
   addon_password: ""
-  base_url: ""
   verbosity: "error"
   trakt_id: ""
   anime_api: false
 schema:
+  base_url: url
   addon_username: str
   addon_password: password
-  base_url: url
   verbosity: list(error|warn|info|http|verbose|debug|silly)
   trakt_id: str?
   anime_api: bool
-  sensitive_info: bool?
   trusted_uuid: str?
