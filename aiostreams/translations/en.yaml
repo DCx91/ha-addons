@@ -30,9 +30,3 @@ configuration:
     name: Trusted UUID
     description: >-
       Allows risky configuration options for the added UUID (i.e. Regex).
-  secret_key:
-    name: Secret Key
-    description: >-
-      64-character hex key used to encrypt addon configurations. Leave blank to
-      auto-generate one on first start. If you change this, all existing user
-      configurations will be invalidated.
