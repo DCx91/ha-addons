@@ -25,14 +25,13 @@ Once installed, click **Open Web UI** to configure AIOStreams and install it int
 
 | Option | Recommended | Description |
 |---|:---:|---|
+| `base_url` | ✅ | Public URL of this add-on, e.g. `https://[domain].duckdns.org`. Use this to access the web UI. Most addons require HTTPS. |
 | `addon_username` | ✅ | Username for accessing the Dashboard. Case sensitive. |
 | `addon_password` | ✅ | Password for accessing the Dashboard. Case sensitive. |
-| `base_url` | ✅ | Public URL of this add-on, e.g. `https://[domain].duckdns.org`. Most addons require HTTPS. Defaults to `http://homeassistant.local:3000`. |
 | `trakt_api` | ✅ | Trakt client ID for alias lookups. Create one at [trakt.tv/oauth/applications](https://trakt.tv/oauth/applications). Without this, Trakt alias fetching is disabled. |
 | `log_level` | 🟡 | Logging verbosity. One of `error`, `warn`, `info`, `http`, `verbose`, `debug`, `silly`. Default: `error`. |
 | `anime_api` | 🟡 | Increased detail for anime metadata. Increases memory usage. Default: `false`. |
 | `trusted_uuid` | ❌ | Enables risky config options for this UUID, such as Regex filtering. |
-| `sensitive_info` | ❌ | Includes potentially sensitive values (e.g. API keys) in logs. Only enable temporarily for debugging. Default: `false`. |
 
 > **Note:** `base_url` should be the URL you will use to access AIOStreams from outside your network, as this is what gets embedded into the Stremio addon manifest.
 
