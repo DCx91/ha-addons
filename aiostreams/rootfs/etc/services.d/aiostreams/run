@@ -33,7 +33,6 @@ SQL_CACHE_MAX_SIZE=2000
 DISK_CACHE_DIR=/tmp/cache
 LOG_BUFFER_MAX_BYTES=16777216
 LOG_BUFFER_MAX_ENTRIES=500
-LOG_FORMAT=text
 LOG_LEVEL=$(bashio::config 'verbosity')
 NODE_OPTIONS="--max-old-space-size=384"
 SECRET_KEY=${SECRET_KEY}
@@ -53,12 +52,11 @@ bashio::config.has_value 'trusted_uuid' && TRUSTED_UUIDS="$(bashio::config 'trus
 set +a
 
 # Log basic info
-log_output() {
-    bashio::log.info "$(printf '%-15s: %s' "$1" "$2")"
-}
-
 if [[ "${LOG_LEVEL}" = "error" || "${LOG_LEVEL}" = "warning" ]]; then
-	bashio::log.info "Starting AIOStreams..."
+	log_output() {
+    	bashio::log.info "$(printf '%-15s: %s' "$1" "$2")"
+	}
+
 	log_output "Base URL" "${BASE_URL}"
 	log_output "Database" "${DATABASE_URI}"
 	log_output "Log Level" "${LOG_LEVEL}"
@@ -68,5 +66,6 @@ if [[ "${LOG_LEVEL}" = "error" || "${LOG_LEVEL}" = "warning" ]]; then
 fi
 
 # Start AIOStreams
+bashio::log.info "Starting AIOStreams..."
 cd /app
-exec node packages/server/dist/server.js
+exec node packages/server/dist/server.js > >(jq -R -r --unbuffered -f /etc/aiostreams.jq) 2>&1
