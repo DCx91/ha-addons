@@ -1,8 +1,5 @@
 #!/usr/bin/with-contenv bashio
 
-# Persistent storage
-mkdir -p /data
-
 # Auto-generate secret key and persist it to /data/secret_key.
 bashio::log.info "Checking secret key..."
 SECRET_KEY_FILE="/data/secret_key"
