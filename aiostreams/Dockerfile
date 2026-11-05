@@ -10,5 +10,4 @@ FROM ${BUILD_FROM}
 ENV S6_VERBOSITY=0
 RUN apk add --no-cache openssl nodejs
 COPY --from=prune /app /app
-COPY aiostreams.jq /etc/aiostreams.jq
 COPY rootfs /
