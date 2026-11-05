@@ -4,7 +4,7 @@ configuration:
     description: >-
       The public URL of this addon, e.g. https://[domain].duckdns.org.
       HTTPS is required for built-in addons, install links, and stream URL generation
-      to work correctly. 
+      to work correctly. Use this URL to access the web UI.
   verbosity:
     name: Log Level
     description: >-
@@ -26,10 +26,6 @@ configuration:
     description: >-
       Enables loading of detailed anime metadata. 
       Significantly increases memory overhead, but recommended if you watch anime.
-  sensitive_info:
-    name: Sensitive info
-    description: >-
-      Includes potentially sensitive info (like API keys) in logs for debugging.
   trusted_uuid:
     name: Trusted UUID
     description: >-
