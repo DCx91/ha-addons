@@ -14,8 +14,6 @@ ports:
   3000/tcp: 3000
 ports_description:
   3000/tcp: AIOStreams endpoint
-map:
-  - data:rw
 options:
   base_url: ""
   addon_username: ""
