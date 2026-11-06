@@ -4,15 +4,14 @@ set -ea
 # Load required config
 BUILT_IN_TMDB_API_KEY=$(bashio::config 'tmdb_api_key')
 BUILT_IN_RPDB_API_KEY=t0-free-rpdb
+CONSOLA_LEVEL=$(bashio::config 'verbosity')
 DATABASE_URI=sqlite:///data/addon/addon.db
 DOTENV_CONFIG_QUIET=true
 JIKAN_API_BASE=https://api.tenrai.org/v1
 HOST_NAME=$(bashio::config 'host_name')
-LOG_LEVEL=$(bashio::config 'verbosity')
-MAL_WARMUP_LOG_LEVEL=silent
+MAL_WARMUP_LOG_LEVEL=warn
 MAL_WARMUP_INTERVAL_HOURS=24
 MAL_WARMUP_WINDOW=02:00-06:00
-META_CONCURRENCY=20
 NODE_ENV=production
 REDIS_URL=redis://127.0.0.1:6379
 TZ=$(bashio::info.timezone)
@@ -37,10 +36,12 @@ if bashio::config.true 'single_user'; then
 	NODE_OPTIONS=--max-old-space-size=384
 	CACHE_WARMUP_ON_STARTUP=false
 	CATALOG_LIST_ITEMS_SIZE=10
+	CATALOG_PAGE_MEMORY_MB=32
 	FANART_CLIENT_CACHE_MAX=100
 	LOG_BUFFER_SIZE=500
 	MAL_WARMUP_PRIORITY_PAGES=1
 	MAX_CONCURRENT_REQUESTS=5
+	META_MEMORY_CACHE_MB=32
 	TMDB_SCRAPED_IMDB_CACHE_MAX=500
 	TRAKT_MIN_TIME=100
 	USER_ALIASES_ENABLED=true
