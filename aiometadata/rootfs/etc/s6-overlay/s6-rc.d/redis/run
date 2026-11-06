@@ -1,5 +1,5 @@
 #!/command/execlineb -P
-foreground { mkdir -p /data/redis }
+foreground { mkdir -p /data/redis /data/addon }
 pipeline -w { awk "!/Memory overcommit must be enabled|does not require authentication/ { print; fflush() }" }
 redis-server
     --daemonize no
