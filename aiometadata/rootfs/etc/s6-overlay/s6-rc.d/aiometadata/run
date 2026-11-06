@@ -11,6 +11,7 @@ case "$(bashio::config 'verbosity')" in
 esac
 
 # Load required config
+bashio::config.has_value 'password' && ADDON_PASSWORD=$(bashio::config 'password')
 BUILT_IN_TMDB_API_KEY=$(bashio::config 'tmdb_api_key')
 BUILT_IN_RPDB_API_KEY=t0-free-rpdb
 CONSOLA_LEVEL=$(bashio::config 'verbosity')
@@ -24,11 +25,6 @@ MAL_WARMUP_WINDOW=02:00-06:00
 NODE_ENV=production
 REDIS_URL=redis://127.0.0.1:6379
 TZ=$(bashio::info.timezone)
-
-# Load optional config
-bashio::config.has_value 'password' && ADDON_PASSWORD=$(bashio::config 'password')
-bashio::config.has_value 'fanart_api_key' && BUILT_IN_FANART_API_KEY=$(bashio::config 'fanart_api_key')
-bashio::config.has_value 'tvdb_api_key' && BUILT_IN_TVDB_API_KEY=$(bashio::config 'tvdb_api_key')
 
 # Warm up for specific UUIDs
 if bashio::config.has_value 'warming_uuids'; then
