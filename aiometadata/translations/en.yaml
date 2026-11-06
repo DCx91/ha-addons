@@ -11,7 +11,8 @@ configuration:
   verbosity:
     name: Verbosity
     description: >-
-      Controls the amount of detail included in the addon logs.
+      How much the server logs to the container output and to the dashboard log viewer.
+      0 errors only, 1 adds warnings, 3 adds info, 4 adds debug, 5 adds trace.
   tmdb_api_key:
     name: TMDb API Key
     description: >-
