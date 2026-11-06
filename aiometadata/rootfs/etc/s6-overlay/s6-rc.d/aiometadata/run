@@ -63,7 +63,6 @@ if bashio::config.true 'poster_cache'; then
 	PREFER_SMALLER_LOGOS_TMDB=true
 	PREFER_SMALLER_LANDSCAPE_TMDB=true
 fi
-set +a
 
 # Generate secret key and persist it to /data/admin_key.
 ADMIN_KEY_FILE="/data/admin_key"
@@ -76,11 +75,10 @@ else
     ADMIN_KEY=$(openssl rand -hex 32)
     ( umask 077; printf '%s\n' "${ADMIN_KEY}" > "${ADMIN_KEY_FILE}" )
 fi
+set +a
 
 # Input the key in the UI config tab if unset
 bashio::config.has_value 'admin_key' || bashio::app.option 'admin_key' "${ADMIN_KEY}"
-
-export ADMIN_KEY
 
 # Start AIOMetadata
 bashio::log.info "[AIOMetadata] Waiting for Redis..."
