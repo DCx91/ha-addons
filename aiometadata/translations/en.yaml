@@ -24,10 +24,6 @@ configuration:
     name: FanArt API Key
     description: >-
       Fanart.tv API key, used to retrieve high-quality artwork.
-  rpdb_api_key:
-    name: RPDb API Key
-    description: >-
-      Rating Poster Database (RPDb) API key, used to retrieve posters with ratings and other artwork overlays.
   single_user:
     name: Single User
     description: >-
