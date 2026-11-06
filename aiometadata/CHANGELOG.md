@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.8.3.1]
+
+* Fixed logging verbosity config option not working
+* Added password config option to password protect the instance
+* Reduced peak memory use.
+* Removed/replaced API key config options to prevent public exposure
+
 ## [3.8.3](https://github.com/cedya77/aiometadata/compare/v3.8.2...v3.8.3) (2026-10-28)
 
 
