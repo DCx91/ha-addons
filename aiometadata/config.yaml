@@ -31,7 +31,7 @@ schema:
   warming_uuids: 
     - str?
   poster_cache: bool
-  verbosity: list(silent|fatal|error|warn|info|success|debug|trace|verbose)
+  verbosity: list(0|1||2|3|4|5)
   admin_key: password?
   tvdb_api_key: str?
   fanart_api_key: str?
