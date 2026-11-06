@@ -1,6 +1,15 @@
 #!/command/with-contenv bashio
 set -ea
 
+# Match MAL warmup log level to verbosity config setting
+case "$(bashio::config 'verbosity')" in
+  0)    lvl=error ;;
+  1|2)  lvl=warn ;;
+  3)    lvl=info ;;
+  4|5)  lvl=debug ;;
+  *)    lvl=warn ;;
+esac
+
 # Load required config
 BUILT_IN_TMDB_API_KEY=$(bashio::config 'tmdb_api_key')
 BUILT_IN_RPDB_API_KEY=t0-free-rpdb
@@ -9,7 +18,7 @@ DATABASE_URI=sqlite:///data/addon/addon.db
 DOTENV_CONFIG_QUIET=true
 JIKAN_API_BASE=https://api.tenrai.org/v1
 HOST_NAME=$(bashio::config 'host_name')
-MAL_WARMUP_LOG_LEVEL=warn
+MAL_WARMUP_LOG_LEVEL="$lvl"
 MAL_WARMUP_INTERVAL_HOURS=24
 MAL_WARMUP_WINDOW=02:00-06:00
 NODE_ENV=production
@@ -77,20 +86,9 @@ else
 fi
 set +a
 
-# Input the key in the UI config tab if unset
+# Input the admin key in the UI config tab if unset
 bashio::config.has_value 'admin_key' || bashio::app.option 'admin_key' "${ADMIN_KEY}"
 
 # Start AIOMetadata
-bashio::log.info "[AIOMetadata] Waiting for Redis..."
-i=0
-until redis-cli -h 127.0.0.1 -p 6379 ping >/dev/null 2>&1; do
-    i=$((i + 1))
-    if [ "$i" -ge 30 ]; then
-        bashio::log.error "[AIOMetadata] Redis did not come up in time" >&2
-        exit 1
-    fi
-    sleep 1
-done
-
 cd /app
 exec node dist/server/server.js
