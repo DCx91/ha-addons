@@ -1,5 +1,5 @@
 name: AIOMetadata
-version: "3.8.3"
+version: "3.8.3.1"
 slug: aiometadata
 description: >-
   Aggregates and enriches movie, series, and anime metadata from multiple sources,
@@ -22,7 +22,7 @@ options:
   warming_uuids: ""
   single_user: true
   poster_cache: true
-  verbosity: info
+  verbosity: 2
 schema:
   host_name: url
   password: password?
@@ -31,5 +31,5 @@ schema:
   warming_uuids: 
     - str?
   poster_cache: bool
-  verbosity: list(0|1||2|3|4|5)
+  verbosity: list(0|1|2|3|4|5)
   admin_key: password?
