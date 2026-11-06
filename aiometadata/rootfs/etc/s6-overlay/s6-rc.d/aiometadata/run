@@ -1,63 +1,59 @@
 #!/command/with-contenv bashio
-set -e
+set -ea
 
-mkdir -p /data/addon /data/redis
+# Match MAL warmup log level to verbosity config setting
+case "$(bashio::config 'verbosity')" in
+  0)    lvl=error ;;
+  1|2)  lvl=warn ;;
+  3)    lvl=info ;;
+  4|5)  lvl=debug ;;
+  *)    lvl=warn ;;
+esac
 
 # Load required config
-set -a
+bashio::config.has_value 'password' && ADDON_PASSWORD=$(bashio::config 'password')
+BUILT_IN_TMDB_API_KEY=$(bashio::config 'tmdb_api_key')
+BUILT_IN_RPDB_API_KEY=t0-free-rpdb
+CONSOLA_LEVEL=$(bashio::config 'verbosity')
 DATABASE_URI=sqlite:///data/addon/addon.db
 DOTENV_CONFIG_QUIET=true
 JIKAN_API_BASE=https://api.tenrai.org/v1
 HOST_NAME=$(bashio::config 'host_name')
-LOG_LEVEL=$(bashio::config 'verbosity')
-MAL_WARMUP_LOG_LEVEL=silent
+MAL_WARMUP_LOG_LEVEL="$lvl"
 MAL_WARMUP_INTERVAL_HOURS=24
 MAL_WARMUP_WINDOW=02:00-06:00
-META_CONCURRENCY=20
 NODE_ENV=production
-PORT=$(bashio::app.port '3232/tcp')
 REDIS_URL=redis://127.0.0.1:6379
-TMDB_API_KEY=$(bashio::config 'tmdb_api_key')
 TZ=$(bashio::info.timezone)
-set +a
-
-# Load optional config 
-bashio::config.has_value 'fanart_api_key' && export FANART_API_KEY=$(bashio::config 'fanart_api_key')
-bashio::config.has_value 'rpdb_api_key' && export RPDB_API_KEY=$(bashio::config 'rpdb_api_key')
-bashio::config.has_value 'tvdb_api_key' && export TVDB_API_KEY=$(bashio::config 'tvdb_api_key')
 
 # Warm up for specific UUIDs
 if bashio::config.has_value 'warming_uuids'; then
     mapfile -t uuids < <(bashio::config 'warming_uuids')
-
     if (( ${#uuids[@]} > 3 )); then
         bashio::log.warning "Only up to 3 UUIDs are supported for cache warming; ignoring $(( ${#uuids[@]} - 3 )) extra"
     fi
-
     CACHE_WARMUP_UUIDS=$(IFS=,; echo "${uuids[*]:0:3}")
-    export CACHE_WARMUP_UUIDS
-	export TMDB_POPULAR_WARMING_ENABLED=false
+    TMDB_POPULAR_WARMING_ENABLED=false
 fi
 
 # Single user optimisations
 if bashio::config.true 'single_user'; then
-	set -a
 	NODE_OPTIONS=--max-old-space-size=384
 	CACHE_WARMUP_ON_STARTUP=false
 	CATALOG_LIST_ITEMS_SIZE=10
+	CATALOG_PAGE_MEMORY_MB=32
 	FANART_CLIENT_CACHE_MAX=100
 	LOG_BUFFER_SIZE=500
 	MAL_WARMUP_PRIORITY_PAGES=1
 	MAX_CONCURRENT_REQUESTS=5
+	META_MEMORY_CACHE_MB=32
 	TMDB_SCRAPED_IMDB_CACHE_MAX=500
 	TRAKT_MIN_TIME=100
 	USER_ALIASES_ENABLED=true
-	set +a
 fi
 
 # Poster caching
 if bashio::config.true 'poster_cache'; then
-	set -a
 	ENABLE_BUILTIN_POSTER_CACHE=true
 	META_COLD_STORE_ENABLED=true
 	META_COLD_STORE_MAX_BYTES=512m
@@ -71,12 +67,10 @@ if bashio::config.true 'poster_cache'; then
 	POSTER_CACHE_MEMORY_SIZE=0
 	PREFER_SMALLER_LOGOS_TMDB=true
 	PREFER_SMALLER_LANDSCAPE_TMDB=true
-	set +a
 fi
 
 # Generate secret key and persist it to /data/admin_key.
 ADMIN_KEY_FILE="/data/admin_key"
-
 if bashio::config.has_value 'admin_key'; then
     ADMIN_KEY=$(bashio::config 'admin_key')
 elif [[ -s "${ADMIN_KEY_FILE}" ]]; then
@@ -86,22 +80,11 @@ else
     ADMIN_KEY=$(openssl rand -hex 32)
     ( umask 077; printf '%s\n' "${ADMIN_KEY}" > "${ADMIN_KEY_FILE}" )
 fi
+set +a
 
-# Input the key in the UI config tab if unset
+# Input the admin key in the UI config tab if unset
 bashio::config.has_value 'admin_key' || bashio::app.option 'admin_key' "${ADMIN_KEY}"
 
-export ADMIN_KEY
-
-bashio::log.info "[AIOMetadata] Waiting for Redis..."
-i=0
-until redis-cli -h 127.0.0.1 -p 6379 ping >/dev/null 2>&1; do
-    i=$((i + 1))
-    if [ "$i" -ge 30 ]; then
-        bashio::log.error "[AIOMetadata] Redis did not come up in time" >&2
-        exit 1
-    fi
-    sleep 1
-done
-
+# Start AIOMetadata
 cd /app
 exec node dist/server/server.js

@@ -39,30 +39,6 @@ Use a higher verbosity level when troubleshooting problems. For normal operation
 
 AIOMetadata uses TMDb to retrieve movie and TV metadata.
 
-### TVDb API Key
-
-[Optional] A TheTVDB API v4 key.
-
-This can be used by AIOMetadata to retrieve additional movie and TV metadata.
-
-### FanArt API Key
-
-[Optional] An API key for [Fanart.tv](https://fanart.tv/).
-
-Fanart.tv provides high-quality artwork such as:
-
-- Movie and TV backgrounds
-- Logos
-- Clear art
-- Character artwork
-- Additional promotional artwork
-
-### RPDb API Key
-
-[Optional] An API key for the Rating Poster Database (RPDb).
-
-RPDb provides posters and other artwork containing ratings and additional information.
-
 ### Single User
 
 Optimises AIOMetadata for personal use.
@@ -70,6 +46,8 @@ Optimises AIOMetadata for personal use.
 When enabled, features and overhead intended for publicly accessible or multi-user instances are disabled or reduced.
 
 This is recommended when the app is only being used by you or by devices on your own network.
+
+Password protection is also recommended.
 
 ### Cache Posters
 
@@ -94,8 +72,8 @@ Cache warming allows commonly requested artwork and metadata to be populated in 
 
 AIOMetadata can use several external metadata providers. API keys are generally optional, but enabling additional providers can increase the amount and variety of metadata and artwork available.
 
-You do not need to configure every provider. 
-They can also be configured within the UI.
+You do not need to configure every provider. They can also be configured within the UI.
+
 Only TMDb is required for AIOMetadata to run.
 
 ## Accessing AIOMetadata
@@ -106,12 +84,6 @@ The administration dashboard is available at:
 
 ```text
 https://<your-hostname>/dashboard
-```
-
-For example:
-
-```text
-https://metadata.example.com/dashboard
 ```
 
 The dashboard requires the configured **Admin Key**.

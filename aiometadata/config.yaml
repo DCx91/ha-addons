@@ -1,5 +1,5 @@
 name: AIOMetadata
-version: "3.8.3"
+version: "3.8.3.1"
 slug: aiometadata
 description: >-
   Aggregates and enriches movie, series, and anime metadata from multiple sources,
@@ -17,20 +17,19 @@ ports_description:
 webui: http://[HOST]:[PORT:3232]
 options:
   host_name: ""
+  password: ""
   tmdb_api_key: ""
-  single_user: true
   warming_uuids: ""
+  single_user: true
   poster_cache: true
-  verbosity: info
+  verbosity: 2
 schema:
   host_name: url
+  password: password?
   tmdb_api_key: str
   single_user: bool
   warming_uuids: 
     - str?
   poster_cache: bool
-  verbosity: list(silent|info|debug)
+  verbosity: list(0|1|2|3|4|5)
   admin_key: password?
-  tvdb_api_key: str?
-  fanart_api_key: str?
-  rpdb_api_key: str?
