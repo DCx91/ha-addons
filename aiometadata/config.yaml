@@ -33,4 +33,3 @@ schema:
   admin_key: password?
   tvdb_api_key: str?
   fanart_api_key: str?
-  rpdb_api_key: str?
