@@ -19,8 +19,8 @@ options:
   host_name: ""
   password: ""
   tmdb_api_key: ""
-  single_user: true
   warming_uuids: ""
+  single_user: true
   poster_cache: true
   verbosity: info
 schema:
@@ -33,5 +33,3 @@ schema:
   poster_cache: bool
   verbosity: list(0|1||2|3|4|5)
   admin_key: password?
-  tvdb_api_key: str?
-  fanart_api_key: str?
