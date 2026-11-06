@@ -14,7 +14,6 @@ MAL_WARMUP_INTERVAL_HOURS=24
 MAL_WARMUP_WINDOW=02:00-06:00
 META_CONCURRENCY=20
 NODE_ENV=production
-PORT=$(bashio::app.port '3232/tcp')
 REDIS_URL=redis://127.0.0.1:6379
 TZ=$(bashio::info.timezone)
 
