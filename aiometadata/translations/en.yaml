@@ -17,14 +17,6 @@ configuration:
     name: TMDb API Key
     description: >-
       API key for The Movie Database (TMDb), used to retrieve movie and TV metadata.
-  tvdb_api_key:
-    name: TVDb API Key
-    description: >-
-      TheTVDB API v4 key, used to retrieve movie and TV metadata.
-  fanart_api_key:
-    name: FanArt API Key
-    description: >-
-      Fanart.tv API key, used to retrieve high-quality artwork.
   single_user:
     name: Single User
     description: >-
@@ -37,3 +29,7 @@ configuration:
     name: Cache Warming
     description: >-
       User UUIDs to use for cache warming operations (max: 3 UUIDs).
+  password:
+    name: Addon Password
+    description: >-
+      Password protects the AIOStreams instance, blocking access to the 'configure' page for others.
