@@ -16,7 +16,11 @@ configuration:
   tmdb_api_key:
     name: TMDb API Key
     description: >-
-      API key for The Movie Database (TMDb), used to retrieve movie and TV metadata.
+      Sets the fallback API key for The Movie Database (TMDb), used to retrieve movie and TV metadata.
+  tmdb_api_key:
+    name: TVDb API Key
+    description: >-
+      Sets the fallback API key for The TV Database (TVDb), used to retrieve movie and TV metadata.
   single_user:
     name: Single User
     description: >-
