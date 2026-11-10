@@ -10,9 +10,25 @@ case "$(bashio::config 'verbosity')" in
   *)    lvl=warn ;;
 esac
 
+# Get cache warming language from HA
+HA_CONFIG="$(curl -fsS \
+    -H "Authorization: Bearer ${SUPERVISOR_TOKEN}" \
+    http://supervisor/core/api/config || echo '{}')"
+HA_LANG="$(echo "${HA_CONFIG}" | jq -r '.language // empty')"
+HA_COUNTRY="$(echo "${HA_CONFIG}" | jq -r '.country // empty')"
+BASE_LANG="${HA_LANG%%-*}"
+if [[ "${HA_LANG}" == *-* ]]; then
+    CACHE_WARM_LANGUAGE="${HA_LANG}"
+elif [ -n "${BASE_LANG}" ] && [ -n "${HA_COUNTRY}" ]; then
+    CACHE_WARM_LANGUAGE="${BASE_LANG}-${HA_COUNTRY}"
+else
+    CACHE_WARM_LANGUAGE="en-US"
+fi
+
 # Load required config
 bashio::config.has_value 'password' && ADDON_PASSWORD=$(bashio::config 'password')
 BUILT_IN_TMDB_API_KEY=$(bashio::config 'tmdb_api_key')
+BUILT_IN_TVDB_API_KEY=$(bashio::config 'tvdb_api_key')
 BUILT_IN_RPDB_API_KEY=t0-free-rpdb
 CONSOLA_LEVEL=$(bashio::config 'verbosity')
 DATABASE_URI=sqlite:///data/addon/addon.db
