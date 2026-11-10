@@ -1,5 +1,5 @@
 #!/command/with-contenv bashio
-set -ea
+set -e
 
 # Match MAL warmup log level to verbosity config setting
 case "$(bashio::config 'verbosity')" in
@@ -10,12 +10,30 @@ case "$(bashio::config 'verbosity')" in
   *)    lvl=warn ;;
 esac
 
+# Get cache warming language from HA
+HA_CONFIG="$(curl -fsS \
+    -H "Authorization: Bearer ${SUPERVISOR_TOKEN}" \
+    http://supervisor/core/api/config || echo '{}')"
+HA_LANG="$(echo "${HA_CONFIG}" | jq -r '.language // empty')"
+HA_COUNTRY="$(echo "${HA_CONFIG}" | jq -r '.country // empty')"
+BASE_LANG="${HA_LANG%%-*}"
+if [[ "${HA_LANG}" == *-* ]]; then
+    export CACHE_WARM_LANGUAGE="${HA_LANG}"
+elif [ -n "${BASE_LANG}" ] && [ -n "${HA_COUNTRY}" ]; then
+    export CACHE_WARM_LANGUAGE="${BASE_LANG}-${HA_COUNTRY}"
+else
+    export CACHE_WARM_LANGUAGE="en-US"
+fi
+
+set -a
+
 # Load required config
 bashio::config.has_value 'password' && ADDON_PASSWORD=$(bashio::config 'password')
 bashio::config.has_value 'tmdb_api_key' && BUILT_IN_TMDB_API_KEY=$(bashio::config 'tmdb_api_key')
 bashio::config.has_value 'tvdb_api_key' && BUILT_IN_TVDB_API_KEY=$(bashio::config 'tvdb_api_key')
 BUILT_IN_RPDB_API_KEY=t0-free-rpdb
 CONSOLA_LEVEL=$(bashio::config 'verbosity')
+DASHBOARD_METADATA_LANGUAGE=${BASE_LANG}
 DATABASE_URI=sqlite:///data/addon/addon.db
 DOTENV_CONFIG_QUIET=true
 JIKAN_API_BASE=https://api.tenrai.org/v1
