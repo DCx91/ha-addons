@@ -10,17 +10,18 @@ arch:
   - amd64
   - aarch64
 init: false
+homeassistant_api: true
 ports:
   3232/tcp: 3232
 ports_description:
   3232/tcp: AIOMetadata Web UI
-webui: http://[HOST]:[PORT:3232]
+webui: http://[HOST]:[PORT:3232]/dashboard
 options:
   host_name: ""
   password: ""
   tmdb_api_key: ""
   tvdb_api_key: ""
-  warming_uuids: ""
+  warming_uuids: []
   single_user: true
   poster_cache: true
   verbosity: 2
@@ -30,8 +31,7 @@ schema:
   tmdb_api_key: str?
   tvdb_api_key: str?
   single_user: bool
-  warming_uuids: 
-    - str?
+  warming_uuids: ["str?"]
   poster_cache: bool
   verbosity: list(0|1|2|3|4|5)
   admin_key: password?
