@@ -12,7 +12,8 @@ esac
 
 # Load required config
 bashio::config.has_value 'password' && ADDON_PASSWORD=$(bashio::config 'password')
-BUILT_IN_TMDB_API_KEY=$(bashio::config 'tmdb_api_key')
+bashio::config.has_value 'tmdb_api_key' && BUILT_IN_TMDB_API_KEY=$(bashio::config 'tmdb_api_key')
+bashio::config.has_value 'tvdb_api_key' && BUILT_IN_TVDB_API_KEY=$(bashio::config 'tvdb_api_key')
 BUILT_IN_RPDB_API_KEY=t0-free-rpdb
 CONSOLA_LEVEL=$(bashio::config 'verbosity')
 DATABASE_URI=sqlite:///data/addon/addon.db
