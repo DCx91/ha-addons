@@ -1,5 +1,5 @@
 name: AIOStreams
-version: "2.37.0"
+version: "2.38.1"
 slug: aiostreams
 description: >-
   Consolidates multiple Stremio addons and debrid 
@@ -14,7 +14,7 @@ ports:
   3000/tcp: 3000
 ports_description:
   3000/tcp: AIOStreams Web UI & Stremio Addon endpoint
-webui: http://[HOST]:[PORT:3000]/
+webui: http://[HOST]:[PORT:3000]
 map:
   - data:rw
 options:
