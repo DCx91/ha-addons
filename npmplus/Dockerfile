@@ -1,7 +1,7 @@
 ARG BUILD_FROM=ghcr.io/hassio-addons/base:21.0.11
 
 # Frontend
-ARG NPMPLUS_REF=2026-10-22-r1
+ARG NPMPLUS_REF=2026-11-18-r1
 
 FROM alpine:3.24 AS npmplus-frontend
 ARG NPMPLUS_REF
@@ -27,7 +27,7 @@ RUN patch -d /app -p 1 < /tmp/npmplus-ha-auth-api-frontend.patch \
 
 # Backend
 # hadolint ignore=DL3006
-FROM ghcr.io/zoeyvid/npmplus:2026-10-22-r1 AS npmplus
+FROM ghcr.io/zoeyvid/npmplus:2026-11-18-r1 AS npmplus
 
 COPY patch/npmplus-ha-auth-api-backend.patch /usr/src/
 
