@@ -1,9 +1,3 @@
-This patch targets the runtime layout of ghcr.io/zoeyvid/npmplus:2026-10-22-r1
-(also the current :latest, upstream commit 8409b1a2). Apply with:
-    patch -d /app -p 1 < npmplus-ha-auth-api-backend.patch
-The HA fallback activates automatically when SUPERVISOR_TOKEN is present
-(i.e. when running as a Home Assistant add-on). No extra env vars needed.
-
 --- a/internal/token.js
 +++ b/internal/token.js
 @@ -1,5 +1,6 @@
