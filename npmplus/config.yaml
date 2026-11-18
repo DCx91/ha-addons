@@ -13,7 +13,8 @@ arch:
 auth_api: true
 apparmor: true
 map:
-  - type: data
+  - type: app_config
+    read_only: false
 init: false
 webui: http://[HOST]:[PORT:81]
 ports:
@@ -28,6 +29,7 @@ options:
   trust_cloudflare: true
 schema:
   trust_cloudflare: bool
+  geoip2: bool?
   disable_ipv6: bool?
   acme_email: email?
   initial_admin_email: email?
