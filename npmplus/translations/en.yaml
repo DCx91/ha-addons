@@ -2,6 +2,11 @@ configuration:
   disable_ipv6:
     name: Disable IPv6
     description: Disables listening on IPv6 and the nginx IPv6 resolver.
+  geoip2:
+    name: Enable GeoIP2
+    description: >-
+      Loads the GeoIP2 NGINX modules, allowing custom NGINX configurations to
+      use MaxMind Geolocation databases. Requires MaxMind's "GeoLite2-Country.mmdb" in /config/geoip2.
   acme_email:
     name: ACME email
     description: >-
