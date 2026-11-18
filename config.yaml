@@ -1,0 +1,34 @@
+name: NPMplus Beta 2
+version: "1.0.2"
+slug: npmplus_beta_2
+description: >-
+  NPMplus (Nginx Proxy Manager plus) as a Home Assistant addon. Manage
+  reverse proxy hosts, redirects, dead hosts, streams and Let's Encrypt
+  certificates from within Home Assistant.
+url: https://github.com/ZoeyVid/NPMplus
+arch:
+  - aarch64
+  - amd64
+auth_api: true
+apparmor: true
+map:
+  - type: data
+init: false
+webui: http://[HOST]:[PORT:81]
+ports:
+  "80/tcp": 80
+  "443/tcp": 443
+  "81/tcp": 81
+ports_description:
+  "80/tcp": HTTP traffic for proxied hosts and ACME challenges
+  "443/tcp": HTTPS traffic for proxied hosts
+  "81/tcp": NPMplus admin web UI
+options:
+  trust_cloudflare: true
+schema:
+  trust_cloudflare: bool
+  disable_ipv6: bool?
+  acme_email: email?
+  initial_admin_email: email?
+  initial_admin_password: password?
+  logrotate: bool?

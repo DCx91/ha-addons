@@ -1,0 +1,132 @@
+This patch targets the runtime layout of ghcr.io/zoeyvid/npmplus:2026-10-22-r1
+(also the current :latest, upstream commit 8409b1a2). Apply with:
+    patch -d /app -p 1 < npmplus-ha-auth-api-backend.patch
+The HA fallback activates automatically when SUPERVISOR_TOKEN is present
+(i.e. when running as a Home Assistant add-on). No extra env vars needed.
+
+--- a/internal/token.js
++++ b/internal/token.js
+@@ -1,5 +1,6 @@
+ import _ from "lodash";
+ import errs from "../lib/error.js";
++import haAuth from "../lib/ha-auth.js";
+ import { parseDatePeriod } from "../lib/helpers.js";
+ import authModel from "../models/auth.js";
+ import TokenModel from "../models/token.js";
+@@ -27,26 +28,29 @@
+ 		data.scope = data.scope || "user";
+ 		data.expiry = data.expiry || "1d";
+ 
+-		const user = await userModel
++		let user = await userModel
+ 			.query()
+ 			.where("email", data.identity.toLowerCase().trim())
+ 			.andWhere("is_deleted", 0)
+ 			.andWhere("is_disabled", 0)
+ 			.first();
+ 
+-		if (!user) {
+-			throw new errs.AuthError(ERROR_MESSAGE_INVALID_AUTH);
+-		}
+-
+-		const auth = await authModel.query().where("user_id", "=", user.id).where("type", "=", "password").first();
+-
+-		if (!auth) {
+-			throw new errs.AuthError(ERROR_MESSAGE_INVALID_AUTH);
+-		}
+-
+-		const valid = await auth.verifyPassword(data.secret);
++		let valid = false;
++		if (user) {
++			const auth = await authModel.query().where("user_id", "=", user.id).where("type", "=", "password").first();
++			if (auth) {
++				valid = await auth.verifyPassword(data.secret);
++			}
++		}
++
+ 		if (!valid) {
+-			throw new errs.AuthError(ERROR_MESSAGE_INVALID_AUTH, ERROR_MESSAGE_INVALID_AUTH_I18N);
++			// Home Assistant auth_api fallback (active when SUPERVISOR_TOKEN is present)
++			const haUser = await haAuth.loginWithHomeAssistant(data.identity, data.secret);
++			if (haUser) {
++				user = haUser;
++			} else {
++				throw new errs.AuthError(ERROR_MESSAGE_INVALID_AUTH, ERROR_MESSAGE_INVALID_AUTH_I18N);
++			}
+ 		}
+ 
+ 		if (data.scope !== "user" && _.indexOf(user.roles, data.scope) === -1) {
+diff --git a/lib/ha-auth.js b/lib/ha-auth.js
+new file mode 100644
+--- /dev/null
++++ b/lib/ha-auth.js
+@@ -0,0 +1,69 @@
++import userModel from "../models/user.js";
++
++/**
++ * Home Assistant auth_api login helper.
++ *
++ * Only active when running as a Home Assistant add-on: the Supervisor injects
++ * a SUPERVISOR_TOKEN into every add-on container, and its presence is what
++ * enables this fallback. In every other environment it is inert and password
++ * login behaves exactly like stock NPMplus.
++ */
++const isEnabled = () => !!process.env.SUPERVISOR_TOKEN;
++
++/**
++ * Verifies credentials against the Home Assistant Supervisor auth_api and,
++ * on success, maps the login to the first enabled NPMplus admin user.
++ *
++ * @param   {String} identity
++ * @param   {String} secret
++ * @returns {Promise<Object|null>} the mapped NPMplus user, or null
++ */
++const loginWithHomeAssistant = async (identity, secret) => {
++	if (!isEnabled()) {
++		return null;
++	}
++
++	let response;
++	try {
++		response = await fetch("http://supervisor/auth", {
++			method: "POST",
++			headers: {
++				Authorization: `Bearer ${process.env.SUPERVISOR_TOKEN}`,
++				"Content-Type": "application/json",
++			},
++			body: JSON.stringify({
++				username: identity,
++				password: secret,
++			}),
++		});
++	} catch (err) {
++		console.warn("ha-auth: Home Assistant auth_api request failed:", err?.message ?? err);
++		return null;
++	}
++
++	if (response.status === 401) {
++		// Home Assistant rejected the credentials
++		return null;
++	}
++	if (!response.ok) {
++		console.warn(`ha-auth: Home Assistant auth_api returned status ${response.status}. Is "auth_api: true" set in the add-on config?`);
++		return null;
++	}
++
++	// A successful HA login maps to the first enabled NPMplus admin user,
++	// since auth_api does not tell us which HA user just signed in.
++	const users = await userModel.query().where("is_deleted", 0).andWhere("is_disabled", 0).orderBy("id");
++	const admin = users.find((u) => Array.isArray(u.roles) && u.roles.indexOf("admin") !== -1);
++
++	if (!admin) {
++		console.warn("ha-auth: Home Assistant accepted the login, but no enabled NPMplus admin user exists to map it to");
++		return null;
++	}
++
++	console.log(`ha-auth: Home Assistant login mapped to admin user id ${admin.id}`);
++	return admin;
++};
++
++export default {
++	loginWithHomeAssistant,
++};
