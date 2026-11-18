@@ -42,6 +42,7 @@ profile npmplus flags=(attach_disconnected,mediate_deleted) {
   /usr/local/nginx/** rw,
   /app/** r,
   /app/templates/** rw,
+  /config/** rw,
   /etc/certbot.ini r,
   /etc/logrotate r,
   /etc/ssl/** r,
