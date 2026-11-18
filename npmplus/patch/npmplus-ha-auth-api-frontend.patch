@@ -1,0 +1,28 @@
+--- a/src/pages/Login/index.tsx
++++ b/src/pages/Login/index.tsx
+@@ -5,7 +5,7 @@
+ import { useAuthState } from "src/context";
+ import { useHealth } from "src/hooks";
+ import { intl, T } from "src/locale";
+-import { validateEmail, validateString } from "src/modules/Validations";
++import { validateString } from "src/modules/Validations";
+ import styles from "./index.module.css";
+ 
+ function TwoFactorForm() {
+@@ -135,14 +135,14 @@
+ 					{({ isSubmitting }) => (
+ 						<Form>
+ 							<div className="mb-3">
+-								<Field name="email" validate={validateEmail()}>
++								<Field name="email">
+ 									{({ field, form }: any) => (
+ 										<label className="form-label">
+ 											<T id="email-address" />
+ 											<input
+ 												{...field}
+ 												ref={emailRef}
+-												type="email"
++												type="text"
+ 												required
+ 												className={`form-control ${form.errors.email && form.touched.email ? " is-invalid" : ""}`}
+ 												placeholder={intl.formatMessage({ id: "email-address" })}
