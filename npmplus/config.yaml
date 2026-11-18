@@ -6,6 +6,7 @@ description: >-
   reverse proxy hosts, redirects, dead hosts, streams and Let's Encrypt
   certificates from within Home Assistant.
 url: https://github.com/DCx91/ha-addons/npmplus
+image: ghcr.io/dcx91/npmplus
 arch:
   - aarch64
   - amd64
