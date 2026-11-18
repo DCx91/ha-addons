@@ -3,7 +3,16 @@ set -euo pipefail
 
 tz="$(bashio::info.timezone || echo 'UTC')"
 
+if bashio::fs.file_non_empty "/usr/share/zoneinfo/${tz}"; then
+    ln -sf "/usr/share/zoneinfo/${tz}" /etc/localtime
+else
+    bashio::log.warning "Timezone '${tz}' not found in /usr/share/zoneinfo; leaving /etc/localtime unchanged"
+fi
+
+# --- HA config UI settings ---
+
 env_tmp="$(mktemp /data/.env.XXXXXX)"
+trap 'rm -f "${env_tmp}"' EXIT
 {
     printf 'TZ=%q\n' "${tz}"
     printf 'DISABLE_IPV6=%q\n' "$(bashio::config 'disable_ipv6' 'false')"
@@ -11,7 +20,11 @@ env_tmp="$(mktemp /data/.env.XXXXXX)"
     printf 'TRUST_CLOUDFLARE=%q\n' "$(bashio::config 'trust_cloudflare' 'false')"
 } > "${env_tmp}"
 
-# Persistent cookie secret (generated once, survives restarts)
+if bashio::config.has_value 'acme_email'; then
+    export ACME_EMAIL="$(bashio::config 'acme_email')"
+fi
+
+# --- Persistent cookie secret ---
 secret_file=/data/npmplus/cookie_secret
 mkdir -p /data/npmplus
 if ! bashio::fs.file_non_empty "${secret_file}"; then
@@ -28,10 +41,57 @@ secret="$(cat "${secret_file}")"
 printf 'COOKIE_SECRET=%q\n' "${secret}" >> "${env_tmp}"
 export COOKIE_SECRET="${secret}"
 
+# --- MaxMind GeoIP2 ---
+GEOIP_SRC=/config/geoip2
+GEOIP_DB="${GEOIP_SRC}/GeoLite2-Country.mmdb"
+GEOIP2_USER_CONF="${GEOIP_SRC}/geoip2.conf"
+GEOIP2_CONF=/data/custom_nginx/geoip2.conf
+mkdir -p /data/custom_nginx
+
+sed -i '/# BEGIN HA ADD-ON MANAGED/,/# END HA ADD-ON MANAGED/d' \
+    /data/custom_nginx/http_top.conf \
+    /data/custom_nginx/server_http.conf 2>/dev/null || true
+
+if bashio::config.true 'geoip2'; then
+    if bashio::fs.file_non_empty "${GEOIP_DB}"; then
+        printf 'NGINX_LOAD_GEOIP2_MODULE=true\n' >> "${env_tmp}"
+
+        if ! bashio::fs.file_exists "${GEOIP2_USER_CONF}"; then
+            mkdir -p "${GEOIP_SRC}"
+            bashio::log.info "Creating default GeoIP2 config at ${GEOIP2_USER_CONF}"
+            cat > "${GEOIP2_USER_CONF}" <<'EOF'
+geoip2 /config/geoip2/GeoLite2-Country.mmdb {
+    auto_reload 5m;
+    $geoip2_data_country_code default=XX source=$remote_addr country iso_code;
+}
+map $geoip2_data_country_code $allowed_country {
+    default yes;
+}
+EOF
+        fi
+        cp -f "${GEOIP2_USER_CONF}" "${GEOIP2_CONF}"
+        {
+            echo "# BEGIN HA ADD-ON MANAGED"
+            echo "include ${GEOIP2_CONF};"
+            echo "# END HA ADD-ON MANAGED"
+        } >> /data/custom_nginx/http_top.conf
+        {
+            echo "# BEGIN HA ADD-ON MANAGED"
+            echo 'if ($allowed_country = no) { return 403; }'
+            echo "# END HA ADD-ON MANAGED"
+        } >> /data/custom_nginx/server_http.conf
+    else
+        bashio::log.warning "GeoIP2 enabled but ${GEOIP_DB} not found at ${GEOIP_SRC} - module will not load"
+        printf 'NGINX_LOAD_GEOIP2_MODULE=false\n' >> "${env_tmp}"
+    fi
+else
+    printf 'NGINX_LOAD_GEOIP2_MODULE=false\n' >> "${env_tmp}"
+fi
+
 mv "${env_tmp}" /data/.env
 rm -f /tmp/env.sha512sum
 
-# Create initial admin account (config values, or placeholder email + generated password)
+# --- Create initial admin account ---
 bashio::config.has_value 'initial_admin_email' && admin_email="$(bashio::config 'initial_admin_email')" || admin_email="admin@npmplus.local"
 
 if ! bashio::config.has_value 'initial_admin_password'; then
@@ -52,18 +112,7 @@ fi
 export INITIAL_ADMIN_EMAIL="${admin_email}"
 export INITIAL_ADMIN_PASSWORD="${admin_pass}"
 
-if bashio::config.has_value 'acme_email'; then
-    export ACME_EMAIL="$(bashio::config 'acme_email')"
-fi
-
-bashio::log.info "Wrote /data/.env ($(wc -c < /data/.env) bytes, $(grep -c . /data/.env) lines): $(grep -o '^[A-Z_]*' /data/.env | tr '\n' ' ')"
-
-if bashio::fs.file_non_empty "/usr/share/zoneinfo/${tz}"; then
-    ln -sf "/usr/share/zoneinfo/${tz}" /etc/localtime
-else
-    bashio::log.warning "Timezone '${tz}' not found in /usr/share/zoneinfo; leaving /etc/localtime unchanged"
-fi
-
+# --- Start NPMplus ---
 bashio::log.info "NPMplus starting..."
 
 cd /app
