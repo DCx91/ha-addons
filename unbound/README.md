@@ -62,5 +62,4 @@ This routes all queries through Unbound for fully private, recursive resolution 
 
 ## Credits
 
-Adapted from [madnuttah/unbound-docker](https://github.com/madnuttah/unbound-docker).  
 Unbound is developed by [NLnet Labs](https://nlnetlabs.nl/projects/unbound/about/).
