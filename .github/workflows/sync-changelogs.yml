@@ -1,0 +1,91 @@
+name: Sync app changelogs
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '**/config.yaml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  changelogs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Sync changelogs with app versions
+        run: |
+          set -euo pipefail
+
+          for dir in */ ; do
+            [ -f "$dir/config.yaml" ] || continue
+            app="${dir%/}"
+
+            version=$(sed -n 's/^version:[[:space:]]*"\?\([0-9][^"]*\)"\?/\1/p' "$dir/config.yaml" | head -n 1)
+            if [ -z "$version" ]; then
+              echo "::warning::$app: no top-level 'version:' in config.yaml, skipping"
+              continue
+            fi
+
+            changelog="$dir/CHANGELOG.md"
+            if [ -f "$changelog" ] && grep -Eq "^## (v)?$version" "$changelog"; then
+              echo "$app: changelog already has an entry for $version"
+              continue
+            fi
+
+            # Upstream project repo, e.g. https://github.com/cedya77/aiometadata
+            url=$(sed -n 's/^url:[[:space:]]*"\?\([^" ]*\)"\?/\1/p' "$dir/config.yaml" | head -n 1)
+            repo=$(sed -n 's#^https://github.com/\([^/]*\)/\([^/]*\)\(/.*\)\?$#\1/\2#p' <<< "$url")
+
+            notes=""
+            if [ -n "$repo" ]; then
+              for tag in "v$version" "$version"; do
+                json=$(curl -fsSL \
+                  -H "Accept: application/vnd.github+json" \
+                  "https://api.github.com/repos/$repo/releases/tags/$tag" || true)
+                if [ -n "$json" ]; then
+                  notes=$(jq -r '.body // ""' <<< "$json")
+                  [ -n "$notes" ] && break
+                fi
+              done
+            fi
+            if [ -z "$notes" ]; then
+              echo "::warning::$app: no upstream release notes found for $version"
+              notes="Update to version $version."
+            fi
+
+            [ -f "$changelog" ] || printf '# Changelog\n\n' > "$changelog"
+            TEMP=$(mktemp)
+            {
+              printf '# Changelog\n\n'
+              printf '## %s\n\n' "$version"
+              printf '%s\n\n' "$notes"
+              # Old body: current file minus its '# Changelog' heading, no leading blanks
+              sed '1{/^# Changelog[[:space:]]*$/d}' "$changelog" | sed '/./,$!d'
+            } > "$TEMP"
+            mv "$TEMP" "$changelog"
+            echo "$app: added changelog entry for $version"
+          done
+
+          git diff --stat
+
+      - name: Create pull request
+        uses: peter-evans/create-pull-request@v8
+        with:
+          token: ${{ secrets.PAT_BUMP_TOKEN }}
+          branch: chore/sync-changelogs
+          delete-branch: true
+          commit-message: "docs: sync changelogs with app versions"
+          title: "Sync app changelogs"
+          body: |
+            Adds missing changelog entries for the current version of each app,
+            using the upstream release notes where available.
+          labels: |
+            automated
+            documentation
