@@ -1,5 +1,28 @@
 # Changelog
 
+## v2.17.1
+
+<p>
+  <img src="https://img.shields.io/badge/openresty-1.31.8.1+backports-00DED7.svg?style=for-the-badge">
+  <img src="https://img.shields.io/badge/certbot-5.10.0-00C6DE.svg?style=for-the-badge">
+  <img src="https://img.shields.io/badge/s6overlay-3.2.3.2-00A8DE.svg?style=for-the-badge">
+</p>
+
+> [!WARNING]
+> Certbot has been updated. Exercise caution with this upgrade as your DNS plugins may not work as expected and require tweaks to dependencies.  See the [Certbot Doc](https://nginxproxymanager.com/certbot/) for more info.
+
+## Changes
+
+- Uses updated base OpenResty image with [nginx2root](https://nginx2root.com/) backported fixes (thanks @TKlerx)
+- Fix: SSL toggles reset to off when requesting a new certificate on host creation (thanks @adman234)
+- Moved nginx variables to their own include file, re-added `forward_host` variable (thanks @Dv2Corn)
+
+## Docker images
+
+- [jc21/nginx-proxy-manager:latest](https://hub.docker.com/layers/jc21/nginx-proxy-manager/latest/images/sha256-ddccef5311d962ce733bc3439f9efdc11f167888804e60c5912f8a37ecdc5d52)
+- [jc21/nginx-proxy-manager:2](https://hub.docker.com/layers/jc21/nginx-proxy-manager/2/images/sha256-ddccef5311d962ce733bc3439f9efdc11f167888804e60c5912f8a37ecdc5d52)
+- [jc21/nginx-proxy-manager:2.17.1](https://hub.docker.com/layers/jc21/nginx-proxy-manager/2.17.1/images/sha256-ddccef5311d962ce733bc3439f9efdc11f167888804e60c5912f8a37ecdc5d52)
+
 ## v2.16.0.2 (2026-10-22)
 
 - Added patch to bypass NPM login screen using HA Ingress token.
