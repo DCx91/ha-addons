@@ -27,6 +27,7 @@ jobs:
             [ -f "$dir/config.yaml" ] || continue
             app="${dir%/}"
 
+            # Accepts versions with or without a leading "v" (e.g. "4.1.0", "v2.38.1")
             version=$(sed -n 's/^version:[[:space:]]*"\?\([vV]\?[0-9][^"]*\)"\?/\1/p' "$dir/config.yaml" | head -n 1)
             if [ -z "$version" ]; then
               echo "::warning::$app: no top-level 'version:' in config.yaml, skipping"
@@ -39,25 +40,37 @@ jobs:
               continue
             fi
 
-            url=$(sed -n 's/^url:[[:space:]]*"\?\([^" ]*\)"\?/\1/p' "$dir/config.yaml" | head -n 1)
-            repo=$(sed -n 's#^https://github.com/\([^/]*\)/\([^/]*\)\(/.*\)\?$#\1/\2#p' <<< "$url")
+            # Upstream project repo, in priority order:
+            #   1. an "# upstream: <owner/repo>" (or github URL) comment in config.yaml
+            #   2. the app's url: field, when it points at the upstream repo
+            upstream=$(sed -n 's/^#[[:space:]]*upstream:[[:space:]]*//p' "$dir/config.yaml" | head -n 1)
+            if [ -z "$upstream" ]; then
+              upstream=$(sed -n 's/^url:[[:space:]]*"\?\([^" ]*\)"\?/\1/p' "$dir/config.yaml" | head -n 1)
+            fi
+            repo=""
+            if grep -Eq '^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$' <<< "$upstream"; then
+              repo="$upstream"
+            else
+              repo=$(sed -n 's#^https://github.com/\([^/]*\)/\([^/]*\)\(/.*\)\?$#\1/\2#p' <<< "$upstream")
+            fi
 
             notes=""
-            if [ -n "$repo" ]; then
-              for tag in "$version" "v${version#v}" "${version#v}"; do
-                json=$(curl -fsSL \
-                  -H "Accept: application/vnd.github+json" \
-                  "https://api.github.com/repos/$repo/releases/tags/$tag" || true)
-                if [ -n "$json" ]; then
-                  notes=$(jq -r '.body // ""' <<< "$json")
-                  [ -n "$notes" ] && break
-                fi
-              done
+            if [ -z "$repo" ]; then
+              echo "::warning::$app: no upstream repo found for release notes - add an '# upstream: owner/repo' comment to config.yaml"
+            else
+              releases=$(curl -fsSL \
+                -H "Accept: application/vnd.github+json" \
+                "https://api.github.com/repos/$repo/releases?per_page=100" || true)
+              if [ -n "$releases" ]; then
+                notes=$(jq -r --arg v "${version#v}" \
+                  'first(.[] | select((.tag_name | sub("^[vV]"; "")) == $v) | .body) // ""' \
+                  <<< "$releases")
+              fi
+              if [ -z "$notes" ]; then
+                echo "::warning::$app: no release notes found for $version in $repo"
+              fi
             fi
-            if [ -z "$notes" ]; then
-              echo "::warning::$app: no upstream release notes found for $version"
-              notes="Update to version $version."
-            fi
+            [ -n "$notes" ] || notes="Update to version $version."
 
             [ -f "$changelog" ] || printf '# Changelog\n\n' > "$changelog"
             TEMP=$(mktemp)
@@ -70,7 +83,7 @@ jobs:
             mv "$TEMP" "$changelog"
             echo "$app: added changelog entry for $version"
           done
-
+  
           git diff --stat
 
       - name: Create pull request
