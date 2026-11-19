@@ -1,48 +1,104 @@
 name: Update AIOMetadata version
+
 on:
   schedule:
-    - cron: '0 6 * * *' 
+    - cron: '0 6 * * *'
   workflow_dispatch:
+
 permissions:
   contents: write
   pull-requests: write
+
+env:
+  UPSTREAM_REPO: cedya77/aiometadata
+  ADDON_DIR: aiometadata
+
 jobs:
   update:
-    runs-on: ubuntu-26.04
+    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
-        with:
-          token: ${{ secrets.PAT_BUMP_TOKEN }}
-      - name: Get latest upstream version
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Get latest upstream release
         id: upstream
         run: |
-          VERSION=$(curl -s https://api.github.com/repos/cedya77/aiometadata/releases/latest \
-            | jq -r .tag_name | sed 's/^v//')
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          set -euo pipefail
+          RELEASE_JSON=$(curl -fsSL "https://api.github.com/repos/${UPSTREAM_REPO}/releases/latest")
+          VERSION=$(jq -r '.tag_name | ltrimstr("v")' <<< "$RELEASE_JSON")
+          if [[ ! "$VERSION" =~ ^[0-9][A-Za-z0-9._-]*$ ]]; then
+            echo "::error::Could not parse a valid version from the latest $UPSTREAM_REPO release (got '${VERSION}')"
+            exit 1
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "url=$(jq -r '.html_url' <<< "$RELEASE_JSON")" >> "$GITHUB_OUTPUT"
+          jq -r '.body // ""' <<< "$RELEASE_JSON" > "$RUNNER_TEMP/release_notes.md"
+
       - name: Get current version
         id: current
         run: |
-          VERSION=$(grep '^version:' aiometadata/config.yaml | awk '{print $2}' | tr -d '"')
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
-      - name: Bump version and update changelog
+          set -euo pipefail
+          VERSION=$(sed -n 's/^version:[[:space:]]*"\?\([0-9][^"]*\)"\?/\1/p' "${ADDON_DIR}/config.yaml" | head -n 1)
+          if [ -z "$VERSION" ]; then
+            echo "::error::No top-level 'version:' line found in ${ADDON_DIR}/config.yaml"
+            exit 1
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Bump config.yaml, Dockerfile and changelog
         if: steps.upstream.outputs.version != steps.current.outputs.version
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NEW_VERSION: ${{ steps.upstream.outputs.version }}
         run: |
-          git config user.name "github-actions"
-          git config user.email "actions@github.com"
-          
-          sed -i 's/^version: .*/version: "${{ steps.upstream.outputs.version }}"/' aiometadata/config.yaml
-          RELEASE_NOTES=$(curl -s \
-            -H "Authorization: Bearer $GH_TOKEN" \
-            https://api.github.com/repos/cedya77/aiometadata/releases/latest \
-            | jq -r .body)
-          CHANGELOG_FILE="aiometadata/CHANGELOG.md"
-          [ ! -f "$CHANGELOG_FILE" ] && printf "# Changelog\n\n" > "$CHANGELOG_FILE"
+          set -euo pipefail
+          NEW="$NEW_VERSION"
+
+          # config.yaml version
+          sed -i "0,/^version:.*/s//version: \"$NEW\"/" "${ADDON_DIR}/config.yaml"
+          grep -q "^version: \"$NEW\"$" "${ADDON_DIR}/config.yaml" \
+            || { echo "::error::config.yaml version line was not updated"; exit 1; }
+
+          # Dockerfile version
+          sed -i -E "s/^ARG VERSION=.*/ARG VERSION=\"$NEW\"/" "${ADDON_DIR}/Dockerfile"
+          grep -q "^ARG VERSION=\"$NEW\"" "${ADDON_DIR}/Dockerfile" \
+            || { echo "::error::Dockerfile ARG VERSION was not updated"; exit 1; }
+
+          # Changelog
+          CHANGELOG_FILE="${ADDON_DIR}/CHANGELOG.md"
+          [ -f "$CHANGELOG_FILE" ] || printf '# Changelog\n\n' > "$CHANGELOG_FILE"
           TEMP=$(mktemp)
-          printf "# Changelog\n\n%s\n\n" "$RELEASE_NOTES" > "$TEMP"
-          tail -n +2 "$CHANGELOG_FILE" >> "$TEMP"
+          {
+            printf '# Changelog\n\n'
+            printf '## %s\n\n' "$NEW"
+            cat "$RUNNER_TEMP/release_notes.md"
+            printf '\n'
+            sed '1{/^# Changelog[[:space:]]*$/d}' "$CHANGELOG_FILE" | sed '/./,$!d'
+          } > "$TEMP"
           mv "$TEMP" "$CHANGELOG_FILE"
-          git add -A
-          git commit -m "Update AIOMetadata to v${{ steps.upstream.outputs.version }}"
-          git push origin main
+
+          git diff --stat
+
+      - name: Create pull request
+        id: cpr
+        uses: peter-evans/create-pull-request@v8
+        with:
+          token: ${{ secrets.PAT_BUMP_TOKEN }}
+          branch: chore/bump-aiometadata
+          delete-branch: true
+          commit-message: "chore(aiometadata): bump to v${{ steps.upstream.outputs.version }}"
+          title: "Update AIOMetadata to v${{ steps.upstream.outputs.version }}"
+          body: |
+            Bumps AIOMetadata from v${{ steps.current.outputs.version }} to **v${{ steps.upstream.outputs.version }}**.
+
+            Upstream release: ${{ steps.upstream.outputs.url }}
+
+            Changes in this PR:
+            - `config.yaml`: version bumped to `${{ steps.upstream.outputs.version }}`
+            - `Dockerfile`: `ARG VERSION` updated
+            - `CHANGELOG.md`: upstream release notes prepended
+
+            _Automated PR from the "Update AIOMetadata version" workflow. The branch is
+            refreshed automatically if a newer upstream release appears._
+          labels: |
+            automated
+            dependencies
