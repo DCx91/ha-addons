@@ -109,12 +109,12 @@ index a491c19..67d716c 100644
  import NodeRSA from "node-rsa";
  import { global as logger } from "../logger.js";
  
--const keysFile               = '/data/keys.json';
-+const keysFile               = '/config/keys.json';
- const mysqlEngine            = 'mysql2';
- const postgresEngine         = 'pg';
- const sqliteClientName       = 'better-sqlite3';
-@@ -86,7 +86,7 @@ const configure = () => {
+-const keysFile = '/data/keys.json';
++const keysFile = '/config/keys.json';
+ const mysqlEngine = 'mysql2';
+ const postgresEngine = 'pg';
+ const sqliteClientName = 'better-sqlite3';
+@@ -94,7 +94,7 @@ const configure = () => {
  		return;
  	}
  
