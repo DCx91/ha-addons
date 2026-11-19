@@ -1,6 +1,6 @@
 ARG BUILD_FROM=ghcr.io/hassio-addons/base:21.0.11
 ARG VERSION="2.38.1"
-FROM ghcr.io/viren070/aiostreams:{VERSION} AS aiostreams
+FROM ghcr.io/viren070/aiostreams:${VERSION} AS aiostreams
 
 FROM ${BUILD_FROM} AS prune
 COPY --from=aiostreams /app /app
