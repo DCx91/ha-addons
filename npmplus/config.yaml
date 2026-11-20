@@ -6,7 +6,7 @@ description: >-
   NPMplus (Nginx Proxy Manager plus) as a Home Assistant app. Manage
   reverse proxy hosts, redirects, dead hosts, streams and Let's Encrypt
   certificates from within Home Assistant.
-url: https://github.com/DCx91/ha-addons/npmplus
+url: https://github.com/DCx91/ha-addons/blob/main/npmplus/README.md
 image: ghcr.io/dcx91/npmplus
 arch:
   - aarch64
