@@ -41,13 +41,12 @@ RUN apk add --no-cache patch \
         /usr/local/nginx/modules/ngx_http_upstream_ntlm_module.so \
         /usr/local/nginx/modules/ngx_http_vhost_traffic_status_module.so \
     && mkdir -p /stage/etc /stage/usr \
-    && cp -a /app /stage/app \
-    && rm -rf /stage/app/frontend \
-    && cp -a /usr/local /stage/usr/local \
+    && rm -rf /app/frontend \
+    && cp -a /app /usr/local /stage \
     && cp -a /etc/certbot.ini /etc/logrotate \
-        /etc/crowdsec.conf.example /etc/crowdsec.conf.original \
-        /etc/ban.html.original /etc/captcha.html.original \
-        /stage/etc/
+       /etc/crowdsec.conf.example /etc/crowdsec.conf.original \
+       /etc/ban.html.original /etc/captcha.html.original \
+       /stage/etc/
 
 # Final image
 FROM ${BUILD_FROM}
