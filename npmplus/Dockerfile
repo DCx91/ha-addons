@@ -40,7 +40,7 @@ RUN apk add --no-cache patch \
         /usr/local/nginx/modules/ngx_stream_js_module.so \
         /usr/local/nginx/modules/ngx_http_upstream_ntlm_module.so \
         /usr/local/nginx/modules/ngx_http_vhost_traffic_status_module.so \
-    && mkdir -p /stage/etc \
+    && mkdir -p /stage/etc /stage/usr \
     && cp -a /app /stage/app \
     && rm -rf /stage/app/frontend \
     && cp -a /usr/local /stage/usr/local \
