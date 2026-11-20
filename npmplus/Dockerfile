@@ -25,9 +25,9 @@ RUN patch -d /app -p 1 < /tmp/npmplus-ha-auth-api-frontend.patch \
 
 # Backend
 FROM ghcr.io/zoeyvid/npmplus:${NPMPLUS_VERSION} AS npmplus-backend
+ARG NPMPLUS_VERSION
 
 COPY patch/npmplus-ha-auth-api-backend.patch /usr/src/
-
 RUN apk add --no-cache patch \
     && patch -d /app -p 1 < /usr/src/npmplus-ha-auth-api-backend.patch \
     && sed -i 's/Invalid email or password/Invalid username or password/' /app/internal/token.js \
