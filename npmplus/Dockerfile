@@ -1,23 +1,21 @@
 ARG BUILD_FROM=ghcr.io/hassio-addons/base:21.0.11
+ARG NPMPLUS_VERSION=2026-11-18-r1
 
 # Frontend
-ARG NPMPLUS_REF=2026-11-18-r1
-
 FROM alpine:3.24 AS npmplus-frontend
-ARG NPMPLUS_REF
 SHELL ["/bin/ash", "-eo", "pipefail", "-c"]
-ARG NODE_ENV=production
-ARG NODE_OPTIONS=--use-openssl-ca
+ARG NODE_ENV=production \
+    NODE_OPTIONS=--use-openssl-ca
 WORKDIR /app
 RUN apk add --no-cache nodejs pnpm patch curl tar \
-    && curl -fsSL "https://github.com/ZoeyVid/NPMplus/archive/refs/tags/${NPMPLUS_REF}.tar.gz" -o /tmp/npmplus.tgz \
+    && curl -fsSL "https://github.com/ZoeyVid/NPMplus/archive/refs/tags/${NPMPLUS_VERSION}.tar.gz" -o /tmp/npmplus.tgz \
     && tar -xzf /tmp/npmplus.tgz -C /tmp \
-    && cp /tmp/NPMplus-${NPMPLUS_REF}/frontend/package.json \
-          /tmp/NPMplus-${NPMPLUS_REF}/frontend/pnpm-lock.yaml \
-          /tmp/NPMplus-${NPMPLUS_REF}/frontend/pnpm-workspace.yaml /app/ \
+    && cp /tmp/NPMplus-${NPMPLUS_VERSION}/frontend/package.json \
+          /tmp/NPMplus-${NPMPLUS_VERSION}/frontend/pnpm-lock.yaml \
+          /tmp/NPMplus-${NPMPLUS_VERSION}/frontend/pnpm-workspace.yaml /app/ \
     && pnpm install --frozen-lockfile \
-    && cp -a /tmp/NPMplus-${NPMPLUS_REF}/frontend/. /app/ \
-    && rm -rf /tmp/NPMplus-${NPMPLUS_REF} /tmp/npmplus.tgz
+    && cp -a /tmp/NPMplus-${NPMPLUS_VERSION}/frontend/. /app/ \
+    && rm -rf /tmp/NPMplus-${NPMPLUS_VERSION} /tmp/npmplus.tgz
 COPY patch/npmplus-ha-auth-api-frontend.patch /tmp/
 RUN patch -d /app -p 1 < /tmp/npmplus-ha-auth-api-frontend.patch \
     && sed -i 's/"email-address"/"username"/g' /app/src/pages/Login/index.tsx \
@@ -26,8 +24,7 @@ RUN patch -d /app -p 1 < /tmp/npmplus-ha-auth-api-frontend.patch \
     && pnpm vite build
 
 # Backend
-# hadolint ignore=DL3006
-FROM ghcr.io/zoeyvid/npmplus:2026-11-18-r1 AS npmplus
+FROM ghcr.io/zoeyvid/npmplus:${NPMPLUS_VERSION} AS npmplus-backend
 
 COPY patch/npmplus-ha-auth-api-backend.patch /usr/src/
 
@@ -46,14 +43,13 @@ RUN apk add --no-cache patch \
     && mkdir -p /stage/etc \
     && cp -a /app /stage/app \
     && rm -rf /stage/app/frontend \
-    && cp -a /usr/local /stage/usr_local \
+    && cp -a /usr/local /stage/usr/local \
     && cp -a /etc/certbot.ini /etc/logrotate \
         /etc/crowdsec.conf.example /etc/crowdsec.conf.original \
         /etc/ban.html.original /etc/captcha.html.original \
         /stage/etc/
 
 # Final image
-# hadolint ignore=DL3006
 FROM ${BUILD_FROM}
 
 RUN apk add --no-cache \
@@ -62,11 +58,8 @@ RUN apk add --no-cache \
       coreutils findutils grep openssl tzdata \
       logrotate nodejs python3 uv
 
-COPY --from=npmplus /stage/app /app
+COPY --from=npmplus-backend /stage/app /stage/etc /stage/usr /
 COPY --from=npmplus-frontend /app/dist /app/frontend
-COPY --from=npmplus /stage/usr_local /usr/local
-COPY --from=npmplus /stage/etc /etc
-
 COPY --chmod=755 rootfs /
 
 ENV NODE_ENV=production \
