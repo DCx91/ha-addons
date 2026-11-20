@@ -24,7 +24,6 @@ RUN apk add --no-cache tar patch \
 # Build
 FROM ${BUILD_FROM} AS build
 
-# hadolint ignore=DL3042
 RUN apk add --no-cache \
         build-base \
         libffi \
@@ -62,7 +61,6 @@ RUN mkdir -p /opt/nginx-proxy-manager \
     && yarn cache clean
 
 # Final image
-# hadolint ignore=DL3006
 FROM ${BUILD_FROM}
 ENV S6_VERBOSITY=0
 
