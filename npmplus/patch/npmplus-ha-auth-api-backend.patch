@@ -60,8 +60,8 @@ new file mode 100644
 +/**
 + * Home Assistant auth_api login helper.
 + *
-+ * Only active when running as a Home Assistant add-on: the Supervisor injects
-+ * a SUPERVISOR_TOKEN into every add-on container, and its presence is what
++ * Only active when running as a Home Assistant app: the Supervisor injects
++ * a SUPERVISOR_TOKEN into every app container, and its presence is what
 + * enables this fallback. In every other environment it is inert and password
 + * login behaves exactly like stock NPMplus.
 + */
@@ -103,7 +103,7 @@ new file mode 100644
 +		return null;
 +	}
 +	if (!response.ok) {
-+		console.warn(`ha-auth: Home Assistant auth_api returned status ${response.status}. Is "auth_api: true" set in the add-on config?`);
++		console.warn(`ha-auth: Home Assistant auth_api returned status ${response.status}. Is "auth_api: true" set in the app config?`);
 +		return null;
 +	}
 +
