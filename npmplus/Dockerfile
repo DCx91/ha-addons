@@ -5,7 +5,8 @@ ARG NPMPLUS_VERSION=2026-11-18-r1
 FROM alpine:3.24 AS npmplus-frontend
 SHELL ["/bin/ash", "-eo", "pipefail", "-c"]
 ARG NODE_ENV=production \
-    NODE_OPTIONS=--use-openssl-ca
+    NODE_OPTIONS=--use-openssl-ca \
+    NPMPLUS_VERSION
 WORKDIR /app
 RUN apk add --no-cache nodejs pnpm patch curl tar \
     && curl -fsSL "https://github.com/ZoeyVid/NPMplus/archive/refs/tags/${NPMPLUS_VERSION}.tar.gz" -o /tmp/npmplus.tgz \
@@ -25,7 +26,6 @@ RUN patch -d /app -p 1 < /tmp/npmplus-ha-auth-api-frontend.patch \
 
 # Backend
 FROM ghcr.io/zoeyvid/npmplus:${NPMPLUS_VERSION} AS npmplus-backend
-ARG NPMPLUS_VERSION
 
 COPY patch/npmplus-ha-auth-api-backend.patch /usr/src/
 RUN apk add --no-cache patch \
