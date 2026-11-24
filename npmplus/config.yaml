@@ -12,6 +12,7 @@ arch:
   - aarch64
   - amd64
 auth_api: true
+hassio_api: true
 apparmor: true
 map:
   - type: app_config
