@@ -57,7 +57,7 @@ RUN apk add --no-cache \
       coreutils findutils grep openssl tzdata \
       logrotate nodejs python3 uv
 
-COPY --from=npmplus-backend /stage/app /stage/etc /stage/usr /
+COPY --from=npmplus-backend /stage/ /
 COPY --from=npmplus-frontend /app/dist /app/frontend
 COPY --chmod=755 rootfs /
 
