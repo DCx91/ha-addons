@@ -42,7 +42,8 @@ RUN apk add --no-cache patch \
         /usr/local/nginx/modules/ngx_http_vhost_traffic_status_module.so \
     && mkdir -p /stage/etc /stage/usr \
     && rm -rf /app/frontend \
-    && cp -a /app /usr/local /stage \
+    && cp -a /app /stage/ \
+    && cp -a /usr/local /stage/usr/ \
     && cp -a /etc/certbot.ini /etc/logrotate \
        /etc/crowdsec.conf.example /etc/crowdsec.conf.original \
        /etc/ban.html.original /etc/captcha.html.original \
