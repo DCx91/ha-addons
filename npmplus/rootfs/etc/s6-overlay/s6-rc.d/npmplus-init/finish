@@ -9,8 +9,6 @@ bashio::log.info \
   "Service ${service} exited with code ${exit_code_service}" \
   "(by signal ${exit_code_signal})"
 
-echo 9000 > rootfs/etc/s6-overlay/s6-rc.d/npmplus-init/timeout-finish
-
 stop_orphans() {
   local _
 
