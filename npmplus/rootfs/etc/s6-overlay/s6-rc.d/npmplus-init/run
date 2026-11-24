@@ -41,6 +41,26 @@ secret="$(cat "${secret_file}")"
 printf 'COOKIE_SECRET=%q\n' "${secret}" >> "${env_tmp}"
 export COOKIE_SECRET="${secret}"
 
+# --- Managed self-signed cert for the admin UI -----------------------------
+admin_cn="$(bashio::host.hostname)"
+if bashio::var.has_value "${admin_cn}"; then
+    cert_dir="/data/tls/custom/npm-100"
+    mkdir -p "${cert_dir}"
+    if ! bashio::fs.file_non_empty "${cert_dir}/fullchain.pem" || \
+       ! openssl x509 -in "${cert_dir}/fullchain.pem" -noout -ext subjectAltName 2>/dev/null \
+            | grep -q "DNS:${admin_cn},"; then
+        bashio::log.info "Generating self-signed admin certificate for ${admin_cn}"
+        openssl req -x509 -newkey ec -pkeyopt ec_paramgen_curve:secp384r1 -sha384 -nodes \
+            -days 825 -subj "/CN=${admin_cn}" \
+            -addext "subjectAltName=DNS:${admin_cn}" \
+            -keyout "${cert_dir}/privkey.pem" \
+            -out "${cert_dir}/fullchain.pem"
+    else
+        bashio::log.info "Admin certificate for ${admin_cn} already present"
+    fi
+    echo 'DEFAULT_CERT_ID=100' >>"${env_tmp}"
+fi
+
 # --- MaxMind GeoIP2 ---
 GEOIP_SRC=/config/geoip2
 GEOIP_DB="${GEOIP_SRC}/GeoLite2-Country.mmdb"
