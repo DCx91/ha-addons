@@ -12,7 +12,7 @@ Community app repository for Home Assistant.
 | [**AIOMetadata**](aiometadata/README.md) | Self-hosted AIOMetadata app for Stremio/Nuvio |
 | [**Music Assistant - Alexa**](music_assistant_alexa_beta/README.md) | Add Alexa devices to Music Assistant |
 | [**Nginx Proxy Manager**](nginxproxymanager/DOCS.md) | Reverse proxy for Home Assistant |
-| [**NPMplusr**](npmplus/README.md) | More feature-rich reverse proxy for Home Assistant |
+| [**NPMplus**](npmplus/README.md) | More feature-rich reverse proxy for Home Assistant |
 
 ---
 
