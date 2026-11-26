@@ -1,4 +1,4 @@
-FROM ghcr.io/hassio-addons/base:21.0.12
+FROM ghcr.io/hassio-addons/base:21.1.0
 ENV S6_VERBOSITY=1
 RUN echo "@edge https://dl-cdn.alpinelinux.org/alpine/edge/main" >> /etc/apk/repositories \
     && apk update \
