@@ -1,4 +1,4 @@
-ARG BUILD_FROM=ghcr.io/hassio-addons/base:21.0.12
+ARG BUILD_FROM=ghcr.io/hassio-addons/base:21.1.0
 ARG VERSION="2.38.1"
 FROM ghcr.io/viren070/aiostreams:v${VERSION} AS aiostreams
 
